@@ -1,9 +1,14 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 public class Player : MonoBehaviour
 {
+    public GameObject hpBar;
+    public Image hpBarImg;
+    private float hp = 100;
     private float speed = 0;
     private float hAxis;
     private float vAxis;
@@ -16,6 +21,7 @@ public class Player : MonoBehaviour
         GetInput();
         Move();
         Jump();
+        HpBar();
     }
 
     void GetInput()
@@ -44,13 +50,25 @@ public class Player : MonoBehaviour
         gameObject.transform.Translate(new Vector3(hAxis, 0, vAxis) * speed * Time.deltaTime);
     }
 
-    void Jump()
-    {
+    private void Jump()
+    { 
         if (jAxis == 1 && !isJump)
         {
             gameObject.GetComponent<Rigidbody>().AddForce(Vector3.up * 5, ForceMode.Impulse);
             isJump = true;
         }
+    }
+
+    public void JumpBtn()
+    {
+        jAxis = 1;
+        Jump();
+    }
+
+    private void HpBar()
+    {
+        hpBarImg.fillAmount = hp * 0.01f;
+        hpBar.transform.position = gameObject.transform.position + new Vector3(0, -0.7f, 0);
     }
 
     void OnCollisionEnter(Collision collision)

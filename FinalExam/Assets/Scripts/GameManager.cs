@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -5,8 +6,10 @@ using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
+    private float time = 300;
     public Image greenHp;
     public Image redHp;
+    public Text timeText;
     Wagon wagon;
 
     void Awake()
@@ -14,15 +17,11 @@ public class GameManager : MonoBehaviour
         Application.targetFrameRate = 144;
         wagon = GameObject.Find("Wagon").GetComponent<Wagon>();
     }
-    void Start()
-    {
-        
-    }
 
-    // Update is called once per frame
     void Update()
     {
         Hp();
+        limitTime();
     }
 
     void Hp()
@@ -33,6 +32,15 @@ public class GameManager : MonoBehaviour
         if(wagon.greenHp == 0)
         {
 
+        }
+    }
+
+    void limitTime()
+    {
+        if (time > 0)
+        {
+            time -= Time.deltaTime;
+            timeText.text = TimeSpan.FromSeconds(time).ToString(@"m\:ss");
         }
     }
 }
