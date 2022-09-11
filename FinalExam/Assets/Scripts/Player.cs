@@ -4,10 +4,10 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
-    private float speed = 0;
+    public float speed;
     private float hAxis;
     private float vAxis;
-    private float jAxis;
+    private float jDown;
     private Vector3 moveDir;
     private bool isJump;
 
@@ -15,40 +15,27 @@ public class Player : MonoBehaviour
     {
         GetInput();
         Move();
-        Jump();
     }
 
     void GetInput()
     {
         hAxis = Input.GetAxis("Horizontal");
         vAxis = Input.GetAxis("Vertical");
-        jAxis = Input.GetAxis("Jump");
+        jDown = Input.GetAxis("Jump");
     }
 
     void Move()
     {
-        if (vAxis == 0)
-        {
-            vAxis = 1;
-            speed = 5;
-        }
-        else if (vAxis == 1)
-        {
-            speed = 10;
-        }
-        else if(vAxis == -1)
-        {
-            vAxis = 1;
-            speed = 1;
-        }
-        gameObject.transform.Translate(new Vector3(hAxis, 0, vAxis) * speed * Time.deltaTime);
+        gameObject.transform.Translate(new Vector3(hAxis, jAxis, vAxis) * speed * Time.deltaTime);
+        //moveDir = (Vector3.forward * vAxis + Vector3.right * hAxis).normalized;
+        //gameObject.transform.Translate(moveDir * speed * Time.deltaTime);
     }
 
     void Jump()
     {
-        if (jAxis == 1 && !isJump)
+        if (jDown && !isJump)
         {
-            gameObject.GetComponent<Rigidbody>().AddForce(Vector3.up * 5, ForceMode.Impulse);
+            rigid.AddForce(Vector3.up * 15, ForceMode.Impulse);
             isJump = true;
         }
     }
