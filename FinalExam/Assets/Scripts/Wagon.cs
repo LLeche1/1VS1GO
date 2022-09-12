@@ -31,6 +31,10 @@ public class Wagon : MonoBehaviour
                 {
                     distant = player[i];
                 }
+                else
+                {
+                    distant = player[i + 1];
+                }
             }
         }
 

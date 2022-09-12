@@ -39,6 +39,10 @@ public class SpawnBridge : MonoBehaviour
                 {
                     distant = player[i];
                 }
+                else
+                {
+                    distant = player[i+1];
+                }
             }
         }
 
