@@ -6,15 +6,15 @@ using UnityEngine.UI;
 
 public class Player : MonoBehaviour
 {
-    private GameObject hpBar;
-    private Image hpBarImg;
     private float hp = 100;
     private float speed = 0;
     private float hAxis;
     private float vAxis;
     private float jAxis;
-    private Vector3 moveDir;
     private bool isJump;
+    private GameObject hpBar;
+    private Image hpBarImg;
+    private Vector3 moveDir;
     private Animator animator;
     public bool isAttack;
 
