@@ -15,21 +15,25 @@ public class Player : MonoBehaviour
     private float jAxis;
     private Vector3 moveDir;
     private bool isJump;
+    public bool isAttack = false;
+
+    private Animator animator;
 
     void Start()
     {
-
+        animator = GetComponent<Animator>();
     }
 
     void Update()
     {
         hpBar = GameObject.FindGameObjectWithTag("hpBar");
         hpBarImg = GameObject.FindGameObjectWithTag("hpBarImg").GetComponent<Image>();
-        Debug.Log(hpBarImg);
+        //Debug.Log(hpBarImg);
         GetInput();
         Move();
         Jump();
         HpBar();
+        Attack();
     }
 
     void GetInput()
@@ -37,6 +41,7 @@ public class Player : MonoBehaviour
         hAxis = Input.GetAxis("Horizontal");
         vAxis = Input.GetAxis("Vertical");
         jAxis = Input.GetAxis("Jump");
+        
     }
 
     void Move()
@@ -66,7 +71,16 @@ public class Player : MonoBehaviour
             isJump = true;
         }
     }
-
+    private void Attack()
+    {
+        if (Input.GetKeyDown(KeyCode.Space) && !isAttack)
+        {
+            isAttack = true;
+            animator.SetBool("isAttack", isAttack);
+            StartCoroutine(AttackDelay());
+            
+        }
+    }
     public void JumpBtn()
     {
         jAxis = 1;
@@ -78,7 +92,12 @@ public class Player : MonoBehaviour
         hpBarImg.fillAmount = hp * 0.01f;
         hpBar.transform.position = gameObject.transform.position + new Vector3(0, 3f, 0);
     }
-
+    IEnumerator AttackDelay()
+    {
+        yield return new WaitForSeconds(0.951f);
+        isAttack = false;
+        animator.SetBool("isAttack", isAttack);
+    }
     void OnCollisionEnter(Collision collision)
     {
         if (collision.gameObject.tag == "Floor")

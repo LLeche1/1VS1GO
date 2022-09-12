@@ -84,7 +84,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         connectionInfoText.text = "방 참가 성공";
         // 모든 룸 참가자들이 Main 씬을 로드하게 함
         
-        PhotonNetwork.LoadLevel("InGame");
-        PhotonNetwork.Instantiate("Player", Vector3.zero, Quaternion.identity);
+        PhotonNetwork.LoadLevel("InGame 1");
+        //PhotonNetwork.Instantiate("Player", Vector3.zero, Quaternion.identity);
     }
 }
