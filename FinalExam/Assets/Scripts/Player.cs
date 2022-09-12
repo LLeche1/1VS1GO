@@ -14,6 +14,7 @@ public class Player : MonoBehaviour
     private bool isJump;
     private GameObject hpBar;
     private GameObject wagon;
+    private GameObject[] player;
     private Image hpBarImg;
     private Vector3 moveDir;
     private Animator animator;
@@ -38,6 +39,19 @@ public class Player : MonoBehaviour
         hAxis = Input.GetAxis("Horizontal");
         vAxis = Input.GetAxis("Vertical");
         jAxis = Input.GetAxis("Jump");
+    }
+
+    void Change()
+    {
+        player = GameObject.FindGameObjectsWithTag("Player");
+        for(int i = 0; i < player.Length; i++)
+        {
+            if(player[i].name != gameObject.name)
+            {
+                GameObject other = player[i];
+                other.transform.Find("Hp_UI").transform.Find("HpBar").transform.GetChild(0).gameObject.GetComponent<Image>().color = Color.red;
+            }
+        }
     }
 
     void Move()
