@@ -5,7 +5,8 @@ using UnityEngine;
 public class SpawnBridge : MonoBehaviour
 {
     public GameObject bridge;
-    private GameObject player;
+    private GameObject[] player;
+    private GameObject distant;
     private GameObject spawnBridge;
     private int count = 0;
 
@@ -19,10 +20,30 @@ public class SpawnBridge : MonoBehaviour
 
     void Update()
     {
-        player = GameObject.FindGameObjectWithTag("Player");
-        if (this.gameObject.transform.position.z + 60 < player.transform.position.z)
+        distance();
+    }
+
+    void distance()
+    {
+        player = GameObject.FindGameObjectsWithTag("Player");
+
+        if (player.Length == 1)
         {
-            if(this.gameObject.name != "Bridge")
+            distant = player[0];
+        }
+        else
+        {
+            for (int i = 0; i < player.Length; i++)
+            {
+                if (player[i].transform.position.z < player[i + 1].transform.position.z)
+                {
+                    distant = player[i];
+                }
+            }
+        }
+        if (this.gameObject.transform.position.z + 60 < distant.transform.position.z)
+        {
+            if (this.gameObject.name != "Bridge")
             {
                 Destroy();
             }
