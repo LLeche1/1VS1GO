@@ -22,7 +22,6 @@ public class Wagon : MonoBehaviour
         if (player.Length == 1)
         {
             distant = player[0];
-            Debug.Log(distant);
         }
         else
         {
@@ -35,16 +34,15 @@ public class Wagon : MonoBehaviour
             }
         }
 
-
         if (distant.transform.position.z + 60 > gameObject.transform.position.z)
         {
             gameObject.transform.Translate(new Vector3(-1, 0, 0) * speed * Time.deltaTime);
         }
     }
 
-    private void OnCollisionEnter(Collision collision)
+    private void OnTriggerEnter(Collider other)
     {
-        if (collision.transform.tag == "Player" && collision.transform.GetComponent<Player>().isAttack == true)
+        if (other.transform.tag == "Player" && other.transform.GetComponent<Player>().isAttack == true)
         {
             greenHp += -10;
         }

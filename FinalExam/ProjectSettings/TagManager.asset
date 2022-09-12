@@ -7,6 +7,7 @@ TagManager:
   - Floor
   - hpBar
   - hpBarImg
+  - Wagon
   layers:
   - Default
   - TransparentFX

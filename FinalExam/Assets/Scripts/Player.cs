@@ -13,6 +13,7 @@ public class Player : MonoBehaviour
     private float jAxis;
     private bool isJump;
     private GameObject hpBar;
+    private GameObject wagon;
     private Image hpBarImg;
     private Vector3 moveDir;
     private Animator animator;
@@ -41,21 +42,25 @@ public class Player : MonoBehaviour
 
     void Move()
     {
-        if (vAxis == 0)
+        wagon = GameObject.FindGameObjectWithTag("Wagon");
+        if(gameObject.transform.position.z < wagon.transform.position.z - 10)
         {
-            vAxis = 1;
-            speed = 5;
+            if (vAxis == 0)
+            {
+                vAxis = 1;
+                speed = 5;
+            }
+            else if (vAxis == 1)
+            {
+                speed = 10;
+            }
+            else if (vAxis == -1)
+            {
+                vAxis = 1;
+                speed = 1;
+            }
+            gameObject.transform.Translate(new Vector3(hAxis, 0, vAxis) * speed * Time.deltaTime);
         }
-        else if (vAxis == 1)
-        {
-            speed = 10;
-        }
-        else if(vAxis == -1)
-        {
-            vAxis = 1;
-            speed = 1;
-        }
-        gameObject.transform.Translate(new Vector3(hAxis, 0, vAxis) * speed * Time.deltaTime);
     }
 
     private void Jump()
@@ -96,11 +101,20 @@ public class Player : MonoBehaviour
         isAttack = false;
         animator.SetBool("isAttack", isAttack);
     }
+
     void OnCollisionEnter(Collision collision)
     {
         if (collision.gameObject.tag == "Floor")
         {
             isJump = false;
+        }
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if(other.tag == "Wagon")
+        {
+            gameObject.transform.position = new Vector3(gameObject.transform.position.x, gameObject.transform.position.y, gameObject.transform.position.z - 0.15f);
         }
     }
 }
