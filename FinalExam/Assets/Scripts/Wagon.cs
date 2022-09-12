@@ -26,7 +26,7 @@ public class Wagon : MonoBehaviour
         }
         else
         {
-            for (int i = 0; i < player.Length; i++)
+            for (int i = 0; i < player.Length - 1; i++)
             {
                 if (player[i].transform.position.z < player[i + 1].transform.position.z)
                 {

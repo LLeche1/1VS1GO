@@ -33,7 +33,7 @@ public class SpawnBridge : MonoBehaviour
         }
         else
         {
-            for (int i = 0; i < player.Length; i++)
+            for (int i = 0; i < player.Length - 1 ; i++)
             {
                 if (player[i].transform.position.z < player[i + 1].transform.position.z)
                 {
@@ -41,6 +41,7 @@ public class SpawnBridge : MonoBehaviour
                 }
             }
         }
+
         if (this.gameObject.transform.position.z + 60 < distant.transform.position.z)
         {
             if (this.gameObject.name != "Bridge")
