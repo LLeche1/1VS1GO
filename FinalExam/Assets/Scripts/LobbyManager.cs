@@ -95,6 +95,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         // 접속 상태 표시
         connectionInfoText.text = "방 참가 성공";
         outBtn.interactable = true;
+        PhotonNetwork.LoadLevel("InGame 1");
     }
 
     private void UpdatePlayerCounts()

@@ -75,6 +75,7 @@ public class Player : MonoBehaviour
         {
             isAttack = true;
             animator.SetBool("isAttack", isAttack);
+            StartCoroutine(AttackDelay());
 
         }
     }
