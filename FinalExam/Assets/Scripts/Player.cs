@@ -27,7 +27,6 @@ public class Player : MonoBehaviour
     {
         hpBar = GameObject.FindGameObjectWithTag("hpBar");
         hpBarImg = GameObject.FindGameObjectWithTag("hpBarImg").GetComponent<Image>();
-        Debug.Log(hpBarImg);
         GetInput();
         Move();
         Jump();
