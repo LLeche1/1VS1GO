@@ -6,8 +6,8 @@ using UnityEngine.UI;
 
 public class Player : MonoBehaviour
 {
-    public GameObject hpBar;
-    public Image hpBarImg;
+    private GameObject hpBar;
+    private Image hpBarImg;
     private float hp = 100;
     private float speed = 0;
     private float hAxis;
@@ -16,8 +16,16 @@ public class Player : MonoBehaviour
     private Vector3 moveDir;
     private bool isJump;
 
+    void Start()
+    {
+
+    }
+
     void Update()
     {
+        hpBar = GameObject.FindGameObjectWithTag("hpBar");
+        hpBarImg = GameObject.FindGameObjectWithTag("hpBarImg").GetComponent<Image>();
+        Debug.Log(hpBarImg);
         GetInput();
         Move();
         Jump();
@@ -68,7 +76,7 @@ public class Player : MonoBehaviour
     private void HpBar()
     {
         hpBarImg.fillAmount = hp * 0.01f;
-        hpBar.transform.position = gameObject.transform.position + new Vector3(0, -0.7f, 0);
+        hpBar.transform.position = gameObject.transform.position + new Vector3(0, 3f, 0);
     }
 
     void OnCollisionEnter(Collision collision)

@@ -5,13 +5,13 @@ using UnityEngine;
 public class SpawnBridge : MonoBehaviour
 {
     public GameObject bridge;
-    public GameObject player;
+    private GameObject player;
     private GameObject spawnBridge;
     private int count = 0;
 
     void Start()
     {
-        if(gameObject.name == "Bridge")
+        if (gameObject.name == "Bridge")
         {
             Generate();
         }
@@ -19,7 +19,8 @@ public class SpawnBridge : MonoBehaviour
 
     void Update()
     {
-        if(this.gameObject.transform.position.z + 60 < player.transform.position.z)
+        player = GameObject.FindGameObjectWithTag("Player");
+        if (this.gameObject.transform.position.z + 60 < player.transform.position.z)
         {
             if(this.gameObject.name != "Bridge")
             {

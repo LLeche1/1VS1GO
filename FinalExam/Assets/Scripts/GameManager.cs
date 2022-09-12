@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Photon.Pun;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -16,6 +17,11 @@ public class GameManager : MonoBehaviour
     {
         Application.targetFrameRate = 144;
         wagon = GameObject.Find("Wagon").GetComponent<Wagon>();
+    }
+
+    void Start()
+    {
+        PhotonNetwork.Instantiate("Player", Vector3.zero, Quaternion.identity);
     }
 
     void Update()
