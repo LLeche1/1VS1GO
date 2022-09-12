@@ -15,10 +15,12 @@ public class Player : MonoBehaviour
     private float jAxis;
     private Vector3 moveDir;
     private bool isJump;
+    public bool isAttack;
 
+    private Animator animator;
     void Start()
     {
-
+        animator = GetComponent<Animator>();
     }
 
     void Update()
@@ -29,6 +31,7 @@ public class Player : MonoBehaviour
         GetInput();
         Move();
         Jump();
+        Attack();
         HpBar();
     }
 
@@ -66,7 +69,15 @@ public class Player : MonoBehaviour
             isJump = true;
         }
     }
+    private void Attack()
+    {
+        if (Input.GetKeyDown(KeyCode.Space) && !isAttack)
+        {
+            isAttack = true;
+            animator.SetBool("isAttack", isAttack);
 
+        }
+    }
     public void JumpBtn()
     {
         jAxis = 1;
@@ -79,6 +90,12 @@ public class Player : MonoBehaviour
         hpBar.transform.position = gameObject.transform.position + new Vector3(0, 3f, 0);
     }
 
+    IEnumerator AttackDelay()
+    {
+        yield return new WaitForSeconds(0.917f);
+        isAttack = false;
+        animator.SetBool("isAttack", isAttack);
+    }
     void OnCollisionEnter(Collision collision)
     {
         if (collision.gameObject.tag == "Floor")
