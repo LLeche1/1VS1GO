@@ -21,7 +21,7 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
-        PhotonNetwork.Instantiate("Player", Vector3.zero, Quaternion.identity);
+        Generate();
     }
 
     void Update()
@@ -30,15 +30,16 @@ public class GameManager : MonoBehaviour
         limitTime();
     }
 
+    void Generate()
+    {
+        GameObject player = PhotonNetwork.Instantiate("Player", Vector3.zero, Quaternion.identity);
+        player.name = PhotonNetwork.LocalPlayer.NickName;
+    }
+
     void Hp()
     {
         greenHp.fillAmount = wagon.greenHp * 0.01f;
         redHp.fillAmount = wagon.redHp * 0.01f;
-
-        if(wagon.greenHp == 0)
-        {
-
-        }
     }
 
     void limitTime()

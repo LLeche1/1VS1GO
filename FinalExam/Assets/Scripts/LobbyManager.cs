@@ -121,10 +121,12 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         {
             // 목표 인원 수 채웠으면, 맵 이동을 한다. 권한은 마스터 클라이언트만.
             // PhotonNetwork.AutomaticallySyncScene = true; 를 해줬어야 방에 접속한 인원이 모두 이동함.
-            if (PhotonNetwork.CurrentRoom.PlayerCount != PhotonNetwork.CurrentRoom.MaxPlayers)
+            /*if (PhotonNetwork.CurrentRoom.PlayerCount == PhotonNetwork.CurrentRoom.MaxPlayers)
             {
                 PhotonNetwork.LoadLevel("InGame 1");
             }
+            */
+            PhotonNetwork.LoadLevel("InGame 1");
         }
     }
 

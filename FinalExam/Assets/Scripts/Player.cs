@@ -15,9 +15,9 @@ public class Player : MonoBehaviour
     private float jAxis;
     private Vector3 moveDir;
     private bool isJump;
+    private Animator animator;
     public bool isAttack;
 
-    private Animator animator;
     void Start()
     {
         animator = GetComponent<Animator>();
@@ -25,8 +25,6 @@ public class Player : MonoBehaviour
 
     void Update()
     {
-        hpBar = GameObject.FindGameObjectWithTag("hpBar");
-        hpBarImg = GameObject.FindGameObjectWithTag("hpBarImg").GetComponent<Image>();
         GetInput();
         Move();
         Jump();
@@ -86,8 +84,10 @@ public class Player : MonoBehaviour
 
     private void HpBar()
     {
+        hpBar = transform.Find("Hp_UI").gameObject;
+        hpBarImg = hpBar.transform.Find("HpBar").transform.GetChild(0).gameObject.GetComponent<Image>();
         hpBarImg.fillAmount = hp * 0.01f;
-        hpBar.transform.position = gameObject.transform.position + new Vector3(0, 3f, 0);
+        hpBar.transform.position = gameObject.transform.position + new Vector3(0, -2, 0);
     }
 
     IEnumerator AttackDelay()
