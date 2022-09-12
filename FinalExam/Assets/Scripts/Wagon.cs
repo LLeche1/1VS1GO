@@ -23,13 +23,4 @@ public class Wagon : MonoBehaviour
             gameObject.transform.Translate(new Vector3(-1, 0, 0) * speed * Time.deltaTime);
         }
     }
-
-    private void OnCollisionEnter(Collision collision)
-    {
-        if (collision.transform.GetComponent<Player>().isAttack == true)
-        {
-            greenHp += -10;
-            Debug.Log("hit");
-        }
-    }
 }
