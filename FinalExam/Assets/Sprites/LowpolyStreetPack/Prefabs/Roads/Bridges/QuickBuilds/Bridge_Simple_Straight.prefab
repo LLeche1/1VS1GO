@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 2300000}
   - component: {fileID: 6400000}
   - component: {fileID: 1002276344}
+  - component: {fileID: 1002276350}
   m_Layer: 0
   m_Name: Bridge_Simple_Straight
   m_TagString: Floor
@@ -160,6 +161,19 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 14.999967, y: 59.999767, z: 10.674465}
   m_Center: {x: 0, y: 0.000001907349, z: 5.3372326}
+--- !u!114 &1002276350
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 100000}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 13243dcf07f3fa04e8fef1b2f759181c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  bridge: {fileID: 100000}
 --- !u!1 &100002
 GameObject:
   m_ObjectHideFlags: 0

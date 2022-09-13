@@ -15,10 +15,12 @@ public class LobbyManager : MonoBehaviourPunCallbacks
     public Button joinBtn; // 룸 접속 버튼
     public Button outBtn;
     public Button startBtn;
+    private PhotonView PV;
 
     void Awake()
     {
         PhotonNetwork.AutomaticallySyncScene = true;
+        PV = GetComponent<PhotonView>();
     }
 
     // 게임 실행과 동시에 마스터 서버 접속 시도
@@ -95,7 +97,10 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         // 접속 상태 표시
         connectionInfoText.text = "방 참가 성공";
         outBtn.interactable = true;
-        startBtn.interactable = true;
+        if (photonView.IsMine)
+        {
+            startBtn.interactable = true;
+        }
     }
 
     private void UpdatePlayerCounts()
