@@ -1,22 +1,26 @@
+using Photon.Pun;
+using Photon.Realtime;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Photon.Pun;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
-public class GameManager : MonoBehaviour
+public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
 {
     private float time = 300;
     public Image greenHp;
     public Image redHp;
     public Text timeText;
-    Wagon wagon;
+    private Wagon wagon;
+    private PhotonView PV;
 
     void Awake()
     {
         Application.targetFrameRate = 144;
         wagon = GameObject.Find("Wagon").GetComponent<Wagon>();
+        PV = GetComponent<PhotonView>();
     }
 
     void Start()
@@ -26,8 +30,11 @@ public class GameManager : MonoBehaviour
 
     void Update()
     {
+        if (PV.IsMine)
+        {
+            PV.RPC("limitTime", RpcTarget.All);
+        }
         Hp();
-        limitTime();
     }
 
     void Generate()
@@ -42,12 +49,30 @@ public class GameManager : MonoBehaviour
         redHp.fillAmount = wagon.redHp * 0.01f;
     }
 
+    public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
+    {
+        if (stream.IsWriting)
+        {
+            stream.SendNext(time);
+        }
+        else
+        {
+            time = (float)stream.ReceiveNext();
+        }
+    }
+
+    [PunRPC]
     void limitTime()
     {
         if (time > 0)
         {
             time -= Time.deltaTime;
             timeText.text = TimeSpan.FromSeconds(time).ToString(@"m\:ss");
+        }
+
+        if(time <= 0)
+        {
+            SceneManager.LoadScene("Lobby");
         }
     }
 }

@@ -1,10 +1,13 @@
+using Photon.Pun;
+using Photon.Realtime;
+using ExitGames.Client.Photon;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class Player : MonoBehaviour
+public class Player : MonoBehaviourPunCallbacks, IPunObservable
 {
     private float hp = 100;
     private float speed = 0;
@@ -12,26 +15,33 @@ public class Player : MonoBehaviour
     private float vAxis;
     private float jAxis;
     private bool isJump;
-    private GameObject hpBar;
     private GameObject wagon;
     private GameObject[] player;
-    private Image hpBarImg;
+    private Image hpBar;
     private Vector3 moveDir;
     private Animator animator;
+    private PhotonView PV;
     public bool isAttack;
 
     void Start()
     {
+        PV = GetComponent<PhotonView>();
         animator = GetComponent<Animator>();
+        hpBar = transform.Find("Canvas").transform.GetChild(0).gameObject.GetComponent<Image>();
+        hpBar.color = PV.IsMine ? Color.green : Color.red;
+        wagon = GameObject.FindGameObjectWithTag("Wagon");
     }
 
     void Update()
     {
-        GetInput();
-        Move();
-        Jump();
-        Attack();
-        HpBar();
+        if (PV.IsMine)
+        {
+            GetInput();
+            Move();
+            Jump();
+            Attack();
+            HpBar();
+        }
     }
 
     void GetInput()
@@ -56,7 +66,6 @@ public class Player : MonoBehaviour
 
     void Move()
     {
-        wagon = GameObject.FindGameObjectWithTag("Wagon");
         if(gameObject.transform.position.z < wagon.transform.position.z - 10)
         {
             if (vAxis == 0)
@@ -102,11 +111,9 @@ public class Player : MonoBehaviour
     }
 
     private void HpBar()
-    {
-        hpBar = transform.Find("Hp_UI").gameObject;
-        hpBarImg = hpBar.transform.Find("HpBar").transform.GetChild(0).gameObject.GetComponent<Image>();
-        hpBarImg.fillAmount = hp * 0.01f;
-        hpBar.transform.position = gameObject.transform.position + new Vector3(0, -2, 0);
+    { 
+        hpBar.fillAmount = hp * 0.01f;
+        hpBar.transform.position = gameObject.transform.position + new Vector3(0, 3, 0);
     }
 
     IEnumerator AttackDelay()
@@ -129,6 +136,18 @@ public class Player : MonoBehaviour
         if(other.tag == "Wagon")
         {
             gameObject.transform.position = new Vector3(gameObject.transform.position.x, gameObject.transform.position.y, gameObject.transform.position.z - 0.15f);
+        }
+    }
+
+    public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
+    {
+        if (stream.IsWriting)
+        {
+            stream.SendNext(hp);
+        }
+        else
+        {
+            hp = (float)stream.ReceiveNext();
         }
     }
 }

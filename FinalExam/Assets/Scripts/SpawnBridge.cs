@@ -57,6 +57,12 @@ public class SpawnBridge : MonoBehaviour
 
     void Generate()
     {
+        if(count == 0)
+        {
+            spawnBridge = Instantiate(bridge, new Vector3(0, -10, 60), Quaternion.Euler(new Vector3(-90, 0, 0)));
+            spawnBridge = Instantiate(bridge, new Vector3(0, -10, 120), Quaternion.Euler(new Vector3(-90, 0, 0)));
+            count = 2;
+        }
         count += 1;
         spawnBridge = Instantiate(bridge, new Vector3(0, -10, 60 * count), Quaternion.Euler(new Vector3(-90, 0, 0)));
         Invoke("Generate", 8.5f);

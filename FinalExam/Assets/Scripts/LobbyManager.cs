@@ -7,6 +7,7 @@ using UnityEngine.SceneManagement;
 // 마스터(매치 메이킹) 서버와 룸 접속을 담당
 public class LobbyManager : MonoBehaviourPunCallbacks
 {
+    private string[] playerNick;
     private string gameVersion = "1"; // 게임 버전
     public InputField inputNick; // 닉네임 입력받는 곳.
     public Text connectionInfoText; // 네트워크 정보를 표시할 텍스트
@@ -58,7 +59,6 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         string nick = inputNick.text;
         if (nick != "")
         {
-            PhotonNetwork.LocalPlayer.NickName = nick;
             // 중복 접속 시도를 막기 위해, 접속 버튼 잠시 비활성화
             joinBtn.interactable = false;
 

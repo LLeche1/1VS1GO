@@ -48,7 +48,7 @@ public class Wagon : MonoBehaviour
     {
         if (other.transform.tag == "Player" && other.transform.GetComponent<Player>().isAttack == true)
         {
-            greenHp += -10;
+            greenHp += -1;
         }
     }
 }
