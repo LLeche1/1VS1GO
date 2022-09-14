@@ -13,6 +13,8 @@ public class LobbyManager : MonoBehaviourPunCallbacks
     public Button joinBtn; // 룸 접속 버튼
     public Button outBtn;
     public Button startBtn;
+    public Canvas sign;
+    public Canvas room;
     private PhotonView PV;
     private string gameVersion = "1"; // 게임 버전
 
@@ -93,6 +95,8 @@ public class LobbyManager : MonoBehaviourPunCallbacks
     // 룸에 참가 완료된 경우 자동 실행
     public override void OnJoinedRoom()
     {
+        sign.enabled = false;
+        room.enabled = true;
         UpdatePlayerCounts();
         // 접속 상태 표시
         connectionInfoText.text = "방 참가 성공";
