@@ -34,14 +34,11 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
 
     void Update()
     {
-        if (PV.IsMine)
-        {
-            GetInput();
-            Move();
-            Jump();
-            Attack();
-            HpBar();
-        }
+        GetInput();
+        Move();
+        Jump();
+        Attack();
+        HpBar();
     }
 
     void GetInput()
