@@ -6,7 +6,7 @@ using UnityEngine.SceneManagement;
 using UnityEngine.EventSystems;
 
 // 마스터(매치 메이킹) 서버와 룸 접속을 담당
-public class LobbyManager : MonoBehaviourPunCallbacks
+public class LobbyManager : MonoBehaviourPunCallbacks, IPunObservable
 {
     public InputField inputID; // 닉네임 입력받는 곳.
     public InputField inputPW;
@@ -103,14 +103,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks
     {
         sign.SetActive(false);
         room.SetActive(true);
-        if (user1.text == "")
-        {
-            user1.text = PhotonNetwork.LocalPlayer.NickName;
-        }
-        else if (user2.text == "")
-        {
-            user2.text = PhotonNetwork.LocalPlayer.NickName;
-        }
+        Participate();
         UpdatePlayerCounts();
         // 접속 상태 표시
         connectInfo.text = "방 참가 성공";
@@ -227,6 +220,33 @@ public class LobbyManager : MonoBehaviourPunCallbacks
     {
         UpdatePlayerCounts();
         Set();
-        Debug.Log(PhotonNetwork.LocalPlayer.NickName);
+        Debug.Log(user1.text);
+        Debug.Log(user2.text);
+    }
+
+    public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
+    {
+        if (stream.IsWriting)
+        {
+            stream.SendNext(user1.text);
+            stream.SendNext(user2.text);
+        }
+        else
+        {
+            user1.text = (string)stream.ReceiveNext();
+            user2.text = (string)stream.ReceiveNext();
+        }
+    }
+
+    void Participate()
+    {
+        if (user1.text == "")
+        {
+            user1.text = PhotonNetwork.LocalPlayer.NickName;
+        }
+        else if (user2.text == "")
+        {
+            user2.text = PhotonNetwork.LocalPlayer.NickName;
+        }
     }
 }

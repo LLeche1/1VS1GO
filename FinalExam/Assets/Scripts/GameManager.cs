@@ -17,6 +17,7 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
     private PhotonView PV;
     private string[] playerList = { "Archer", "Warriou" };
     private int randNum;
+
     void Awake()
     {
         Application.targetFrameRate = 144;
