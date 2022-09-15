@@ -10,12 +10,12 @@ using UnityEngine.UI;
 public class Player : MonoBehaviourPunCallbacks, IPunObservable
 {
     private float hp = 100;
-    private float speed = 0;
+    private float speed = 5;
     private float hAxis;
     private float vAxis;
     private float jAxis;
     private bool isJump;
-    private GameObject wagon;
+    public GameObject wagon;
     private GameObject[] player;
     private Image hpBar;
     private Vector3 moveDir;
@@ -29,7 +29,8 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
         animator = GetComponent<Animator>();
         hpBar = transform.Find("Canvas").transform.GetChild(0).gameObject.GetComponent<Image>();
         hpBar.color = PV.IsMine ? Color.green : Color.red;
-        wagon = GameObject.FindGameObjectWithTag("Wagon");
+        wagon = GameObject.Find("Wagon");
+
     }
 
     void Update()
@@ -39,6 +40,8 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
         Jump();
         Attack();
         HpBar();
+        //Debug.Log(wagon.transform.position.z);
+        //Debug.Log(wagon.transform.position.z - transform.transform.position.z);
     }
 
     void GetInput()
@@ -63,7 +66,8 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
 
     void Move()
     {
-        if(gameObject.transform.position.z < wagon.transform.position.z - 10)
+
+        if (wagon.transform.position.z - transform.transform.position.z > 10)
         {
             if (vAxis == 0)
             {
@@ -77,10 +81,13 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
             else if (vAxis == -1)
             {
                 vAxis = 1;
-                speed = 1;
+                speed = 2;
             }
-            gameObject.transform.Translate(new Vector3(hAxis, 0, vAxis) * speed * Time.deltaTime);
         }
+        
+        Vector3 moveDir = new Vector3(hAxis, 0, 3f).normalized;
+        transform.LookAt(transform.position + moveDir);
+        transform.Translate(moveDir * speed * Time.deltaTime);
     }
 
     private void Jump()
@@ -93,12 +100,16 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
     }
     private void Attack()
     {
-        if (Input.GetKeyDown(KeyCode.Space) && !isAttack)
+        if (Input.GetKeyDown(KeyCode.Z) && !isAttack)
         {
             isAttack = true;
             animator.SetBool("isAttack", isAttack);
-            StartCoroutine(AttackDelay());
 
+        }
+        else if (Input.GetKeyUp(KeyCode.Z) && isAttack)
+        {
+            animator.SetTrigger("Recoil");
+            StartCoroutine(AdjustAttackTime());
         }
     }
     public void JumpBtn()
@@ -113,9 +124,9 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
         hpBar.transform.position = gameObject.transform.position + new Vector3(0, 3, 0);
     }
 
-    IEnumerator AttackDelay()
+    IEnumerator AdjustAttackTime()
     {
-        yield return new WaitForSeconds(0.917f);
+        yield return new WaitForSeconds(0.683f);
         isAttack = false;
         animator.SetBool("isAttack", isAttack);
     }

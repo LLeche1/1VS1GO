@@ -1507,6 +1507,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0c0add4849bb44ecaaba7c8df4f53c98, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  wagon: {fileID: 0}
   isAttack: 0
 --- !u!114 &4063030784630407754
 MonoBehaviour:
@@ -1567,9 +1568,14 @@ MonoBehaviour:
   - Type: 4
     SynchronizeType: 2
     Name: isAttack
+  - Type: 9
+    SynchronizeType: 0
+    Name: Recoil
   m_SynchronizeLayers:
   - SynchronizeType: 2
     LayerIndex: 0
+  - SynchronizeType: 0
+    LayerIndex: 1
 --- !u!1 &3894670302475627132
 GameObject:
   m_ObjectHideFlags: 0
