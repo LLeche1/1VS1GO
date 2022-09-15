@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
-using Random = UnityEngine.Random;
 
 public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
 {
@@ -16,7 +15,8 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
     public Text timeText;
     private Wagon wagon;
     private PhotonView PV;
-    private List<string> playerList;
+    private string[] playerList = { "Archer", "Warriou" };
+    private int randNum;
     void Awake()
     {
         Application.targetFrameRate = 144;
@@ -26,8 +26,9 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
 
     void Start()
     {
+        randNum = UnityEngine.Random.Range(0, playerList.Length);
         Generate();
-        playerList = new List<string>() { "Archer", "Warriou" };
+        Debug.Log(playerList.Length);
 
     }
 
@@ -42,7 +43,6 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
 
     void Generate()
     {
-        int randNum = Random.Range(0, playerList.Count);
         GameObject player = PhotonNetwork.Instantiate(playerList[randNum], Vector3.zero, Quaternion.identity);
         player.name = PhotonNetwork.LocalPlayer.NickName;
     }
