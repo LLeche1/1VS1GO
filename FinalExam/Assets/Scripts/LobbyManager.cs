@@ -12,6 +12,8 @@ public class LobbyManager : MonoBehaviourPunCallbacks
     public InputField inputPW;
     public Text connectInfo; // 네트워크 정보를 표시할 텍스트
     public Text currentPlayerCount; // 현재 서버에 접속된 인원
+    public Text user1;
+    public Text user2;
     public Button joinBtn; // 룸 접속 버튼
     public Button outBtn;
     public Button startBtn;
@@ -101,6 +103,14 @@ public class LobbyManager : MonoBehaviourPunCallbacks
     {
         sign.SetActive(false);
         room.SetActive(true);
+        if (user1.text == "")
+        {
+            user1.text = PhotonNetwork.LocalPlayer.NickName;
+        }
+        else if (user2.text == "")
+        {
+            user2.text = PhotonNetwork.LocalPlayer.NickName;
+        }
         UpdatePlayerCounts();
         // 접속 상태 표시
         connectInfo.text = "방 참가 성공";
@@ -217,5 +227,6 @@ public class LobbyManager : MonoBehaviourPunCallbacks
     {
         UpdatePlayerCounts();
         Set();
+        Debug.Log(PhotonNetwork.LocalPlayer.NickName);
     }
 }
