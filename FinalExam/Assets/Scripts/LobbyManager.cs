@@ -3,11 +3,13 @@ using Photon.Realtime;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using UnityEngine.EventSystems;
 
 // 마스터(매치 메이킹) 서버와 룸 접속을 담당
 public class LobbyManager : MonoBehaviourPunCallbacks
 {
-    public InputField inputNick; // 닉네임 입력받는 곳.
+    public InputField inputID; // 닉네임 입력받는 곳.
+    public InputField inputPW;
     public Text connectionInfoText; // 네트워크 정보를 표시할 텍스트
     public Text currentPlayerCount; // 현재 서버에 접속된 인원
     public Button joinBtn; // 룸 접속 버튼
@@ -27,6 +29,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks
     // 게임 실행과 동시에 마스터 서버 접속 시도
     void Start()
     {
+        Load();
         // 접속에 필요한 정보(게임 버전) 설정
         PhotonNetwork.GameVersion = gameVersion;
         // 설정한 정보를 가지고 마스터 서버 접속 시도
@@ -47,8 +50,6 @@ public class LobbyManager : MonoBehaviourPunCallbacks
     // 마스터 서버 접속 실패시 자동 실행
     public override void OnDisconnected(DisconnectCause cause)
     {
-        // 룸 접속 버튼을 비활성화
-        joinBtn.interactable = false;
         // 접속 정보 표시
         connectionInfoText.text = "오프라인 : 서버와 연결되지 않음\n접속 재시도 중...";
 
@@ -59,7 +60,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks
     // 룸 접속 시도
     public void Connect()
     {
-        string nick = inputNick.text;
+        string nick = inputID.text;
         if (nick != "")
         {
             PhotonNetwork.LocalPlayer.NickName = nick;
@@ -122,6 +123,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks
     public void Out()
     {
         PhotonNetwork.LeaveRoom();
+        SceneManager.LoadScene("Lobby");
     }
 
     public void GameStart()
@@ -137,6 +139,25 @@ public class LobbyManager : MonoBehaviourPunCallbacks
             */
             PhotonNetwork.LoadLevel("InGame");
         }
+    }
+
+    public void Remebmer(bool isOn)
+    {
+        if (isOn)
+        {
+            PlayerPrefs.SetString("ID", inputID.text);
+            PlayerPrefs.SetString("PW", inputPW.text);
+        }
+        else if (!isOn)
+        {
+            PlayerPrefs.DeleteAll();
+        }
+    }
+
+    void Load()
+    {
+        inputID.text = PlayerPrefs.GetString("ID");
+        inputPW.text = PlayerPrefs.GetString("PW");
     }
 
     void Update()
