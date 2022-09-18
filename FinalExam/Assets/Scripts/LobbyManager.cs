@@ -2,31 +2,39 @@ using Photon.Pun;
 using Photon.Realtime;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.SceneManagement;
 using UnityEngine.EventSystems;
+using System.Collections.Generic;
 
 // 마스터(매치 메이킹) 서버와 룸 접속을 담당
-public class LobbyManager : MonoBehaviourPunCallbacks, IPunObservable
+public class LobbyManager : MonoBehaviourPunCallbacks
 {
-    public InputField inputID; // 닉네임 입력받는 곳.
+    public InputField inputID;
     public InputField inputPW;
-    public Text connectInfo; // 네트워크 정보를 표시할 텍스트
-    public Text currentPlayerCount; // 현재 서버에 접속된 인원
-    public Text user1;
-    public Text user2;
+    public InputField inputRoom;
+    public Text connectInfo;
+    public Text lobbyInfo;
+    public Text roomInfo;
+    public Text currentPlayerCount;
+    public Text playerList;
     public Button joinBtn; // 룸 접속 버튼
-    public Button outBtn;
     public Button startBtn;
+    public Button outBtn;
     public GameObject sign;
+    public GameObject lobby;
     public GameObject room;
+    public GameObject roomNum;
+    public GameObject roomNumError;
     public GameObject set;
     public Toggle remember;
     private PhotonView PV;
-    private string gameVersion = "1"; // 게임 버전
+    private string gameVersion = "1";
     private string lastCanvas;
+    List<RoomInfo> roomList = new List<RoomInfo>();
 
     void Awake()
     {
+        Application.targetFrameRate = 144;
+        Screen.SetResolution(1600, 900, false);
         PhotonNetwork.AutomaticallySyncScene = true;
         PV = GetComponent<PhotonView>();
     }
@@ -68,7 +76,6 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IPunObservable
         string nick = inputID.text;
         if (nick != "")
         {
-            PhotonNetwork.LocalPlayer.NickName = nick;
             // 중복 접속 시도를 막기 위해, 접속 버튼 잠시 비활성화
             joinBtn.interactable = false;
 
@@ -77,7 +84,11 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IPunObservable
             {
                 // 룸 접속 실행
                 connectInfo.text = "매칭 중...";
-                PhotonNetwork.JoinRandomRoom();
+                PhotonNetwork.JoinLobby();
+                sign.SetActive(false);
+                lobby.SetActive(true);
+                PhotonNetwork.LocalPlayer.NickName = nick;
+                //PhotonNetwork.JoinRandomRoom();
             }
             else
             {
@@ -92,21 +103,16 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IPunObservable
     // (빈 방이 없어)랜덤 룸 참가에 실패한 경우 자동 실행
     public override void OnJoinRandomFailed(short returnCode, string message)
     {
-        // 접속 상태 표시
-        connectInfo.text = "방 생성 중...";
-        // 최대 4명을 수용 가능한 빈방을 생성
-        PhotonNetwork.CreateRoom(null, new RoomOptions { MaxPlayers = 2 });
+        CreateRoom();
     }
 
     // 룸에 참가 완료된 경우 자동 실행
     public override void OnJoinedRoom()
     {
-        sign.SetActive(false);
+        lobby.SetActive(false);
+        roomNum.SetActive(false);
         room.SetActive(true);
-        Participate();
-        UpdatePlayerCounts();
-        // 접속 상태 표시
-        connectInfo.text = "방 참가 성공";
+        RoomRenewal();
         outBtn.interactable = true;
         if (photonView.IsMine)
         {
@@ -114,22 +120,49 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IPunObservable
         }
     }
 
-    private void UpdatePlayerCounts()
+    // 룸 생성 실패시 자동 실행
+    public override void OnCreateRoomFailed(short returnCode, string message)
     {
-        if(connectInfo.text != "방 참가 성공")
-        {
-            currentPlayerCount.text = "";
-        }
-        else
-        {
-            currentPlayerCount.text = $"현재 인원 / 최대 인원 \n{PhotonNetwork.CurrentRoom.PlayerCount} / {PhotonNetwork.CurrentRoom.MaxPlayers}";
-        }
+        roomNum.SetActive(false);
+        roomNumError.SetActive(true);
     }
 
-    public void Out()
+    public override void OnPlayerEnteredRoom(Photon.Realtime.Player newPlayer)
     {
-        PhotonNetwork.LeaveRoom();
-        SceneManager.LoadScene("Lobby");
+        RoomRenewal();
+    }
+
+    public override void OnPlayerLeftRoom(Photon.Realtime.Player otherPlayer)
+    {
+        RoomRenewal();
+    }
+
+    public void DisconnectBtn()
+    {
+        PhotonNetwork.Disconnect();
+        lobby.SetActive(false);
+        sign.SetActive(true);
+    }
+
+    public void RoomListBtn()
+    {
+
+    }
+
+    public void RoomNum()
+    {
+        lobby.SetActive(false);
+        roomNum.SetActive(true);
+    }
+
+    public void CreateRoom()
+    {
+        PhotonNetwork.CreateRoom(inputRoom.text == "" ? Random.Range(0, 100) + "번" : inputRoom.text + "번", new RoomOptions { MaxPlayers = 2 });
+    }
+
+    public void JoinRandomRoom()
+    {
+        PhotonNetwork.JoinRandomRoom();
     }
 
     public void GameStart()
@@ -162,23 +195,57 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IPunObservable
 
     }
 
+    public void RoomOut()
+    {
+        PhotonNetwork.LeaveRoom();
+        room.SetActive(false);
+        lobby.SetActive(true);
+    }
+
     public void Back()
+    {
+        if (lastCanvas == "roomNum")
+        {
+            roomNum.SetActive(false);
+            lobby.SetActive(true);
+        }
+        else if (lastCanvas == "roomNumError")
+        {
+            roomNumError.SetActive(false);
+            roomNum.SetActive(true);
+        }
+    }
+
+    public void SetBack()
     {
         if (lastCanvas == "sign")
         {
             set.SetActive(false);
             sign.SetActive(true);
-            connectInfo.enabled = true;
         }
-        else if (lastCanvas == "room")
+        else if (lastCanvas == "lobby")
+        {
+            set.SetActive(false);
+            lobby.SetActive(true);
+        }
+        else if (lastCanvas == "roomNum")
+        {
+            set.SetActive(false);
+            roomNum.SetActive(true);
+        }
+        else if (lastCanvas == "roomNumError")
+        {
+            set.SetActive(false);
+            roomNumError.SetActive(true);
+        }
+        else if(lastCanvas == "room")
         {
             set.SetActive(false);
             room.SetActive(true);
-            connectInfo.enabled = true;
         }
     }
 
-    public void Exit()
+    public void SetExit()
     {
         Application.Quit();
     }
@@ -187,7 +254,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IPunObservable
     {
         inputID.text = PlayerPrefs.GetString("ID");
         inputPW.text = PlayerPrefs.GetString("PW");
-        if(PlayerPrefs.GetInt("IsOn") == 1)
+        if (PlayerPrefs.GetInt("IsOn") == 1)
         {
             toggle.isOn = true;
         }
@@ -201,52 +268,69 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IPunObservable
     {
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            if (sign.activeSelf == true)
+            if (lastCanvas == "sign")
             {
                 sign.SetActive(false);
-                lastCanvas = "sign";
             }
-            else if (room.activeSelf == true)
+            else if (lastCanvas == "lobby")
+            {
+                lobby.SetActive(false);
+            }
+            else if (lastCanvas == "roomNum")
+            {
+                roomNum.SetActive(false);
+            }
+            else if (lastCanvas == "roomNumError")
+            {
+                roomNumError.SetActive(false);
+            }
+            else if (lastCanvas == "room")
             {
                 room.SetActive(false);
-                lastCanvas = "room";
             }
             set.SetActive(true);
-            connectInfo.enabled = false;
         }
+    }
+
+    void LastCanvas()
+    {
+        if (sign.activeSelf == true)
+        {
+            lastCanvas = "sign";
+        }
+        else if (lobby.activeSelf == true)
+        {
+            lastCanvas = "lobby";
+        }
+        else if (roomNum.activeSelf == true)
+        {
+            lastCanvas = "roomNum";
+        }
+        else if (roomNumError.activeSelf == true)
+        {
+            lastCanvas = "roomNumError";
+        }
+        else if (room.activeSelf == true)
+        {
+            lastCanvas = "room";
+        }
+    }
+
+    void RoomRenewal()
+    {
+        playerList.text = "";
+        for (int i = 0; i < PhotonNetwork.PlayerList.Length; i++)
+        {
+            playerList.text += PhotonNetwork.PlayerList[i].NickName + ((i + 1 == PhotonNetwork.PlayerList.Length) ? "" : "\n\n ");
+        }
+        roomInfo.text = "방 번호 : " + PhotonNetwork.CurrentRoom.Name;
+        //" 현재인원 : " + PhotonNetwork.CurrentRoom.PlayerCount + " 최대인원 : " + PhotonNetwork.CurrentRoom.MaxPlayers;
     }
 
     void Update()
     {
-        UpdatePlayerCounts();
         Set();
-        Debug.Log(user1.text);
-        Debug.Log(user2.text);
-    }
-
-    public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
-    {
-        if (stream.IsWriting)
-        {
-            stream.SendNext(user1.text);
-            stream.SendNext(user2.text);
-        }
-        else
-        {
-            user1.text = (string)stream.ReceiveNext();
-            user2.text = (string)stream.ReceiveNext();
-        }
-    }
-
-    void Participate()
-    {
-        if (user1.text == "")
-        {
-            user1.text = PhotonNetwork.LocalPlayer.NickName;
-        }
-        else if (user2.text == "")
-        {
-            user2.text = PhotonNetwork.LocalPlayer.NickName;
-        }
+        LastCanvas();
+        //lobbyInfo = (PhotonNetwork.CountOfPlayers - PhotonNetwork.CountOfPlayersInRooms) + "로비 / " + PhotonNetwork.CountOfPlayers + "접속";
     }
 }

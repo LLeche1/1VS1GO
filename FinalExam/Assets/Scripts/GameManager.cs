@@ -20,7 +20,6 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
 
     void Awake()
     {
-        Application.targetFrameRate = 144;
         wagon = GameObject.Find("Wagon").GetComponent<Wagon>();
         PV = GetComponent<PhotonView>();
     }
