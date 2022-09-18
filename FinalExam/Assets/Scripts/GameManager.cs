@@ -29,7 +29,6 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
     {
         randNum = UnityEngine.Random.Range(0, playerList.Length);
         Generate();
-        Debug.Log(playerList.Length);
 
     }
 
