@@ -4,13 +4,17 @@ using UnityEngine;
 
 public class Archer : Player
 {
+    private GameObject archer;
     public GameObject arrowObject;
     private GameObject bowObject;
+    private Transform arrowPos;
     // Start is called before the first frame update
     void Start()
     {
         base.Start();
+        archer = GameObject.Find("Archer");
         bowObject = GameObject.Find("Erika_Archer_Body_Mesh");
+        arrowPos = transform.Find("ArrowPos").GetComponent<Transform>();
     }
 
     void Update()
@@ -25,7 +29,9 @@ public class Archer : Player
             isAttack = true;
             animator.SetBool("isAttack", isAttack);
             animator.SetTrigger("Recoil");
-            GameObject arrow = Instantiate(arrowObject, bowObject.transform.position, bowObject.transform.rotation);
+            GameObject arrow = Instantiate(arrowObject, bowObject.transform.position, arrowObject.transform.rotation);
+            Rigidbody arrowRb = arrow.GetComponent<Rigidbody>();
+            arrowRb.velocity = arrowPos.transform.forward * 30;
             StartCoroutine(AdjustAttackTime());
 
         }
