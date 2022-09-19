@@ -151,6 +151,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
             {
                 isHIt = true;
                 hp += -50;
+                StartCoroutine(HitDelay());
             }
         }
     }
@@ -160,7 +161,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
         isAttack = false;
         animator.SetBool("isAttack", isAttack);
     }
-    IEnumerable HitDelay()
+    IEnumerator HitDelay()
     {
         yield return new WaitForSeconds(0.5f);
         isHIt = false;
