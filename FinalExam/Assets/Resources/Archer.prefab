@@ -1738,7 +1738,6 @@ GameObject:
   - component: {fileID: 4615745053213638945}
   - component: {fileID: 4615745053213638946}
   - component: {fileID: 4615745053213638947}
-  - component: {fileID: 4560978633560595054}
   - component: {fileID: 6612118405234153325}
   - component: {fileID: 4615745053213638951}
   - component: {fileID: 4615745053213638944}
@@ -1822,20 +1821,6 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorControllerStateOnDisable: 0
---- !u!114 &4560978633560595054
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5534645192183266613}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0c0add4849bb44ecaaba7c8df4f53c98, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  wagon: {fileID: 171952, guid: 37bb72f29b453d64bbe084f712d85bb4, type: 3}
-  isAttack: 0
 --- !u!114 &6612118405234153325
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1870,7 +1855,7 @@ MonoBehaviour:
   OwnershipTransfer: 0
   observableSearch: 2
   ObservedComponents:
-  - {fileID: 4560978633560595054}
+  - {fileID: 0}
   - {fileID: 6612118405234153325}
   - {fileID: 4615745053213638944}
   - {fileID: 7747953617878211002}
