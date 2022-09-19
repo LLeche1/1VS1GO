@@ -1771,8 +1771,8 @@ GameObject:
   - component: {fileID: 4615745053213638947}
   - component: {fileID: 6612118405234153325}
   - component: {fileID: 4615745053213638951}
-  - component: {fileID: 4615745053213638944}
   - component: {fileID: 7747953617878211002}
+  - component: {fileID: 4615745053213638944}
   m_Layer: 0
   m_Name: Archer
   m_TagString: Player
@@ -1867,6 +1867,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   wagon: {fileID: 171952, guid: 37bb72f29b453d64bbe084f712d85bb4, type: 3}
   isAttack: 0
+  characterType: 
   arrowObject: {fileID: 100000, guid: cff4c024d20095a458a66e6e0d47bf1b, type: 3}
 --- !u!114 &4615745053213638951
 MonoBehaviour:
@@ -1893,22 +1894,6 @@ MonoBehaviour:
   sceneViewId: 0
   InstantiationId: 0
   isRuntimeInstantiated: 0
---- !u!114 &4615745053213638944
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5534645192183266613}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 627855c7f81362d41938ffe0b1475957, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_SynchronizePosition: 1
-  m_SynchronizeRotation: 1
-  m_SynchronizeScale: 1
-  m_UseLocal: 1
 --- !u!114 &7747953617878211002
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1938,6 +1923,22 @@ MonoBehaviour:
     LayerIndex: 0
   - SynchronizeType: 2
     LayerIndex: 1
+--- !u!114 &4615745053213638944
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5534645192183266613}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 627855c7f81362d41938ffe0b1475957, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_SynchronizePosition: 1
+  m_SynchronizeRotation: 1
+  m_SynchronizeScale: 1
+  m_UseLocal: 1
 --- !u!1 &5542475748762166334
 GameObject:
   m_ObjectHideFlags: 0

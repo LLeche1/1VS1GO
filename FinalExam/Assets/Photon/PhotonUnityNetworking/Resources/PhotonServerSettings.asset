@@ -42,6 +42,9 @@ MonoBehaviour:
   - limitTime
   - Generate
   - Participate
+  - PlayerLook
+  - DecreaseHP
+  - RPCHit
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

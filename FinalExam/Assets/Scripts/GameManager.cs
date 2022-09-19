@@ -48,13 +48,14 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
         GameObject player = PhotonNetwork.Instantiate(playerList[1], Vector3.zero, Quaternion.identity);
         player.name = PhotonNetwork.LocalPlayer.NickName;
     }
-    public void Recall(Player player)
+    public void Recall(GameObject player)
     {
-        StartCoroutine(RecallCount());
-        GameObject p = PhotonNetwork.Instantiate(player.characterType, Vector3.zero, Quaternion.identity);
+        StartCoroutine(RecallCoolTime());
+        string characterType = player.transform.GetComponent<Player>().characterType;
+        GameObject p = PhotonNetwork.Instantiate(characterType, Vector3.zero, Quaternion.identity);
         p.name = player.name;
     }
-   IEnumerator RecallCount()
+   IEnumerator RecallCoolTime()
     {
         yield return new WaitForSeconds(5.0f);
     }

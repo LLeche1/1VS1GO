@@ -12,6 +12,6 @@ public class Camera : MonoBehaviour
     {
         player = GameObject.FindGameObjectWithTag("Player").transform;
         Vector3 pos = player.position - (Vector3.forward * distance) + (Vector3.up * height);
-        gameObject.transform.position = pos;
+        gameObject.transform.position = pos; 
     }
 }

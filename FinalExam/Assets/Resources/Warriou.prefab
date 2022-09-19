@@ -2583,6 +2583,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4871a96b38c15e741821d7b56cb19cd8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  hp: 100
   wagon: {fileID: 171952, guid: 37bb72f29b453d64bbe084f712d85bb4, type: 3}
   isAttack: 0
   characterType: 
@@ -2605,9 +2606,9 @@ MonoBehaviour:
   OwnershipTransfer: 0
   observableSearch: 0
   ObservedComponents:
+  - {fileID: 558340811135552109}
   - {fileID: 8716889885086511229}
   - {fileID: 1484107365093805594}
-  - {fileID: 0}
   sceneViewId: 0
   InstantiationId: 0
   isRuntimeInstantiated: 0
@@ -2633,7 +2634,7 @@ MonoBehaviour:
     SynchronizeType: 2
     Name: Recoil
   - Type: 1
-    SynchronizeType: 0
+    SynchronizeType: 2
     Name: AnimationSpeed
   m_SynchronizeLayers:
   - SynchronizeType: 2
