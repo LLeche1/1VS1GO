@@ -56,6 +56,10 @@ public class LobbyManager : MonoBehaviourPunCallbacks
     {
         joinBtn.interactable = true;
         connectInfo.text = "온라인";
+        if(lobby.activeSelf == true)
+        {
+            PhotonNetwork.JoinLobby();
+        }
     }
 
     public override void OnDisconnected(DisconnectCause cause)
@@ -386,7 +390,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         {
             playerList.text += PhotonNetwork.PlayerList[i].NickName + ((i + 1 == PhotonNetwork.PlayerList.Length) ? "" : "\n\n ");
         }
-        roomInfo.text = "방 번호 : " + PhotonNetwork.CurrentRoom.Name;
+        roomInfo.text = "방 : " + PhotonNetwork.CurrentRoom.Name;
         roomInfo2.text = PhotonNetwork.CurrentRoom.PlayerCount + " / " + PhotonNetwork.CurrentRoom.MaxPlayers;
     }
 
@@ -394,5 +398,6 @@ public class LobbyManager : MonoBehaviourPunCallbacks
     {
         Set();
         LastCanvas();
+        Debug.Log(PhotonNetwork.InLobby);
     }
 }
