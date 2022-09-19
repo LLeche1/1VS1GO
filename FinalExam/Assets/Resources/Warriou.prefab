@@ -2631,6 +2631,9 @@ MonoBehaviour:
   - Type: 9
     SynchronizeType: 2
     Name: Recoil
+  - Type: 1
+    SynchronizeType: 0
+    Name: AnimationSpeed
   m_SynchronizeLayers:
   - SynchronizeType: 2
     LayerIndex: 0

@@ -9,9 +9,11 @@ using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
 {
+    public static GameManager Instance { get; private set; }
     private float time = 300;
     public Image greenHp;
     public Image redHp;
+
     public Text timeText;
     private Wagon wagon;
     private PhotonView PV;
@@ -20,6 +22,7 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
 
     void Awake()
     {
+        Instance = this;
         wagon = GameObject.Find("Wagon").GetComponent<Wagon>();
         PV = GetComponent<PhotonView>();
     }
@@ -42,10 +45,19 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
 
     void Generate()
     {
-        GameObject player = PhotonNetwork.Instantiate(playerList[randNum], Vector3.zero, Quaternion.identity);
+        GameObject player = PhotonNetwork.Instantiate(playerList[1], Vector3.zero, Quaternion.identity);
         player.name = PhotonNetwork.LocalPlayer.NickName;
     }
-
+    public void Recall(Player player)
+    {
+        StartCoroutine((IEnumerator)RecallCount());
+        GameObject p = PhotonNetwork.Instantiate(player.characterType, Vector3.zero, Quaternion.identity);
+        p.name = player.name;
+    }
+   IEnumerable RecallCount()
+    {
+        yield return new WaitForSeconds(30.0f);
+    }
     void Hp()
     {
         greenHp.fillAmount = wagon.greenHp * 0.01f;

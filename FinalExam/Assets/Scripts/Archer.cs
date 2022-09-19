@@ -12,6 +12,7 @@ public class Archer : Player
     void Start()
     {
         base.Start();
+        characterType = "Archer";
         archer = GameObject.Find("Archer");
         bowObject = GameObject.Find("Erika_Archer_Body_Mesh");
         arrowPos = transform.Find("ArrowPos").GetComponent<Transform>();

@@ -22,6 +22,8 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
     protected Animator animator;
     private PhotonView PV;
     public bool isAttack;
+    private bool isHIt = false;
+    public string characterType;
 
 
     protected virtual void Start()
@@ -41,6 +43,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
         Jump();
         Attack();
         HpBar();
+        
         //Debug.Log(wagon.transform.position.z);
         //Debug.Log(wagon.transform.position.z - transform.transform.position.z);
     }
@@ -112,30 +115,28 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
             StartCoroutine(AdjustAttackTime());
 
         }
-/*        else if (Input.GetKeyUp(KeyCode.Z) && isAttack)
-        {
-            animator.SetTrigger("Recoil");
-            StartCoroutine(AdjustAttackTime());
-        }*/
     }
-    public void JumpBtn()
+    private void JumpBtn()
     {
         jAxis = 1;
         Jump();
     }
 
-    public void HpBar()
+    private void HpBar()
     { 
         hpBar.fillAmount = hp * 0.01f;
         hpBar.transform.position = gameObject.transform.position + new Vector3(0, 3, 0);
     }
-
-    protected IEnumerator AdjustAttackTime()
-    {        
-        yield return new WaitForSeconds(0.683f);
-        isAttack = false;
-        animator.SetBool("isAttack", isAttack);
+    
+    private void Death()
+    {
+        if(hp <= 0)
+        {
+            GameManager.Instance.Recall(GetComponent<Player>());
+            Destroy(gameObject);
+        }
     }
+
 
     void OnCollisionEnter(Collision collision)
     {
@@ -143,8 +144,27 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
         {
             isJump = false;
         }
+        
+        if (collision.gameObject.tag == "Player")
+        {
+            if(collision.transform.GetComponent<Player>().isAttack == true && !isHIt)
+            {
+                isHIt = true;
+                hp += -50;
+            }
+        }
     }
-
+    protected IEnumerator AdjustAttackTime()
+    {
+        yield return new WaitForSeconds(0.683f);
+        isAttack = false;
+        animator.SetBool("isAttack", isAttack);
+    }
+    IEnumerable HitDelay()
+    {
+        yield return new WaitForSeconds(0.5f);
+        isHIt = false;
+    }
     private void OnTriggerEnter(Collider other)
     {
         if(other.tag == "Wagon")
