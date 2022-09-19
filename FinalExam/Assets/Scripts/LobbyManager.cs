@@ -398,6 +398,5 @@ public class LobbyManager : MonoBehaviourPunCallbacks
     {
         Set();
         LastCanvas();
-        Debug.Log(PhotonNetwork.InLobby);
     }
 }
