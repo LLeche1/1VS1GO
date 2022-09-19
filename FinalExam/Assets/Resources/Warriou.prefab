@@ -2489,7 +2489,7 @@ GameObject:
   - component: {fileID: 2927164147228646392}
   - component: {fileID: 8788200596765288042}
   - component: {fileID: 8788200596765288043}
-  - component: {fileID: 8788200596765288037}
+  - component: {fileID: 558340811135552109}
   - component: {fileID: 6988298235780317308}
   - component: {fileID: 8716889885086511229}
   - component: {fileID: 1484107365093805594}
@@ -2571,7 +2571,7 @@ CapsuleCollider:
   m_Height: 1.709765
   m_Direction: 1
   m_Center: {x: 0, y: 0.855667, z: 0}
---- !u!114 &8788200596765288037
+--- !u!114 &558340811135552109
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2580,11 +2580,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 8445546932895423288}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0c0add4849bb44ecaaba7c8df4f53c98, type: 3}
+  m_Script: {fileID: 11500000, guid: 4871a96b38c15e741821d7b56cb19cd8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   wagon: {fileID: 171952, guid: 37bb72f29b453d64bbe084f712d85bb4, type: 3}
   isAttack: 0
+  characterType: 
 --- !u!114 &6988298235780317308
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2606,7 +2607,7 @@ MonoBehaviour:
   ObservedComponents:
   - {fileID: 8716889885086511229}
   - {fileID: 1484107365093805594}
-  - {fileID: 8788200596765288037}
+  - {fileID: 0}
   sceneViewId: 0
   InstantiationId: 0
   isRuntimeInstantiated: 0
