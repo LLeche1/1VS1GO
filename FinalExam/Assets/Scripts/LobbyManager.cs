@@ -5,8 +5,8 @@ using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using System.Collections.Generic;
 
-public class LobbyManager : MonoBehaviourPunCallbacks
-{
+public class LobbyManager : MonoBehaviourPunCallbacks {
+
     public InputField inputID;
     public InputField inputPW;
     public InputField inputRoom;
@@ -15,7 +15,10 @@ public class LobbyManager : MonoBehaviourPunCallbacks
     public Text roomInfo2;
     public Text playerList;
     public Button joinBtn;
-    public Button startBtn;
+    public GameObject startBtn;
+    public Button startBtn2;
+    public GameObject readyBtn;
+    public Button readyBtn2;
     public Button outBtn;
     public Button previousBtn;
     public Button nextBtn;
@@ -34,6 +37,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks
     private int currentPage = 1;
     private int maxPage;
     private int multiple;
+    private bool isReady = false;
     List<RoomInfo> roomList = new List<RoomInfo>();
 
     void Awake()
@@ -116,7 +120,11 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         outBtn.interactable = true;
         if (photonView.IsMine)
         {
-            startBtn.interactable = true;
+            startBtn.SetActive(true);
+        }
+        else
+        {
+            readyBtn.SetActive(true);
         }
     }
 
@@ -134,6 +142,16 @@ public class LobbyManager : MonoBehaviourPunCallbacks
     public override void OnPlayerLeftRoom(Photon.Realtime.Player otherPlayer)
     {
         RoomRenewal();
+        if (photonView.IsMine)
+        {
+            isReady = false;
+            startBtn.SetActive(true);
+            readyBtn.SetActive(false);
+        }
+        else
+        {
+            readyBtn.SetActive(true);
+        }
     }
 
     public override void OnRoomListUpdate(List<RoomInfo> room)
@@ -200,7 +218,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         PhotonNetwork.JoinRandomRoom();
     }
 
-    public void GameStart()
+    public void StartBtn()
     {
         if (PhotonNetwork.IsMasterClient)
         {
@@ -210,6 +228,20 @@ public class LobbyManager : MonoBehaviourPunCallbacks
             }
             */
             PhotonNetwork.LoadLevel("InGame");
+        }
+    }
+
+    public void ReadyBtn()
+    {
+        if(isReady == false)
+        {
+            isReady = true;
+            readyBtn.GetComponent<Image>().color = new Color32(255, 255, 255, 100);
+        }
+        else if (isReady == true)
+        {
+            isReady = false;
+            readyBtn.GetComponent<Image>().color = new Color32(255, 255, 255, 255);
         }
     }
 
@@ -230,6 +262,16 @@ public class LobbyManager : MonoBehaviourPunCallbacks
 
     public void RoomOut()
     {
+        isReady = false;
+        startBtn2.interactable = false;
+        if (startBtn.activeSelf == true)
+        {
+            startBtn.SetActive(false);
+        }
+        else if(readyBtn.activeSelf == true)
+        {
+            readyBtn.SetActive(false);
+        }
         PhotonNetwork.LeaveRoom();
         room.SetActive(false);
         lobby.SetActive(true);
@@ -398,5 +440,14 @@ public class LobbyManager : MonoBehaviourPunCallbacks
     {
         Set();
         LastCanvas();
+        if(isReady == true)
+        {
+            startBtn2.interactable = true;
+        }
+        else
+        {
+            startBtn2.interactable = false;
+        }
+        Debug.Log(isReady);
     }
 }
