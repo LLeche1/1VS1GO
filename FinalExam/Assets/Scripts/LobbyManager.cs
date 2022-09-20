@@ -5,7 +5,8 @@ using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using System.Collections.Generic;
 
-public class LobbyManager : MonoBehaviourPunCallbacks {
+public class LobbyManager : MonoBehaviourPunCallbacks, IPunObservable
+{
 
     public InputField inputID;
     public InputField inputPW;
@@ -435,7 +436,6 @@ public class LobbyManager : MonoBehaviourPunCallbacks {
         roomInfo.text = "방 : " + PhotonNetwork.CurrentRoom.Name;
         roomInfo2.text = PhotonNetwork.CurrentRoom.PlayerCount + " / " + PhotonNetwork.CurrentRoom.MaxPlayers;
     }
-
     void Update()
     {
         Set();
@@ -443,11 +443,24 @@ public class LobbyManager : MonoBehaviourPunCallbacks {
         if(isReady == true)
         {
             startBtn2.interactable = true;
+            
         }
         else
         {
             startBtn2.interactable = false;
         }
         Debug.Log(isReady);
+    }
+
+    public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
+    {
+        if (stream.IsWriting)
+        {
+            stream.SendNext(isReady);
+        }
+        else
+        {
+            isReady = (bool)stream.ReceiveNext();
+        }
     }
 }
