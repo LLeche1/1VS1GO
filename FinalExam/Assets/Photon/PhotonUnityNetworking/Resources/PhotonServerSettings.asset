@@ -45,6 +45,12 @@ MonoBehaviour:
   - PlayerLook
   - DecreaseHP
   - RPCHit
+  - ReadyBtn
+  - ReadyBtn2
+  - Ready2
+  - ReadySync
+  - ReadyRpc
+  - DelayRpc
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

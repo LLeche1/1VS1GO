@@ -5,7 +5,7 @@ using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using System.Collections.Generic;
 
-public class LobbyManager : MonoBehaviourPunCallbacks, IPunObservable
+public class LobbyManager : MonoBehaviourPunCallbacks
 {
 
     public InputField inputID;
@@ -14,7 +14,6 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IPunObservable
     public Text connectInfo;
     public Text roomInfo;
     public Text roomInfo2;
-    public Text playerList;
     public Button joinBtn;
     public GameObject startBtn;
     public Button startBtn2;
@@ -23,7 +22,8 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IPunObservable
     public Button outBtn;
     public Button previousBtn;
     public Button nextBtn;
-    public Button[] cellBtn;
+    public Button[] roomCellBtn;
+    public Image[] playerCell;
     public GameObject login;
     public GameObject loginError;
     public GameObject lobby;
@@ -38,7 +38,10 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IPunObservable
     private int currentPage = 1;
     private int maxPage;
     private int multiple;
+    private float delay = 10;
     private bool isReady = false;
+    private bool isReadyRpc = false;
+    private bool isStart = false;
     List<RoomInfo> roomList = new List<RoomInfo>();
 
     void Awake()
@@ -118,7 +121,6 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IPunObservable
         roomNum.SetActive(false);
         room.SetActive(true);
         RoomRenewal();
-        outBtn.interactable = true;
         if (photonView.IsMine)
         {
             startBtn.SetActive(true);
@@ -143,16 +145,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IPunObservable
     public override void OnPlayerLeftRoom(Photon.Realtime.Player otherPlayer)
     {
         RoomRenewal();
-        if (photonView.IsMine)
-        {
-            isReady = false;
-            startBtn.SetActive(true);
-            readyBtn.SetActive(false);
-        }
-        else
-        {
-            readyBtn.SetActive(true);
-        }
+        ResetReady();
     }
 
     public override void OnRoomListUpdate(List<RoomInfo> room)
@@ -177,6 +170,19 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IPunObservable
             }
         }
         roomListRenewal();
+    }
+
+    public override void OnMasterClientSwitched(Photon.Realtime.Player newMasterClient)
+    {
+        if (newMasterClient == PhotonNetwork.LocalPlayer)
+        {
+            if (isReady == true)
+            {
+                ResetReady();
+            }
+            startBtn.SetActive(true);
+            readyBtn.SetActive(false);
+        }
     }
 
     public void DisconnectBtn()
@@ -244,7 +250,52 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IPunObservable
             isReady = false;
             readyBtn.GetComponent<Image>().color = new Color32(255, 255, 255, 255);
         }
+        PV.RPC("ReadyRpc", RpcTarget.All, isReady);
     }
+
+    [PunRPC]
+    public void ReadyRpc(bool isReady)
+    {
+        isReadyRpc = isReady;
+
+        if (isReadyRpc == true)
+        {
+            startBtn2.interactable = true;
+            for (int i = 0; i < PhotonNetwork.PlayerList.Length; i++)
+            {
+                if (PhotonNetwork.MasterClient.NickName != PhotonNetwork.PlayerList[i].NickName)
+                {
+                    playerCell[i].transform.GetChild(2).GetComponent<Text>().text = "준비완료";
+                }
+            }
+        }
+        else if (isReadyRpc == false)
+        {
+            startBtn2.interactable = false;
+            for (int i = 0; i < PhotonNetwork.PlayerList.Length; i++)
+            {
+                if (PhotonNetwork.MasterClient.NickName != PhotonNetwork.PlayerList[i].NickName)
+                {
+                    playerCell[i].transform.GetChild(2).GetComponent<Text>().text = "";
+                }
+            }
+        }
+    }
+
+
+    /*[PunRPC]
+    public void DelayRpc(bool isStart)
+    {
+        if (delay > 0 && isStart == true)
+        {
+            delay -= 2 * Time.deltaTime;
+        }
+
+        if (delay <= 0 && isStart == true && PhotonNetwork.IsMasterClient)
+        {
+            PhotonNetwork.LoadLevel("InGame");
+        }
+    }*/
 
     public void Remember(Toggle toggle)
     {
@@ -263,7 +314,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IPunObservable
 
     public void RoomOut()
     {
-        isReady = false;
+        ResetReady();
         startBtn2.interactable = false;
         if (startBtn.activeSelf == true)
         {
@@ -336,19 +387,26 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IPunObservable
         Application.Quit();
     }
 
+    void ResetReady()
+    {
+        isReady = false;
+        PV.RPC("ReadyRpc", RpcTarget.All, isReady);
+        readyBtn.GetComponent<Image>().color = new Color32(255, 255, 255, 255);
+    }
+
     void roomListRenewal()
     {
-        maxPage = (roomList.Count % cellBtn.Length == 0) ? roomList.Count / cellBtn.Length : roomList.Count / cellBtn.Length + 1;
+        maxPage = (roomList.Count % roomCellBtn.Length == 0) ? roomList.Count / roomCellBtn.Length : roomList.Count / roomCellBtn.Length + 1;
 
         previousBtn.interactable = (currentPage <= 1) ? false : true;
         nextBtn.interactable = (currentPage >= maxPage) ? false : true;
 
-        multiple = (currentPage - 1) * cellBtn.Length;
-        for (int i = 0; i < cellBtn.Length; i++)
+        multiple = (currentPage - 1) * roomCellBtn.Length;
+        for (int i = 0; i < roomCellBtn.Length; i++)
         {
-            cellBtn[i].interactable = (multiple + i < roomList.Count) ? true : false;
-            cellBtn[i].transform.GetChild(0).GetComponent<Text>().text = (multiple + i < roomList.Count) ? roomList[multiple + i].Name : "";
-            cellBtn[i].transform.GetChild(1).GetComponent<Text>().text = (multiple + i < roomList.Count) ? roomList[multiple + i].PlayerCount + "/" + roomList[multiple + i].MaxPlayers : "";
+            roomCellBtn[i].interactable = (multiple + i < roomList.Count) ? true : false;
+            roomCellBtn[i].transform.GetChild(0).GetComponent<Text>().text = (multiple + i < roomList.Count) ? roomList[multiple + i].Name : "";
+            roomCellBtn[i].transform.GetChild(1).GetComponent<Text>().text = (multiple + i < roomList.Count) ? roomList[multiple + i].PlayerCount + "/" + roomList[multiple + i].MaxPlayers : "";
         }
     }
 
@@ -428,39 +486,27 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IPunObservable
 
     void RoomRenewal()
     {
-        playerList.text = "";
         for (int i = 0; i < PhotonNetwork.PlayerList.Length; i++)
         {
-            playerList.text += PhotonNetwork.PlayerList[i].NickName + ((i + 1 == PhotonNetwork.PlayerList.Length) ? "" : "\n\n ");
+            playerCell[i].transform.GetChild(0).GetComponent<Text>().text = PhotonNetwork.PlayerList[i].NickName;
+            if (PhotonNetwork.MasterClient.NickName == PhotonNetwork.PlayerList[i].NickName)
+            {
+                playerCell[i].transform.GetChild(1).GetComponent<Text>().text = "방장";
+            }
+
+            if(i == 0)
+            {
+                playerCell[i+1].transform.GetChild(0).GetComponent<Text>().text = "";
+            }
         }
+
         roomInfo.text = "방 : " + PhotonNetwork.CurrentRoom.Name;
         roomInfo2.text = PhotonNetwork.CurrentRoom.PlayerCount + " / " + PhotonNetwork.CurrentRoom.MaxPlayers;
     }
+
     void Update()
     {
         Set();
         LastCanvas();
-        if(isReady == true)
-        {
-            startBtn2.interactable = true;
-            
-        }
-        else
-        {
-            startBtn2.interactable = false;
-        }
-        Debug.Log(isReady);
-    }
-
-    public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
-    {
-        if (stream.IsWriting)
-        {
-            stream.SendNext(isReady);
-        }
-        else
-        {
-            isReady = (bool)stream.ReceiveNext();
-        }
     }
 }
