@@ -2583,10 +2583,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4871a96b38c15e741821d7b56cb19cd8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hp: 100
+  currHP: 0
   wagon: {fileID: 171952, guid: 37bb72f29b453d64bbe084f712d85bb4, type: 3}
   isAttack: 0
+  isDead: 0
   characterType: 
+  myTeam: 0
 --- !u!114 &6988298235780317308
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2604,7 +2606,7 @@ MonoBehaviour:
   prefixField: -1
   Synchronization: 3
   OwnershipTransfer: 0
-  observableSearch: 0
+  observableSearch: 1
   ObservedComponents:
   - {fileID: 558340811135552109}
   - {fileID: 8716889885086511229}
@@ -3068,14 +3070,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 1, b: 0, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 545871531, guid: 54a0607024ae0f6418028f1aba096428, type: 3}
+  m_Sprite: {fileID: 21300000, guid: d370189875179ab478049046738502e0, type: 3}
   m_Type: 3
   m_PreserveAspect: 0
   m_FillCenter: 1

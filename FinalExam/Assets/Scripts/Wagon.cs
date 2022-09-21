@@ -1,15 +1,23 @@
+using Photon.Pun;
+using Photon.Realtime;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Wagon : MonoBehaviour
+public class Wagon : MonoBehaviourPunCallbacks
 {
-    public float greenHp = 100f;
-    public float redHp = 100f;
+    public float oneTeamHP = 100f;
+    public float twoTeamHP = 100f;
     private GameObject[] player;
     private GameObject distant;
+    private PhotonView PV;
     private float speed = 7f;
+    private bool isHit = false;
 
+    void Start()
+    {
+        PV = GetComponent<PhotonView>();
+    }
     void Update()
     {
         distance();
@@ -46,9 +54,26 @@ public class Wagon : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.transform.tag == "Player" && other.transform.GetComponent<Player>().isAttack == true)
+        if (other.transform.tag == "Player" && other.transform.GetComponent<Player>().isAttack == true && isHit == false)
         {
-            greenHp += -1;
+            TeamType playerTeam = (TeamType)other.transform.GetComponent<Player>().myTeam;
+            PV.RPC("WagonHit", RpcTarget.All, playerTeam);
         }
+    }
+
+    [PunRPC]
+    void WagonHit(TeamType teamType)
+    {
+        isHit = true;
+        if (teamType == TeamType.oneTeam)
+            oneTeamHP += -30;
+        else
+            twoTeamHP += -30;
+        StartCoroutine(WagonHitDelay());
+    }
+    IEnumerator WagonHitDelay()
+    {
+        yield return new WaitForSeconds(1.0f);
+        isHit = false;
     }
 }
