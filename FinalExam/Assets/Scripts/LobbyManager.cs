@@ -282,21 +282,6 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         }
     }
 
-
-    /*[PunRPC]
-    public void DelayRpc(bool isStart)
-    {
-        if (delay > 0 && isStart == true)
-        {
-            delay -= 2 * Time.deltaTime;
-        }
-
-        if (delay <= 0 && isStart == true && PhotonNetwork.IsMasterClient)
-        {
-            PhotonNetwork.LoadLevel("InGame");
-        }
-    }*/
-
     public void Remember(Toggle toggle)
     {
         if (toggle.isOn)
@@ -498,6 +483,15 @@ public class LobbyManager : MonoBehaviourPunCallbacks
             {
                 playerCell[i+1].transform.GetChild(0).GetComponent<Text>().text = "";
             }
+        }
+
+        if(PhotonNetwork.CurrentRoom.PlayerCount == PhotonNetwork.CurrentRoom.MaxPlayers)
+        {
+            PhotonNetwork.CurrentRoom.IsOpen = false;
+        }
+        else if(PhotonNetwork.CurrentRoom.PlayerCount != PhotonNetwork.CurrentRoom.MaxPlayers)
+        {
+            PhotonNetwork.CurrentRoom.IsOpen = true;
         }
 
         roomInfo.text = "방 : " + PhotonNetwork.CurrentRoom.Name;
