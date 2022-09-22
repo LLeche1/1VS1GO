@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using System.Collections.Generic;
+using System.Collections;
 
 public class LobbyManager : MonoBehaviourPunCallbacks
 {
@@ -14,6 +15,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks
     public Text connectInfo;
     public Text roomInfo;
     public Text roomInfo2;
+    public Text countdown;
     public Button joinBtn;
     public GameObject startBtn;
     public Button startBtn2;
@@ -234,7 +236,9 @@ public class LobbyManager : MonoBehaviourPunCallbacks
                 PhotonNetwork.LoadLevel("InGame 1");
             }
             */
-            PhotonNetwork.LoadLevel("InGame");
+            StartCoroutine(Delay());
+            PhotonNetwork.CurrentRoom.IsVisible = false;
+            //PhotonNetwork.LoadLevel("InGame");
         }
     }
 
@@ -372,6 +376,25 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         Application.Quit();
     }
 
+    IEnumerator Delay()
+    {
+        float time = 3;
+        while (0.0f < time)
+        {
+            yield return new WaitForEndOfFrame();
+            time -= 1.0f * Time.deltaTime;
+            PV.RPC("CountdownRpc", RpcTarget.All, time);
+        }
+        PhotonNetwork.LoadLevel("InGame");
+        yield return null;
+    }
+
+    [PunRPC]
+    public void CountdownRpc(float time)
+    {
+        countdown.text = time.ToString("0");
+    }
+
     void ResetReady()
     {
         isReady = false;
@@ -483,15 +506,6 @@ public class LobbyManager : MonoBehaviourPunCallbacks
             {
                 playerCell[i+1].transform.GetChild(0).GetComponent<Text>().text = "";
             }
-        }
-
-        if(PhotonNetwork.CurrentRoom.PlayerCount == PhotonNetwork.CurrentRoom.MaxPlayers)
-        {
-            PhotonNetwork.CurrentRoom.IsOpen = false;
-        }
-        else if(PhotonNetwork.CurrentRoom.PlayerCount != PhotonNetwork.CurrentRoom.MaxPlayers)
-        {
-            PhotonNetwork.CurrentRoom.IsOpen = true;
         }
 
         roomInfo.text = "방 : " + PhotonNetwork.CurrentRoom.Name;
