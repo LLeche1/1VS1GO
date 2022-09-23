@@ -9,34 +9,37 @@ using System.Collections;
 public class LobbyManager : MonoBehaviourPunCallbacks
 {
 
-    public InputField inputID;
-    public InputField inputPW;
-    public InputField inputRoom;
-    public Text connectInfo;
-    public Text roomInfo;
-    public Text roomInfo2;
-    public Text countdown;
-    public Button joinBtn;
-    public GameObject startBtn;
-    public Button startBtn2;
-    public GameObject readyBtn;
-    public Button readyBtn2;
-    public Button outBtn;
-    public Button previousBtn;
-    public Button nextBtn;
-    public Button[] roomCellBtn;
-    public Image[] playerCell;
+    public InputField loginID;
+    public InputField loginPW;
+    public InputField createRoomNum;
+    public Text loginInfo;
+    public Text roomTitle;
+    public Text roomCurrentPlayer;
+    public Text roomCountdown;
+    public Button setBtn;
+    public Button loginBtn;
+    public GameObject roomStartBtn;
+    public GameObject roomReadyBtn;
+    public Button roomStartBtn2;
+    public Button roomReadyBtn2;
+    public Button lobbyPreviousBtn;
+    public Button lobbyNextBtn;
+    public Button[] LobbyRoomListBtn;
+    public Button[] classListBtn;
+    public Image[] roomPlayerList;
     public GameObject login;
     public GameObject loginError;
     public GameObject lobby;
     public GameObject room;
-    public GameObject roomNum;
-    public GameObject roomNumError;
+    public GameObject Class;
+    public GameObject createRoom;
+    public GameObject createRoomError;
     public GameObject set;
-    public Toggle remember;
+    public Toggle loginMemory;
     private PhotonView PV;
     private string gameVersion = "1";
     private string lastCanvas;
+    private string[] characterType;
     private int currentPage = 1;
     private int maxPage;
     private int multiple;
@@ -45,6 +48,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks
     private bool isReadyRpc = false;
     private bool isStart = false;
     List<RoomInfo> roomList = new List<RoomInfo>();
+    GameManager gameManager;
 
     void Awake()
     {
@@ -52,20 +56,21 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         Screen.SetResolution(1600, 900, false);
         PhotonNetwork.AutomaticallySyncScene = true;
         PV = GetComponent<PhotonView>();
+        DontDestroyOnLoad(gameObject);
     }
 
     void Start()
     {
-        Load(remember);
+        Load(loginMemory);
         PhotonNetwork.GameVersion = gameVersion;
         PhotonNetwork.ConnectUsingSettings();
-        connectInfo.text = "서버에 접속중...";
+        loginInfo.text = "서버에 접속중...";
     }
 
     public override void OnConnectedToMaster()
     {
-        joinBtn.interactable = true;
-        connectInfo.text = "온라인";
+        loginBtn.interactable = true;
+        loginInfo.text = "온라인";
         if(lobby.activeSelf == true)
         {
             PhotonNetwork.JoinLobby();
@@ -74,27 +79,27 @@ public class LobbyManager : MonoBehaviourPunCallbacks
 
     public override void OnDisconnected(DisconnectCause cause)
     {
-        connectInfo.text = "오프라인 : 서버와 연결되지 않음\n접속 재시도 중...";
+        loginInfo.text = "오프라인 : 서버와 연결되지 않음\n접속 재시도 중...";
         PhotonNetwork.ConnectUsingSettings();
     }
 
     public void Connect()
     {
-        string id = inputID.text;
-        string pw = inputPW.text;
+        string id = loginID.text;
+        string pw = loginPW.text;
         if (id != "" && pw != "")
         {
-            joinBtn.interactable = false;
+            loginBtn.interactable = false;
 
             if (PhotonNetwork.IsConnected)
             {
-                connectInfo.text = "매칭 중...";
+                loginInfo.text = "매칭 중...";
                 PhotonNetwork.JoinLobby();
                 PhotonNetwork.LocalPlayer.NickName = id;
             }
             else
             {
-                connectInfo.text = "오프라인 : 마스터 서버와 연결되지 않음\n접속 재시도 중...";
+                loginInfo.text = "오프라인 : 마스터 서버와 연결되지 않음\n접속 재시도 중...";
                 PhotonNetwork.ConnectUsingSettings();
             }
         }
@@ -114,29 +119,29 @@ public class LobbyManager : MonoBehaviourPunCallbacks
 
     public override void OnJoinRandomFailed(short returnCode, string message)
     {
-        CreateRoom();
+        CreateRoomCreateBtn();
     }
 
     public override void OnJoinedRoom()
     {
         lobby.SetActive(false);
-        roomNum.SetActive(false);
+        createRoom.SetActive(false);
         room.SetActive(true);
         RoomRenewal();
         if (photonView.IsMine)
         {
-            startBtn.SetActive(true);
+            roomStartBtn.SetActive(true);
         }
         else
         {
-            readyBtn.SetActive(true);
+            roomReadyBtn.SetActive(true);
         }
     }
 
     public override void OnCreateRoomFailed(short returnCode, string message)
     {
-        roomNum.SetActive(false);
-        roomNumError.SetActive(true);
+        createRoom.SetActive(false);
+        createRoomError.SetActive(true);
     }
 
     public override void OnPlayerEnteredRoom(Photon.Realtime.Player newPlayer)
@@ -182,12 +187,12 @@ public class LobbyManager : MonoBehaviourPunCallbacks
             {
                 ResetReady();
             }
-            startBtn.SetActive(true);
-            readyBtn.SetActive(false);
+            roomStartBtn.SetActive(true);
+            roomReadyBtn.SetActive(false);
         }
     }
 
-    public void DisconnectBtn()
+    public void LobbyOutBtn()
     {
         PhotonNetwork.Disconnect();
         lobby.SetActive(false);
@@ -211,18 +216,18 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         roomListRenewal();
     }
 
-    public void RoomNum()
+    public void LobbyCreateBtn()
     {
         lobby.SetActive(false);
-        roomNum.SetActive(true);
+        createRoom.SetActive(true);
     }
 
-    public void CreateRoom()
+    public void CreateRoomCreateBtn()
     {
-        PhotonNetwork.CreateRoom(inputRoom.text == "" ? Random.Range(0, 100) + "번" : inputRoom.text + "번", new RoomOptions { MaxPlayers = 2 });
+        PhotonNetwork.CreateRoom(createRoomNum.text == "" ? Random.Range(0, 100) + "번" : createRoomNum.text + "번", new RoomOptions { MaxPlayers = 2 });
     }
 
-    public void JoinRandomRoom()
+    public void LobbyFastJoinBtn()
     {
         PhotonNetwork.JoinRandomRoom();
     }
@@ -247,12 +252,12 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         if(isReady == false)
         {
             isReady = true;
-            readyBtn.GetComponent<Image>().color = new Color32(255, 255, 255, 100);
+            roomReadyBtn.GetComponent<Image>().color = new Color32(255, 255, 255, 100);
         }
         else if (isReady == true)
         {
             isReady = false;
-            readyBtn.GetComponent<Image>().color = new Color32(255, 255, 255, 255);
+            roomReadyBtn.GetComponent<Image>().color = new Color32(255, 255, 255, 255);
         }
         PV.RPC("ReadyRpc", RpcTarget.All, isReady);
     }
@@ -264,34 +269,34 @@ public class LobbyManager : MonoBehaviourPunCallbacks
 
         if (isReadyRpc == true)
         {
-            startBtn2.interactable = true;
+            roomStartBtn2.interactable = true;
             for (int i = 0; i < PhotonNetwork.PlayerList.Length; i++)
             {
                 if (PhotonNetwork.MasterClient.NickName != PhotonNetwork.PlayerList[i].NickName)
                 {
-                    playerCell[i].transform.GetChild(2).GetComponent<Text>().text = "준비완료";
+                    roomPlayerList[i].transform.GetChild(2).GetComponent<Text>().text = "Ready";
                 }
             }
         }
         else if (isReadyRpc == false)
         {
-            startBtn2.interactable = false;
+            roomStartBtn2.interactable = false;
             for (int i = 0; i < PhotonNetwork.PlayerList.Length; i++)
             {
                 if (PhotonNetwork.MasterClient.NickName != PhotonNetwork.PlayerList[i].NickName)
                 {
-                    playerCell[i].transform.GetChild(2).GetComponent<Text>().text = "";
+                    roomPlayerList[i].transform.GetChild(2).GetComponent<Text>().text = "";
                 }
             }
         }
     }
 
-    public void Remember(Toggle toggle)
+    public void Memory(Toggle toggle)
     {
         if (toggle.isOn)
         {
-            PlayerPrefs.SetString("ID", inputID.text);
-            PlayerPrefs.SetString("PW", inputPW.text);
+            PlayerPrefs.SetString("ID", loginID.text);
+            PlayerPrefs.SetString("PW", loginPW.text);
             PlayerPrefs.SetInt("IsOn", 1);
         }
         else
@@ -304,14 +309,14 @@ public class LobbyManager : MonoBehaviourPunCallbacks
     public void RoomOut()
     {
         ResetReady();
-        startBtn2.interactable = false;
-        if (startBtn.activeSelf == true)
+        roomStartBtn2.interactable = false;
+        if (roomStartBtn.activeSelf == true)
         {
-            startBtn.SetActive(false);
+            roomStartBtn.SetActive(false);
         }
-        else if(readyBtn.activeSelf == true)
+        else if(roomReadyBtn.activeSelf == true)
         {
-            readyBtn.SetActive(false);
+            roomReadyBtn.SetActive(false);
         }
         PhotonNetwork.LeaveRoom();
         room.SetActive(false);
@@ -325,15 +330,15 @@ public class LobbyManager : MonoBehaviourPunCallbacks
             loginError.SetActive(false);
             login.SetActive(true);
         }
-        else if (lastCanvas == "roomNum")
+        else if (lastCanvas == "createRoom")
         {
-            roomNum.SetActive(false);
+            createRoom.SetActive(false);
             lobby.SetActive(true);
         }
-        else if (lastCanvas == "roomNumError")
+        else if (lastCanvas == "createRoomError")
         {
-            roomNumError.SetActive(false);
-            roomNum.SetActive(true);
+            createRoomError.SetActive(false);
+            createRoom.SetActive(true);
         }
     }
 
@@ -354,15 +359,15 @@ public class LobbyManager : MonoBehaviourPunCallbacks
             set.SetActive(false);
             lobby.SetActive(true);
         }
-        else if (lastCanvas == "roomNum")
+        else if (lastCanvas == "createRoom")
         {
             set.SetActive(false);
-            roomNum.SetActive(true);
+            createRoom.SetActive(true);
         }
-        else if (lastCanvas == "roomNumError")
+        else if (lastCanvas == "createRoomError")
         {
             set.SetActive(false);
-            roomNumError.SetActive(true);
+            createRoomError.SetActive(true);
         }
         else if(lastCanvas == "room")
         {
@@ -392,36 +397,65 @@ public class LobbyManager : MonoBehaviourPunCallbacks
     [PunRPC]
     public void CountdownRpc(float time)
     {
-        countdown.text = time.ToString("0");
+        roomCountdown.text = time.ToString("0");
+    }
+
+    public void RoomClassSelectBtn()
+    {
+        if (lastCanvas == "room")
+        {
+            room.SetActive(false);
+            Class.SetActive(true);
+        }
+        else if (lastCanvas == "Class")
+        {
+            Class.SetActive(false);
+            room.SetActive(true);
+        }
+
+    }
+
+    public void ClassSelectBtn()
+    {
+        if (gameObject.name == classListBtn[0].name)
+        {
+            Debug.Log(gameObject.name);
+            /*for (int i = 0; i < PhotonNetwork.PlayerList.Length; i++)
+            {
+
+            }
+            characterType[i] == "Warrior";
+            */
+        }
     }
 
     void ResetReady()
     {
         isReady = false;
         PV.RPC("ReadyRpc", RpcTarget.All, isReady);
-        readyBtn.GetComponent<Image>().color = new Color32(255, 255, 255, 255);
+        roomReadyBtn.GetComponent<Image>().color = new Color32(255, 255, 255, 255);
     }
 
     void roomListRenewal()
     {
-        maxPage = (roomList.Count % roomCellBtn.Length == 0) ? roomList.Count / roomCellBtn.Length : roomList.Count / roomCellBtn.Length + 1;
+        maxPage = (roomList.Count % LobbyRoomListBtn.Length == 0) ? roomList.Count / LobbyRoomListBtn.Length : roomList.Count / LobbyRoomListBtn.Length + 1;
 
-        previousBtn.interactable = (currentPage <= 1) ? false : true;
-        nextBtn.interactable = (currentPage >= maxPage) ? false : true;
+        lobbyPreviousBtn.interactable = (currentPage <= 1) ? false : true;
+        lobbyNextBtn.interactable = (currentPage >= maxPage) ? false : true;
 
-        multiple = (currentPage - 1) * roomCellBtn.Length;
-        for (int i = 0; i < roomCellBtn.Length; i++)
+        multiple = (currentPage - 1) * LobbyRoomListBtn.Length;
+        for (int i = 0; i < LobbyRoomListBtn.Length; i++)
         {
-            roomCellBtn[i].interactable = (multiple + i < roomList.Count) ? true : false;
-            roomCellBtn[i].transform.GetChild(0).GetComponent<Text>().text = (multiple + i < roomList.Count) ? roomList[multiple + i].Name : "";
-            roomCellBtn[i].transform.GetChild(1).GetComponent<Text>().text = (multiple + i < roomList.Count) ? roomList[multiple + i].PlayerCount + "/" + roomList[multiple + i].MaxPlayers : "";
+            LobbyRoomListBtn[i].interactable = (multiple + i < roomList.Count) ? true : false;
+            LobbyRoomListBtn[i].transform.GetChild(0).GetComponent<Text>().text = (multiple + i < roomList.Count) ? roomList[multiple + i].Name : "";
+            LobbyRoomListBtn[i].transform.GetChild(1).GetComponent<Text>().text = (multiple + i < roomList.Count) ? roomList[multiple + i].PlayerCount + "/" + roomList[multiple + i].MaxPlayers : "";
         }
     }
 
     void Load(Toggle toggle)
     {
-        inputID.text = PlayerPrefs.GetString("ID");
-        inputPW.text = PlayerPrefs.GetString("PW");
+        loginID.text = PlayerPrefs.GetString("ID");
+        loginPW.text = PlayerPrefs.GetString("PW");
         if (PlayerPrefs.GetInt("IsOn") == 1)
         {
             toggle.isOn = true;
@@ -432,9 +466,16 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         }
     }
 
-    void Set()
+    public void Set()
     {
         if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            Set2();
+        }
+
+        setBtn.onClick.AddListener(Set2);
+
+        void Set2()
         {
             if (lastCanvas == "login")
             {
@@ -448,17 +489,21 @@ public class LobbyManager : MonoBehaviourPunCallbacks
             {
                 lobby.SetActive(false);
             }
-            else if (lastCanvas == "roomNum")
+            else if (lastCanvas == "createRoom")
             {
-                roomNum.SetActive(false);
+                createRoom.SetActive(false);
             }
-            else if (lastCanvas == "roomNumError")
+            else if (lastCanvas == "createRoomError")
             {
-                roomNumError.SetActive(false);
+                createRoomError.SetActive(false);
             }
             else if (lastCanvas == "room")
             {
                 room.SetActive(false);
+            }
+            else if (lastCanvas == "Class")
+            {
+                Class.SetActive(false);
             }
             set.SetActive(true);
         }
@@ -478,17 +523,21 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         {
             lastCanvas = "lobby";
         }
-        else if (roomNum.activeSelf == true)
+        else if (createRoom.activeSelf == true)
         {
-            lastCanvas = "roomNum";
+            lastCanvas = "createRoom";
         }
-        else if (roomNumError.activeSelf == true)
+        else if (createRoomError.activeSelf == true)
         {
-            lastCanvas = "roomNumError";
+            lastCanvas = "createRoomError";
         }
         else if (room.activeSelf == true)
         {
             lastCanvas = "room";
+        }
+        else if (Class.activeSelf == true)
+        {
+            lastCanvas = "Class";
         }
     }
 
@@ -496,20 +545,20 @@ public class LobbyManager : MonoBehaviourPunCallbacks
     {
         for (int i = 0; i < PhotonNetwork.PlayerList.Length; i++)
         {
-            playerCell[i].transform.GetChild(0).GetComponent<Text>().text = PhotonNetwork.PlayerList[i].NickName;
+            roomPlayerList[i].transform.GetChild(0).GetComponent<Text>().text = PhotonNetwork.PlayerList[i].NickName;
             if (PhotonNetwork.MasterClient.NickName == PhotonNetwork.PlayerList[i].NickName)
             {
-                playerCell[i].transform.GetChild(1).GetComponent<Text>().text = "방장";
+                roomPlayerList[i].transform.GetChild(1).gameObject.SetActive(true);
             }
 
             if(i == 0)
             {
-                playerCell[i+1].transform.GetChild(0).GetComponent<Text>().text = "";
+                roomPlayerList[i+1].transform.GetChild(0).GetComponent<Text>().text = "";
             }
         }
 
-        roomInfo.text = "방 : " + PhotonNetwork.CurrentRoom.Name;
-        roomInfo2.text = PhotonNetwork.CurrentRoom.PlayerCount + " / " + PhotonNetwork.CurrentRoom.MaxPlayers;
+        roomTitle.text = "방 : " + PhotonNetwork.CurrentRoom.Name;
+        roomCurrentPlayer.text = PhotonNetwork.CurrentRoom.PlayerCount + " / " + PhotonNetwork.CurrentRoom.MaxPlayers;
     }
 
     void Update()
