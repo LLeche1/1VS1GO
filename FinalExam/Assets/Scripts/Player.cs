@@ -13,6 +13,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
     public bool isDead = false;
     public string classType;
     public string myTeam;
+    public string name;
     public float playerHp;
     public GameObject wagon;
     private float speed = 5;
@@ -20,16 +21,12 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
     private float vAxis;
     private float jAxis;
     private GameObject[] player;
-    private GameObject hpBar;
     private Vector3 moveDir;
     protected Animator animator;
     private PhotonView PV;
     private bool isJump;
     private bool isHit = false;
     Camera camera;
-    public bool isRecall = false;
-    private GameObject recall;
-
 
     protected void Awake()
     {
@@ -38,8 +35,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
         animator = GetComponent<Animator>();
         wagon = GameObject.Find("Wagon");
         camera = GameObject.Find("Main Camera").GetComponent<Camera>();
-        hpBar = GameObject.Find("Canvas").transform.Find("Hp").gameObject;
-        recall = GameObject.Find("Canvas").transform.Find("Recall").gameObject;
+        name = PhotonNetwork.LocalPlayer.NickName;
     }
 
     protected void Update()
@@ -50,18 +46,8 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
             Move();
             Jump();
             Attack();
-            HpBar();
             Death();
             Camera();
-        }
-
-        if(isRecall == true)
-        {
-            recall.SetActive(true);
-        }
-        else if (isRecall == false)
-        {
-            recall.SetActive(false);
         }
     }
 
@@ -149,18 +135,11 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
     {
         isHit = true;
         playerHp += -50;
-        HpBar();
         if (playerHp <= 0)
         {
             isDead = true;
         }
         StartCoroutine(HitDelay());
-    }
-
-    public void HpBar()
-    {
-        hpBar.transform.GetChild(0).GetComponent<Image>().fillAmount = playerHp / 100;
-        hpBar.transform.GetChild(1).GetComponent<Text>().text = "HP " + playerHp + " / 100";
     }
 
     IEnumerator HitDelay()

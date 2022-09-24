@@ -13,6 +13,10 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
     public Text timeText;
     public GameObject[] players;
     public GameObject recall;
+    public GameObject myHp;
+    public GameObject otherHp;
+    public GameObject myWagonHp;
+    public GameObject otherWagonHp;
     private float time = 300;
     Wagon wagon;
     PhotonView PV;
@@ -32,8 +36,9 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
 
     void Update()
     {
-        SetTeam();
+        Set();
         players = GameObject.FindGameObjectsWithTag("Player");
+        PV.RPC("Hp", RpcTarget.All);
         PV.RPC("Recall", RpcTarget.All);
         if (PV.IsMine)
         {
@@ -48,7 +53,7 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
         player.name = PhotonNetwork.LocalPlayer.NickName;
     }
 
-    void SetTeam()
+    void Set()
     {
         foreach (var player in players)
         {
@@ -59,6 +64,34 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
             else
             {
                 player.GetComponent<Player>().myTeam = "b";
+            }
+        }
+    }
+
+    [PunRPC]
+    void Hp()
+    {
+        foreach (var player in players)
+        {
+            if (player.name == PhotonNetwork.LocalPlayer.NickName)
+            {
+                myHp.transform.GetChild(0).GetComponent<Image>().fillAmount = player.GetComponent<Player>().playerHp / 100;
+                myHp.transform.GetChild(1).GetComponent<Text>().text = "HP " + player.GetComponent<Player>().playerHp + " / 100";
+                if(player.GetComponent<Player>().myTeam == "a")
+                {
+                    myWagonHp.transform.GetChild(0).GetComponent<Image>().fillAmount = wagon.GetComponent<Wagon>().aTeamHp / 100;
+                    otherWagonHp.transform.GetChild(0).GetComponent<Image>().fillAmount = wagon.GetComponent<Wagon>().bTeamHp / 100;
+                }
+                else if (player.GetComponent<Player>().myTeam == "b")
+                {
+                    myWagonHp.transform.GetChild(0).GetComponent<Image>().fillAmount = wagon.GetComponent<Wagon>().bTeamHp / 100;
+                    otherWagonHp.transform.GetChild(0).GetComponent<Image>().fillAmount = wagon.GetComponent<Wagon>().aTeamHp / 100;
+                }
+            }
+            else if (player.name != PhotonNetwork.LocalPlayer.NickName)
+            {
+                otherHp.transform.GetChild(0).GetComponent<Image>().fillAmount = player.GetComponent<Player>().playerHp / 100;
+                otherHp.transform.GetChild(1).GetComponent<Text>().text = player.GetComponent<Player>().name;
             }
         }
     }
@@ -79,8 +112,10 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
     {
         float delay = 5;
         player.SetActive(false);
-        player.GetComponent<Player>().isRecall = true;
-        Debug.Log(player);
+        if(player.name == PhotonNetwork.LocalPlayer.NickName)
+        {
+            recall.SetActive(true);
+        }
         while (delay > 0)
         {
             yield return new WaitForEndOfFrame();
@@ -90,9 +125,11 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
         player.transform.position = new Vector3(Random.Range(-4f, 4f), player.transform.position.y, wagon.transform.position.z - 20f);
         player.GetComponent<Player>().playerHp = 100;
         player.GetComponent<Player>().isDead = false;
-        player.GetComponent<Player>().HpBar();
         player.GetComponent<Player>().isAttack = false;
-        player.GetComponent<Player>().isRecall = false;
+        if (player.name == PhotonNetwork.LocalPlayer.NickName)
+        {
+            recall.SetActive(false);
+        }
         player.SetActive(true);
         yield return null;
     }

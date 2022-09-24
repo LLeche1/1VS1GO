@@ -23,6 +23,7 @@ public class Wagon : MonoBehaviourPunCallbacks
     void Update()
     {
         distance();
+        Debug.Log(aTeamHp);
     }
 
     void distance()
@@ -70,11 +71,11 @@ public class Wagon : MonoBehaviourPunCallbacks
 
         if (playerTeam == "a")
         {
-            aTeamHp += -30;
+            bTeamHp += -30;
         }
         else if(playerTeam == "b")
         {
-            bTeamHp += -30;
+            aTeamHp += -30;
         }
         StartCoroutine(WagonHitDelay());
     }
