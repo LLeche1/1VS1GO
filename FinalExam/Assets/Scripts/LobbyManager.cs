@@ -419,6 +419,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks
 
             }
             roomOutBtn.GetComponent<Button>().interactable = false;
+            roomClassSelectBtn.GetComponent<Button>().interactable = false;
         }
         else if(time <= 0)
         {
@@ -428,6 +429,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks
 
             }
             roomOutBtn.GetComponent<Button>().interactable = true;
+            roomClassSelectBtn.GetComponent<Button>().interactable = true;
         }
     }
 

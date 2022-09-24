@@ -20,13 +20,15 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
     private float vAxis;
     private float jAxis;
     private GameObject[] player;
-    private Image hpBar;
+    private GameObject hpBar;
     private Vector3 moveDir;
     protected Animator animator;
     private PhotonView PV;
     private bool isJump;
     private bool isHit = false;
     Camera camera;
+    public bool isRecall = false;
+    private GameObject recall;
 
 
     protected void Awake()
@@ -34,10 +36,10 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
         playerHp = 100;
         PV = GetComponent<PhotonView>();
         animator = GetComponent<Animator>();
-        hpBar = transform.Find("Canvas").transform.Find("HpBar").gameObject.GetComponent<Image>();
-        hpBar.color = PV.IsMine ? Color.green : Color.red;
         wagon = GameObject.Find("Wagon");
         camera = GameObject.Find("Main Camera").GetComponent<Camera>();
+        hpBar = GameObject.Find("Canvas").transform.Find("Hp").gameObject;
+        recall = GameObject.Find("Canvas").transform.Find("Recall").gameObject;
     }
 
     protected void Update()
@@ -52,9 +54,18 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
             Death();
             Camera();
         }
+
+        if(isRecall == true)
+        {
+            recall.SetActive(true);
+        }
+        else if (isRecall == false)
+        {
+            recall.SetActive(false);
+        }
     }
 
-    void Camera() //함수 이름 의미 모호
+    void Camera()
     {
         camera.cameraPlayer = gameObject;
     }
@@ -140,13 +151,16 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
         playerHp += -50;
         HpBar();
         if (playerHp <= 0)
+        {
             isDead = true;
+        }
         StartCoroutine(HitDelay());
     }
+
     public void HpBar()
     {
-        hpBar.fillAmount = playerHp / 100;
-        hpBar.transform.position = gameObject.transform.position + new Vector3(0, 3, 0);
+        hpBar.transform.GetChild(0).GetComponent<Image>().fillAmount = playerHp / 100;
+        hpBar.transform.GetChild(1).GetComponent<Text>().text = "HP " + playerHp + " / 100";
     }
 
     IEnumerator HitDelay()

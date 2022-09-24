@@ -11,8 +11,9 @@ using Random = UnityEngine.Random;
 public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
 {
     public Text timeText;
-    private float time = 300;
     public GameObject[] players;
+    public GameObject recall;
+    private float time = 300;
     Wagon wagon;
     PhotonView PV;
     IsClass isClass;
@@ -31,9 +32,9 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
 
     void Update()
     {
-        players = GameObject.FindGameObjectsWithTag("Player");
         SetTeam();
-        PV.RPC("Recall", RpcTarget.Others);
+        players = GameObject.FindGameObjectsWithTag("Player");
+        PV.RPC("Recall", RpcTarget.All);
         if (PV.IsMine)
         {
             PV.RPC("limitTime", RpcTarget.All);
@@ -42,7 +43,8 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
 
     void Generate()
     {
-        GameObject player = PhotonNetwork.Instantiate(isClass.classType, Vector3.zero, Quaternion.identity);
+        Vector3 position = new Vector3(Random.Range(-4f, 4f), 0, 0);
+        GameObject player = PhotonNetwork.Instantiate(isClass.classType, position, Quaternion.identity);
         player.name = PhotonNetwork.LocalPlayer.NickName;
     }
 
@@ -68,21 +70,31 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
         {
             if (player.GetComponent<Player>().isDead == true)
             {
-                StartCoroutine(RecallCoolTime(player));
+                StartCoroutine(RecallDelay(player));
             }
         }
     }
 
-    IEnumerator RecallCoolTime(GameObject player)
+    IEnumerator RecallDelay(GameObject player)
     {
-        player.active = false;
-        yield return new WaitForSeconds(5.0f);
+        float delay = 5;
+        player.SetActive(false);
+        player.GetComponent<Player>().isRecall = true;
+        Debug.Log(player);
+        while (delay > 0)
+        {
+            yield return new WaitForEndOfFrame();
+            delay -= 1.0f * Time.deltaTime;
+            recall.transform.GetChild(1).GetComponent<Text>().text = delay.ToString("0");
+        }
         player.transform.position = new Vector3(Random.Range(-4f, 4f), player.transform.position.y, wagon.transform.position.z - 20f);
         player.GetComponent<Player>().playerHp = 100;
         player.GetComponent<Player>().isDead = false;
-        player.active = true;
         player.GetComponent<Player>().HpBar();
-        player.GetComponent<Animator>().SetBool("isAttack", false);
+        player.GetComponent<Player>().isAttack = false;
+        player.GetComponent<Player>().isRecall = false;
+        player.SetActive(true);
+        yield return null;
     }
 
     [PunRPC]
