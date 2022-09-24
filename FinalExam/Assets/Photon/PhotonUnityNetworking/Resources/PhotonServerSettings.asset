@@ -58,6 +58,7 @@ MonoBehaviour:
   - RoomReadyBtnRpc
   - ClassSelectBtnRpc
   - RpcHit
+  - Recall
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

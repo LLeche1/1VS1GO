@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using Random = UnityEngine.Random;
 
 public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
 {
@@ -33,7 +34,7 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
     {
         players = GameObject.FindGameObjectsWithTag("Player");
         SetTeam();
-        Recall();
+        PV.RPC("Recall", RpcTarget.All);
         //PV.RPC("Hp", RpcTarget.All);
         if (PV.IsMine)
         {
@@ -62,30 +63,31 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
         }
     }
 
+    [PunRPC]
     void Recall()
     {
         foreach (var player in players)
         {
             if (player.GetComponent<Player>().isDead == true)
             {
-                Recall(player);
-                PhotonNetwork.Destroy(player);
+                Recall(player);                
             }
         }
     }
 
     void Recall(GameObject player)
     {
-        GameObject other;
-        foreach (var otherPlayer in players)
-        {
-            if (player.name != otherPlayer.name)
-            {
-                other = otherPlayer;
-                GameObject playerRecall = PhotonNetwork.Instantiate(isClass.classType, other.transform.position, Quaternion.identity);
-                playerRecall.name = PhotonNetwork.LocalPlayer.NickName;
-            }
-        }
+        player.active = false;
+        StartCoroutine(RecallCoolTime(player));
+    }
+    IEnumerator RecallCoolTime(GameObject player)
+    {
+        yield return new WaitForSeconds(3.0f);
+        player.transform.position = new Vector3(Random.Range(-4f, 4f), player.transform.position.y, wagon.transform.position.z - 35f);
+        player.GetComponent<Player>().playerHp = 100;
+        player.GetComponent<Player>().isDead = false;
+        player.SetActive(true);
+        
     }
 
     [PunRPC]
