@@ -15,7 +15,6 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
     public GameObject[] players;
     Wagon wagon;
     PhotonView PV;
-    GameManager gamemanager;
     IsClass isClass;
 
     void Awake()
@@ -34,8 +33,7 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
     {
         players = GameObject.FindGameObjectsWithTag("Player");
         SetTeam();
-        PV.RPC("Recall", RpcTarget.All);
-        //PV.RPC("Hp", RpcTarget.All);
+        PV.RPC("Recall", RpcTarget.Others);
         if (PV.IsMine)
         {
             PV.RPC("limitTime", RpcTarget.All);
@@ -70,24 +68,19 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
         {
             if (player.GetComponent<Player>().isDead == true)
             {
-                Recall(player);                
+                StartCoroutine(RecallCoolTime(player));
             }
         }
     }
 
-    void Recall(GameObject player)
-    {
-        player.active = false;
-        StartCoroutine(RecallCoolTime(player));
-    }
     IEnumerator RecallCoolTime(GameObject player)
     {
+        player.active = false;
         yield return new WaitForSeconds(3.0f);
-        player.transform.position = new Vector3(Random.Range(-4f, 4f), player.transform.position.y, wagon.transform.position.z - 35f);
+        player.transform.position = new Vector3(Random.Range(-4f, 4f), player.transform.position.y, wagon.transform.position.z - 20f);
         player.GetComponent<Player>().playerHp = 100;
         player.GetComponent<Player>().isDead = false;
-        player.SetActive(true);
-        
+        player.active = true;
     }
 
     [PunRPC]
@@ -99,7 +92,7 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
             timeText.text = TimeSpan.FromSeconds(time).ToString(@"m\:ss");
         }
 
-        if(time <= 0)
+        if (time <= 0)
         {
             SceneManager.LoadScene("Lobby");
         }

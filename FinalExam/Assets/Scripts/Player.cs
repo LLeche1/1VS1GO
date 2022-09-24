@@ -54,9 +54,9 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
         }
     }
 
-    void Camera()
+    void Camera() //함수 이름 의미 모호
     {
-        camera.playerTr = gameObject.transform;
+        camera.cameraPlayer = gameObject;
     }
 
     void GetInput()
@@ -139,10 +139,11 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
         isHit = true;
         playerHp += -50;
         HpBar();
+        if (playerHp <= 0)
+            isDead = true;
         StartCoroutine(HitDelay());
     }
-
-    void HpBar()
+    public void HpBar()
     {
         hpBar.fillAmount = playerHp / 100;
         hpBar.transform.position = gameObject.transform.position + new Vector3(0, 3, 0);
@@ -177,7 +178,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
             gameObject.transform.position = new Vector3(gameObject.transform.position.x, gameObject.transform.position.y, gameObject.transform.position.z - 0.15f);
         }
     }
-    
+
     public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
     {
         if (stream.IsWriting)

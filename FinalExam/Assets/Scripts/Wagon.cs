@@ -48,7 +48,7 @@ public class Wagon : MonoBehaviourPunCallbacks
             }
         }
 
-        if (distant.transform.position.z + 60 > gameObject.transform.position.z)
+        if (distant.transform.position.z + 40 > gameObject.transform.position.z)
         {
             gameObject.transform.Translate(new Vector3(-1, 0, 0) * speed * Time.deltaTime);
         }
