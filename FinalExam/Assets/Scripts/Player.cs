@@ -9,41 +9,38 @@ using UnityEngine.UI;
 
 public class Player : MonoBehaviourPunCallbacks, IPunObservable
 {
-    private float initHP = 100;
-    public float currHP = 0;
+    public bool isAttack;
+    public bool isDead = false;
+    public string classType;
+    public string myTeam;
+    public float playerHp;
+    public GameObject wagon;
     private float speed = 5;
     private float hAxis;
     private float vAxis;
     private float jAxis;
-
-
-
-    public GameObject wagon;
     private GameObject[] player;
     private Image hpBar;
     private Vector3 moveDir;
     protected Animator animator;
     private PhotonView PV;
-    
-
-    public bool isAttack;
     private bool isJump;
-    public bool isDead = false;
-    private bool isHIt = false;
-    public string characterType;
-    public int myTeam;
-    protected virtual void Start()
+    private bool isHit = false;
+    Camera camera;
+
+
+    protected void Awake()
     {
+        playerHp = 100;
         PV = GetComponent<PhotonView>();
         animator = GetComponent<Animator>();
         hpBar = transform.Find("Canvas").transform.Find("HpBar").gameObject.GetComponent<Image>();
         hpBar.color = PV.IsMine ? Color.green : Color.red;
         wagon = GameObject.Find("Wagon");
-        currHP = initHP;
-
+        camera = GameObject.Find("MainCamera").GetComponent<Camera>();
     }
 
-    protected virtual void Update()
+    protected void Update()
     {
         if (PV.IsMine)
         {
@@ -53,8 +50,13 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
             Attack();
             HpBar();
             Death();
-            Camera.instance.playerTr = gameObject.transform;
+            Camera();
         }
+    }
+
+    void Camera()
+    {
+        camera.playerTr = gameObject.transform;
     }
 
     void GetInput()
@@ -62,19 +64,6 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
         hAxis = Input.GetAxis("Horizontal");
         vAxis = Input.GetAxis("Vertical");
         jAxis = Input.GetAxis("Jump");
-    }
-
-    void Change()
-    {
-        player = GameObject.FindGameObjectsWithTag("Player");
-        for (int i = 0; i < player.Length; i++)
-        {
-            if (player[i].name != gameObject.name)
-            {
-                GameObject other = player[i];
-                other.transform.Find("Hp_UI").transform.Find("HpBar").transform.GetChild(0).gameObject.GetComponent<Image>().color = Color.red;
-            }
-        }
     }
 
     void Move()
@@ -103,7 +92,8 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
             transform.Translate(moveDir * speed * Time.deltaTime);
         }
     }
-    public void Jump()
+
+    void Jump()
     {
         if (jAxis == 1 && !isJump)
         {
@@ -111,7 +101,8 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
             isJump = true;
         }
     }
-    protected virtual void Attack()
+
+    protected void Attack()
     {
         if (Input.GetKeyDown(KeyCode.Z) && !isAttack)
         {
@@ -119,36 +110,49 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
             animator.SetBool("isAttack", isAttack);
             animator.SetTrigger("Recoil");
             StartCoroutine(AdjustAttackTime());
-
         }
     }
+
+    protected IEnumerator AdjustAttackTime()
+    {
+        yield return new WaitForSeconds(0.683f);
+        isAttack = false;
+        animator.SetBool("isAttack", isAttack);
+    }
+
     void Death()
     {
-        if (currHP <= 0 && !isDead)
+        if (playerHp <= 0 && !isDead)
         {
             isDead = true;
         }
     }
 
-    public void HpBar()
+    protected void Hit()
     {
-        hpBar.fillAmount = currHP / initHP;
-        hpBar.transform.position = gameObject.transform.position + new Vector3(0, 3, 0);
+        photonView.RPC("RpcHit", RpcTarget.All);
     }
 
     [PunRPC]
-    protected void RPCHit()
+    protected void RpcHit()
     {
-        isHIt = true;
-        currHP += -50;
+        isHit = true;
+        playerHp += -50;
         HpBar();
         StartCoroutine(HitDelay());
     }
-    protected void Hit()
+
+    void HpBar()
     {
-        photonView.RPC("RPCHit", RpcTarget.AllBuffered);
+        hpBar.fillAmount = playerHp / 100;
+        hpBar.transform.position = gameObject.transform.position + new Vector3(0, 3, 0);
     }
 
+    IEnumerator HitDelay()
+    {
+        yield return new WaitForSeconds(0.5f);
+        isHit = false;
+    }
 
     void OnCollisionEnter(Collision collision)
     {
@@ -159,26 +163,14 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
 
         if (collision.gameObject.tag == "Player")
         {
-            Debug.Log("hit");
             if (isAttack)
             {
-                Player hitPlayer = collision.transform.GetComponent<Player>();
-                hitPlayer.Hit();
+                collision.gameObject.transform.GetComponent<Player>().Hit();
             }
         }
     }
-    protected IEnumerator AdjustAttackTime()
-    {
-        yield return new WaitForSeconds(0.683f);
-        isAttack = false;
-        animator.SetBool("isAttack", isAttack);
-    }
-    IEnumerator HitDelay()
-    {
-        yield return new WaitForSeconds(0.5f);
-        isHIt = false;
-    }
-    private void OnTriggerEnter(Collider other)
+
+    void OnTriggerEnter(Collider other)
     {
         if (other.tag == "Wagon")
         {
@@ -190,12 +182,11 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
     {
         if (stream.IsWriting)
         {
-            stream.SendNext(currHP);
+            stream.SendNext(playerHp);
         }
         else
         {
-            currHP = (float)stream.ReceiveNext();
-            //HpBar();
+            playerHp = (float)stream.ReceiveNext();
         }
     }
 }

@@ -8,63 +8,63 @@ using System.Collections;
 
 public class LobbyManager : MonoBehaviourPunCallbacks
 {
-
     public InputField loginID;
     public InputField loginPW;
-    public InputField createRoomNum;
     public Text loginInfo;
+    public Button loginBtn;
+    public Toggle loginMemory;
+    public Button lobbyPreviousBtn;
+    public Button lobbyNextBtn;
+    public Button[] lobbyRoomListBtn;
     public Text roomTitle;
     public Text roomCurrentPlayer;
     public Text roomCountdown;
-    public Button setBtn;
-    public Button loginBtn;
     public GameObject roomStartBtn;
     public GameObject roomReadyBtn;
-    public Button roomStartBtn2;
-    public Button roomReadyBtn2;
-    public Button lobbyPreviousBtn;
-    public Button lobbyNextBtn;
-    public Button[] LobbyRoomListBtn;
-    public Button[] classListBtn;
+    public GameObject roomOutBtn;
     public Image[] roomPlayerList;
+    public Button roomClassSelectBtn;
+    public Button[] classListBtn;
+    public InputField createRoomNum;
+    public Button setBtn;
     public GameObject login;
-    public GameObject loginError;
+    public GameObject error;
     public GameObject lobby;
     public GameObject room;
     public GameObject Class;
     public GameObject createRoom;
-    public GameObject createRoomError;
     public GameObject set;
-    public Toggle loginMemory;
-    private PhotonView PV;
+    public string classType;
     private string gameVersion = "1";
     private string lastCanvas;
-    private string[] characterType;
+    private string errorType;
     private int currentPage = 1;
     private int maxPage;
     private int multiple;
-    private float delay = 10;
     private bool isReady = false;
     private bool isReadyRpc = false;
-    private bool isStart = false;
+    private bool isClassSelect = false;
     List<RoomInfo> roomList = new List<RoomInfo>();
     GameManager gameManager;
+    PhotonView PV;
+    public static LobbyManager lobbyManager;
 
-    void Awake()
+    private void Awake()
     {
         Application.targetFrameRate = 144;
         Screen.SetResolution(1600, 900, false);
         PhotonNetwork.AutomaticallySyncScene = true;
         PV = GetComponent<PhotonView>();
-        DontDestroyOnLoad(gameObject);
+        DontDestroyOnLoad(this);
     }
 
     void Start()
     {
-        Load(loginMemory);
+        LoginLoad(loginMemory);
         PhotonNetwork.GameVersion = gameVersion;
         PhotonNetwork.ConnectUsingSettings();
         loginInfo.text = "서버에 접속중...";
+        DontDestroyOnLoad(gameObject);
     }
 
     public override void OnConnectedToMaster()
@@ -106,7 +106,9 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         else
         {
             login.SetActive(false);
-            loginError.SetActive(true);
+            error.SetActive(true);
+            errorType = "login";
+            error.transform.GetChild(1).GetComponent<Text>().text = "아이디 또는 비밀번호를 잘못 입력했습니다";
         }
     }
 
@@ -141,7 +143,9 @@ public class LobbyManager : MonoBehaviourPunCallbacks
     public override void OnCreateRoomFailed(short returnCode, string message)
     {
         createRoom.SetActive(false);
-        createRoomError.SetActive(true);
+        error.SetActive(true);
+        errorType = "createRoom";
+        error.transform.GetChild(1).GetComponent<Text>().text = "현재 방번호와 같은 방이 존재합니다.";
     }
 
     public override void OnPlayerEnteredRoom(Photon.Realtime.Player newPlayer)
@@ -152,7 +156,11 @@ public class LobbyManager : MonoBehaviourPunCallbacks
     public override void OnPlayerLeftRoom(Photon.Realtime.Player otherPlayer)
     {
         RoomRenewal();
-        ResetReady();
+        roomStartBtn.GetComponent<Button>().interactable = false;
+        roomReadyBtn.GetComponent<Button>().interactable = false;
+        isReady = false;
+        PV.RPC("ReadyRpc", RpcTarget.All, isReady);
+        PV.RPC("ClassSelectBtnRpc", RpcTarget.All);
     }
 
     public override void OnRoomListUpdate(List<RoomInfo> room)
@@ -183,10 +191,12 @@ public class LobbyManager : MonoBehaviourPunCallbacks
     {
         if (newMasterClient == PhotonNetwork.LocalPlayer)
         {
-            if (isReady == true)
-            {
-                ResetReady();
-            }
+            roomStartBtn.GetComponent<Button>().interactable = false;
+            roomReadyBtn.GetComponent<Button>().interactable = false;
+            roomClassSelectBtn.GetComponent<Button>().interactable = true;
+            isReady = false;
+            PV.RPC("ReadyRpc", RpcTarget.All, isReady);
+            PV.RPC("ClassSelectBtnRpc", RpcTarget.All);
             roomStartBtn.SetActive(true);
             roomReadyBtn.SetActive(false);
         }
@@ -232,44 +242,43 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         PhotonNetwork.JoinRandomRoom();
     }
 
-    public void StartBtn()
+    public void RoomStartBtn()
     {
         if (PhotonNetwork.IsMasterClient)
         {
-            /*if (PhotonNetwork.CurrentRoom.PlayerCount == PhotonNetwork.CurrentRoom.MaxPlayers)
-            {
-                PhotonNetwork.LoadLevel("InGame 1");
-            }
-            */
             StartCoroutine(Delay());
             PhotonNetwork.CurrentRoom.IsVisible = false;
-            //PhotonNetwork.LoadLevel("InGame");
         }
     }
 
-    public void ReadyBtn()
+    public void RoomReadyBtn()
     {
         if(isReady == false)
         {
             isReady = true;
             roomReadyBtn.GetComponent<Image>().color = new Color32(255, 255, 255, 100);
+            roomClassSelectBtn.interactable = false;
         }
         else if (isReady == true)
         {
             isReady = false;
             roomReadyBtn.GetComponent<Image>().color = new Color32(255, 255, 255, 255);
+            roomClassSelectBtn.interactable = true;
         }
-        PV.RPC("ReadyRpc", RpcTarget.All, isReady);
+        PV.RPC("RoomReadyBtnRpc", RpcTarget.All, isReady);
     }
 
     [PunRPC]
-    public void ReadyRpc(bool isReady)
+    public void RoomReadyBtnRpc(bool isReady)
     {
         isReadyRpc = isReady;
 
         if (isReadyRpc == true)
         {
-            roomStartBtn2.interactable = true;
+            if(PhotonNetwork.IsMasterClient && isClassSelect == true)
+            {
+                roomStartBtn.GetComponent<Button>().interactable = true;
+            }
             for (int i = 0; i < PhotonNetwork.PlayerList.Length; i++)
             {
                 if (PhotonNetwork.MasterClient.NickName != PhotonNetwork.PlayerList[i].NickName)
@@ -280,7 +289,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         }
         else if (isReadyRpc == false)
         {
-            roomStartBtn2.interactable = false;
+            roomStartBtn.GetComponent<Button>().interactable = false;
             for (int i = 0; i < PhotonNetwork.PlayerList.Length; i++)
             {
                 if (PhotonNetwork.MasterClient.NickName != PhotonNetwork.PlayerList[i].NickName)
@@ -291,7 +300,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         }
     }
 
-    public void Memory(Toggle toggle)
+    public void LoginMemory(Toggle toggle)
     {
         if (toggle.isOn)
         {
@@ -308,16 +317,18 @@ public class LobbyManager : MonoBehaviourPunCallbacks
 
     public void RoomOut()
     {
-        ResetReady();
-        roomStartBtn2.interactable = false;
-        if (roomStartBtn.activeSelf == true)
-        {
-            roomStartBtn.SetActive(false);
-        }
-        else if(roomReadyBtn.activeSelf == true)
-        {
-            roomReadyBtn.SetActive(false);
-        }
+        roomStartBtn.GetComponent<Button>().interactable = false;
+        roomReadyBtn.GetComponent<Button>().interactable = false;
+        roomStartBtn.SetActive(false);
+        roomReadyBtn.SetActive(false);
+        isReady = false;
+        isClassSelect = false;
+        roomClassSelectBtn.GetComponent<Button>().interactable = true;
+        classListBtn[0].GetComponent<Image>().color = new Color32(255, 255, 255, 255);
+        classListBtn[1].GetComponent<Image>().color = new Color32(255, 255, 255, 255);
+        roomReadyBtn.GetComponent<Image>().color = new Color32(255, 255, 255, 255);
+        PV.RPC("ReadyRpc", RpcTarget.All, isReady);
+        PV.RPC("ClassSelectBtnRpc", RpcTarget.All);
         PhotonNetwork.LeaveRoom();
         room.SetActive(false);
         lobby.SetActive(true);
@@ -325,20 +336,23 @@ public class LobbyManager : MonoBehaviourPunCallbacks
 
     public void Back()
     {
-        if(lastCanvas == "loginError")
+        if(lastCanvas == "error")
         {
-            loginError.SetActive(false);
-            login.SetActive(true);
+            if(errorType == "login")
+            {
+                error.SetActive(false);
+                login.SetActive(true);
+            }
+            else if(errorType == "createRoom")
+            {
+                error.SetActive(false);
+                createRoom.SetActive(true);
+            }
         }
         else if (lastCanvas == "createRoom")
         {
             createRoom.SetActive(false);
             lobby.SetActive(true);
-        }
-        else if (lastCanvas == "createRoomError")
-        {
-            createRoomError.SetActive(false);
-            createRoom.SetActive(true);
         }
     }
 
@@ -349,10 +363,10 @@ public class LobbyManager : MonoBehaviourPunCallbacks
             set.SetActive(false);
             login.SetActive(true);
         }
-        else if (lastCanvas == "loginError")
+        else if (lastCanvas == "error")
         {
             set.SetActive(false);
-            loginError.SetActive(true);
+            error.SetActive(true);
         }
         else if (lastCanvas == "lobby")
         {
@@ -364,15 +378,15 @@ public class LobbyManager : MonoBehaviourPunCallbacks
             set.SetActive(false);
             createRoom.SetActive(true);
         }
-        else if (lastCanvas == "createRoomError")
-        {
-            set.SetActive(false);
-            createRoomError.SetActive(true);
-        }
         else if(lastCanvas == "room")
         {
             set.SetActive(false);
             room.SetActive(true);
+        }
+        else if (lastCanvas == "Class")
+        {
+            set.SetActive(false);
+            Class.SetActive(true);
         }
     }
 
@@ -388,16 +402,34 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         {
             yield return new WaitForEndOfFrame();
             time -= 1.0f * Time.deltaTime;
-            PV.RPC("CountdownRpc", RpcTarget.All, time);
+            PV.RPC("RoomCountdownRpc", RpcTarget.All, time);
         }
         PhotonNetwork.LoadLevel("InGame");
         yield return null;
     }
 
     [PunRPC]
-    public void CountdownRpc(float time)
+    public void RoomCountdownRpc(float time)
     {
         roomCountdown.text = time.ToString("0");
+        if(time > 0)
+        {
+            if (PhotonNetwork.IsMasterClient)
+            {
+                roomStartBtn.GetComponent<Button>().interactable = false;
+
+            }
+            roomOutBtn.GetComponent<Button>().interactable = false;
+        }
+        else if(time <= 0)
+        {
+            if (PhotonNetwork.IsMasterClient)
+            {
+                roomStartBtn.GetComponent<Button>().interactable = true;
+
+            }
+            roomOutBtn.GetComponent<Button>().interactable = true;
+        }
     }
 
     public void RoomClassSelectBtn()
@@ -407,52 +439,105 @@ public class LobbyManager : MonoBehaviourPunCallbacks
             room.SetActive(false);
             Class.SetActive(true);
         }
-        else if (lastCanvas == "Class")
-        {
-            Class.SetActive(false);
-            room.SetActive(true);
-        }
 
     }
 
     public void ClassSelectBtn()
     {
-        if (gameObject.name == classListBtn[0].name)
+        if (lastCanvas == "Class")
         {
-            Debug.Log(gameObject.name);
-            /*for (int i = 0; i < PhotonNetwork.PlayerList.Length; i++)
-            {
+            Class.SetActive(false);
+            room.SetActive(true);
+        }
 
+        if(isClassSelect == true)
+        {
+            if (!PhotonNetwork.IsMasterClient)
+            {
+                roomReadyBtn.GetComponent<Button>().interactable = true;
             }
-            characterType[i] == "Warrior";
-            */
+            else if (PhotonNetwork.IsMasterClient && isReadyRpc == true)
+            {
+                roomStartBtn.GetComponent<Button>().interactable = true;
+            }
+        }
+        else if(isClassSelect == false)
+        {
+            if (!PhotonNetwork.IsMasterClient)
+            {
+                roomReadyBtn.GetComponent<Button>().interactable = false;
+            }
+            else if (PhotonNetwork.IsMasterClient)
+            {
+                roomStartBtn.GetComponent<Button>().interactable = false;
+            }
         }
     }
 
-    void ResetReady()
+    public void ClassListBtn(GameObject gameObject)
     {
-        isReady = false;
-        PV.RPC("ReadyRpc", RpcTarget.All, isReady);
-        roomReadyBtn.GetComponent<Image>().color = new Color32(255, 255, 255, 255);
+        if(gameObject.name == classListBtn[0].name)
+        {
+            if(isClassSelect == false)
+            {
+                classType = "Warrior";
+                gameObject.GetComponent<Image>().color = new Color32(255, 255, 255, 100);
+                isClassSelect = true;
+            }
+            else if(isClassSelect == true && gameObject.GetComponent<Image>().color == new Color32(255, 255, 255, 100))
+            {
+                classType = "";
+                gameObject.GetComponent<Image>().color = new Color32(255, 255, 255, 255);
+                isClassSelect = false;
+            }
+            else if (isClassSelect == true && classListBtn[1].GetComponent<Image>().color == new Color32(255, 255, 255, 100))
+            {
+                classType = "Warrior";
+                gameObject.GetComponent<Image>().color = new Color32(255, 255, 255, 100);
+                classListBtn[1].GetComponent<Image>().color = new Color32(255, 255, 255, 255);
+            }
+
+        }
+        else if(gameObject.name == classListBtn[1].name)
+        {
+            if (isClassSelect == false)
+            {
+                classType = "Archor";
+                gameObject.GetComponent<Image>().color = new Color32(255, 255, 255, 100);
+                isClassSelect = true;
+            }
+            else if (isClassSelect == true && gameObject.GetComponent<Image>().color == new Color32(255, 255, 255, 100))
+            {
+                classType = "";
+                gameObject.GetComponent<Image>().color = new Color32(255, 255, 255, 255);
+                isClassSelect = false;
+            }
+            else if (isClassSelect == true && classListBtn[0].GetComponent<Image>().color == new Color32(255, 255, 255, 100))
+            {
+                classType = "Archor";
+                gameObject.GetComponent<Image>().color = new Color32(255, 255, 255, 100);
+                classListBtn[0].GetComponent<Image>().color = new Color32(255, 255, 255, 255);
+            }
+        }
     }
 
     void roomListRenewal()
     {
-        maxPage = (roomList.Count % LobbyRoomListBtn.Length == 0) ? roomList.Count / LobbyRoomListBtn.Length : roomList.Count / LobbyRoomListBtn.Length + 1;
+        maxPage = (roomList.Count % lobbyRoomListBtn.Length == 0) ? roomList.Count / lobbyRoomListBtn.Length : roomList.Count / lobbyRoomListBtn.Length + 1;
 
         lobbyPreviousBtn.interactable = (currentPage <= 1) ? false : true;
         lobbyNextBtn.interactable = (currentPage >= maxPage) ? false : true;
 
-        multiple = (currentPage - 1) * LobbyRoomListBtn.Length;
-        for (int i = 0; i < LobbyRoomListBtn.Length; i++)
+        multiple = (currentPage - 1) * lobbyRoomListBtn.Length;
+        for (int i = 0; i < lobbyRoomListBtn.Length; i++)
         {
-            LobbyRoomListBtn[i].interactable = (multiple + i < roomList.Count) ? true : false;
-            LobbyRoomListBtn[i].transform.GetChild(0).GetComponent<Text>().text = (multiple + i < roomList.Count) ? roomList[multiple + i].Name : "";
-            LobbyRoomListBtn[i].transform.GetChild(1).GetComponent<Text>().text = (multiple + i < roomList.Count) ? roomList[multiple + i].PlayerCount + "/" + roomList[multiple + i].MaxPlayers : "";
+            lobbyRoomListBtn[i].interactable = (multiple + i < roomList.Count) ? true : false;
+            lobbyRoomListBtn[i].transform.GetChild(0).GetComponent<Text>().text = (multiple + i < roomList.Count) ? roomList[multiple + i].Name : "";
+            lobbyRoomListBtn[i].transform.GetChild(1).GetComponent<Text>().text = (multiple + i < roomList.Count) ? roomList[multiple + i].PlayerCount + "/" + roomList[multiple + i].MaxPlayers : "";
         }
     }
 
-    void Load(Toggle toggle)
+    void LoginLoad(Toggle toggle)
     {
         loginID.text = PlayerPrefs.GetString("ID");
         loginPW.text = PlayerPrefs.GetString("PW");
@@ -481,9 +566,9 @@ public class LobbyManager : MonoBehaviourPunCallbacks
             {
                 login.SetActive(false);
             }
-            else if (lastCanvas == "loginError")
+            else if (lastCanvas == "error")
             {
-                loginError.SetActive(false);
+                error.SetActive(false);
             }
             else if (lastCanvas == "lobby")
             {
@@ -492,10 +577,6 @@ public class LobbyManager : MonoBehaviourPunCallbacks
             else if (lastCanvas == "createRoom")
             {
                 createRoom.SetActive(false);
-            }
-            else if (lastCanvas == "createRoomError")
-            {
-                createRoomError.SetActive(false);
             }
             else if (lastCanvas == "room")
             {
@@ -515,9 +596,9 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         {
             lastCanvas = "login";
         }
-        else if (loginError.activeSelf == true)
+        else if (error.activeSelf == true)
         {
-            lastCanvas = "loginError";
+            lastCanvas = "error";
         }
         else if (lobby.activeSelf == true)
         {
@@ -526,10 +607,6 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         else if (createRoom.activeSelf == true)
         {
             lastCanvas = "createRoom";
-        }
-        else if (createRoomError.activeSelf == true)
-        {
-            lastCanvas = "createRoomError";
         }
         else if (room.activeSelf == true)
         {

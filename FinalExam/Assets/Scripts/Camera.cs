@@ -5,17 +5,11 @@ using UnityEngine;
 
 public class Camera : MonoBehaviour
 {
-    public static Camera instance;
-    public float distance;
-    public float height;
-    string playerObjName;
-    private GameObject playerObj;
     public Transform playerTr;
+    private float distance = 10;
+    private float height = 3;
+    private GameObject playerObj;
 
-    void Start()
-    {
-        instance = this;
-    }
     void Update()
     {
         Vector3 pos = playerTr.position - (Vector3.forward * distance) + (Vector3.up * height);

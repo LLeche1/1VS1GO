@@ -6,18 +6,20 @@ using UnityEngine;
 
 public class Wagon : MonoBehaviourPunCallbacks
 {
-    public float oneTeamHP = 100f;
-    public float twoTeamHP = 100f;
+    public int aTeamHp = 100;
+    public int bTeamHp = 100;
     private GameObject[] player;
     private GameObject distant;
-    private PhotonView PV;
+    private string playerTeam;
     private float speed = 7f;
     private bool isHit = false;
+    PhotonView PV;
 
     void Start()
     {
         PV = GetComponent<PhotonView>();
     }
+
     void Update()
     {
         distance();
@@ -27,22 +29,15 @@ public class Wagon : MonoBehaviourPunCallbacks
     {
         player = GameObject.FindGameObjectsWithTag("Player");
 
-        if (player.Length == 1)
+        for (int i = 0; i < player.Length - 1; i++)
         {
-            distant = player[0];
-        }
-        else
-        {
-            for (int i = 0; i < player.Length - 1; i++)
+            if (player[i].transform.position.z < player[i + 1].transform.position.z)
             {
-                if (player[i].transform.position.z < player[i + 1].transform.position.z)
-                {
-                    distant = player[i];
-                }
-                else
-                {
-                    distant = player[i + 1];
-                }
+                distant = player[i];
+            }
+            else
+            {
+                distant = player[i + 1];
             }
         }
 
@@ -56,21 +51,27 @@ public class Wagon : MonoBehaviourPunCallbacks
     {
         if (other.transform.tag == "Player" && other.transform.GetComponent<Player>().isAttack == true && isHit == false)
         {
-            TeamType playerTeam = (TeamType)other.transform.GetComponent<Player>().myTeam;
+            playerTeam = other.transform.GetComponent<Player>().myTeam;
             PV.RPC("WagonHit", RpcTarget.All, playerTeam);
         }
     }
 
     [PunRPC]
-    void WagonHit(TeamType teamType)
+    void WagonHit(string playerTeam)
     {
         isHit = true;
-        if (teamType == TeamType.oneTeam)
-            oneTeamHP += -30;
-        else
-            twoTeamHP += -30;
+
+        if (playerTeam == "a")
+        {
+            aTeamHp += -30;
+        }
+        else if(playerTeam == "b")
+        {
+            bTeamHp += -30;
+        }
         StartCoroutine(WagonHitDelay());
     }
+
     IEnumerator WagonHitDelay()
     {
         yield return new WaitForSeconds(1.0f);
