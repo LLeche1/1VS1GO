@@ -82,6 +82,7 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
         player.GetComponent<Player>().isDead = false;
         player.active = true;
         player.GetComponent<Player>().HpBar();
+        player.GetComponent<Animator>().SetBool("isAttack", false);
     }
 
     [PunRPC]
