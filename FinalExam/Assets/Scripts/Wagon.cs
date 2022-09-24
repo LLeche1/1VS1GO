@@ -29,15 +29,22 @@ public class Wagon : MonoBehaviourPunCallbacks
     {
         player = GameObject.FindGameObjectsWithTag("Player");
 
-        for (int i = 0; i < player.Length - 1; i++)
+        if (player.Length == 1)
         {
-            if (player[i].transform.position.z < player[i + 1].transform.position.z)
+            distant = player[0];
+        }
+        else
+        {
+            for (int i = 0; i < player.Length - 1; i++)
             {
-                distant = player[i];
-            }
-            else
-            {
-                distant = player[i + 1];
+                if (player[i].transform.position.z < player[i + 1].transform.position.z)
+                {
+                    distant = player[i];
+                }
+                else
+                {
+                    distant = player[i + 1];
+                }
             }
         }
 

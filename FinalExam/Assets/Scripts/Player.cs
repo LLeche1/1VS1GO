@@ -37,7 +37,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
         hpBar = transform.Find("Canvas").transform.Find("HpBar").gameObject.GetComponent<Image>();
         hpBar.color = PV.IsMine ? Color.green : Color.red;
         wagon = GameObject.Find("Wagon");
-        camera = GameObject.Find("MainCamera").GetComponent<Camera>();
+        camera = GameObject.Find("Main Camera").GetComponent<Camera>();
     }
 
     protected void Update()

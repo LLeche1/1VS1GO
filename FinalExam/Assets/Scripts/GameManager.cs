@@ -12,16 +12,16 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
     public Text timeText;
     private float time = 300;
     public GameObject[] players;
-    LobbyManager lobbyManager;
     Wagon wagon;
     PhotonView PV;
     GameManager gamemanager;
+    IsClass isClass;
 
     void Awake()
     {
         wagon = GameObject.Find("Wagon").GetComponent<Wagon>();
-        lobbyManager = GameObject.Find("LobbyManager").GetComponent<LobbyManager>();
         PV = GetComponent<PhotonView>();
+        isClass = GameObject.Find("IsClass").GetComponent<IsClass>();
     }
 
     void Start()
@@ -34,7 +34,7 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
         players = GameObject.FindGameObjectsWithTag("Player");
         SetTeam();
         Recall();
-        PV.RPC("Hp", RpcTarget.All);
+        //PV.RPC("Hp", RpcTarget.All);
         if (PV.IsMine)
         {
             PV.RPC("limitTime", RpcTarget.All);
@@ -43,7 +43,7 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
 
     void Generate()
     {
-        GameObject player = PhotonNetwork.Instantiate(lobbyManager.classType, Vector3.zero, Quaternion.identity);
+        GameObject player = PhotonNetwork.Instantiate(isClass.classType, Vector3.zero, Quaternion.identity);
         player.name = PhotonNetwork.LocalPlayer.NickName;
     }
 
@@ -82,7 +82,7 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
             if (player.name != otherPlayer.name)
             {
                 other = otherPlayer;
-                GameObject playerRecall = PhotonNetwork.Instantiate(lobbyManager.classType, other.transform.position, Quaternion.identity);
+                GameObject playerRecall = PhotonNetwork.Instantiate(isClass.classType, other.transform.position, Quaternion.identity);
                 playerRecall.name = PhotonNetwork.LocalPlayer.NickName;
             }
         }
