@@ -34,6 +34,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks
     public GameObject Class;
     public GameObject createRoom;
     public GameObject set;
+    public Texture2D cursor;
     public string classType;
     private string gameVersion = "1";
     private string lastCanvas;
@@ -56,6 +57,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         PhotonNetwork.AutomaticallySyncScene = true;
         PV = GetComponent<PhotonView>();
         isClass = GameObject.Find("IsClass").GetComponent<IsClass>();
+        Cursor.SetCursor(cursor, Vector2.zero, CursorMode.Auto);
     }
 
     void Start()

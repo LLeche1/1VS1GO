@@ -8327,6 +8327,7 @@ MonoBehaviour:
   Class: {fileID: 1416348272}
   createRoom: {fileID: 1125261768}
   set: {fileID: 2143929212}
+  cursor: {fileID: 2800000, guid: 5b26499191f844e11b547ff11ffa68d8, type: 3}
   classType: 
 --- !u!114 &2074499704
 MonoBehaviour:

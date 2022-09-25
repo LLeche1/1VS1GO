@@ -12,11 +12,16 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
 {
     public Text timeText;
     public GameObject[] players;
+    public GameObject[] tabPlayers;
     public GameObject recall;
     public GameObject myHp;
     public GameObject otherHp;
     public GameObject myWagonHp;
     public GameObject otherWagonHp;
+    public GameObject tab;
+    public Sprite warriorSprite;
+    public Sprite archerSprite;
+    public Texture2D cursor;
     private float time = 300;
     Wagon wagon;
     PhotonView PV;
@@ -27,6 +32,8 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
         wagon = GameObject.Find("Wagon").GetComponent<Wagon>();
         PV = GetComponent<PhotonView>();
         isClass = GameObject.Find("IsClass").GetComponent<IsClass>();
+        Cursor.SetCursor(cursor, Vector2.zero, CursorMode.Auto);
+        Cursor.lockState = CursorLockMode.Confined;
     }
 
     void Start()
@@ -44,6 +51,7 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
         {
             PV.RPC("limitTime", RpcTarget.All);
         }
+        Tab();
     }
 
     void Generate()
@@ -51,6 +59,7 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
         Vector3 position = new Vector3(Random.Range(-4f, 4f), 0, 0);
         GameObject player = PhotonNetwork.Instantiate(isClass.classType, position, Quaternion.identity);
         player.name = PhotonNetwork.LocalPlayer.NickName;
+        player.GetComponent<Player>().classType = isClass.classType;
     }
 
     void Set()
@@ -73,25 +82,73 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
     {
         foreach (var player in players)
         {
-            if (player.name == PhotonNetwork.LocalPlayer.NickName)
+            for(int i = 0; i < PhotonNetwork.PlayerList.Length; i++)
             {
-                myHp.transform.GetChild(0).GetComponent<Image>().fillAmount = player.GetComponent<Player>().playerHp / 100;
-                myHp.transform.GetChild(1).GetComponent<Text>().text = "HP " + player.GetComponent<Player>().playerHp + " / 100";
-                if(player.GetComponent<Player>().myTeam == "a")
+                if (player.name == PhotonNetwork.PlayerList[i].NickName && PhotonNetwork.PlayerList[i].NickName == PhotonNetwork.LocalPlayer.NickName)
                 {
-                    myWagonHp.transform.GetChild(0).GetComponent<Image>().fillAmount = wagon.GetComponent<Wagon>().aTeamHp / 100;
-                    otherWagonHp.transform.GetChild(0).GetComponent<Image>().fillAmount = wagon.GetComponent<Wagon>().bTeamHp / 100;
+                    myHp.transform.GetChild(0).GetComponent<Image>().fillAmount = player.GetComponent<Player>().playerHp / 100;
+                    myHp.transform.GetChild(1).GetComponent<Text>().text = "HP " + player.GetComponent<Player>().playerHp + " / 100";
+                    if (player.GetComponent<Player>().myTeam == "a")
+                    {
+                        myWagonHp.transform.GetChild(0).GetComponent<Image>().fillAmount = wagon.aTeamHp / 100;
+                        otherWagonHp.transform.GetChild(0).GetComponent<Image>().fillAmount = wagon.bTeamHp / 100;
+                    }
+                    else if (player.GetComponent<Player>().myTeam == "b")
+                    {
+                        myWagonHp.transform.GetChild(0).GetComponent<Image>().fillAmount = wagon.bTeamHp / 100;
+                        otherWagonHp.transform.GetChild(0).GetComponent<Image>().fillAmount = wagon.aTeamHp / 100;
+                    }
                 }
-                else if (player.GetComponent<Player>().myTeam == "b")
+                else if (player.name != PhotonNetwork.LocalPlayer.NickName && PhotonNetwork.PlayerList[i].NickName != PhotonNetwork.LocalPlayer.NickName)
                 {
-                    myWagonHp.transform.GetChild(0).GetComponent<Image>().fillAmount = wagon.GetComponent<Wagon>().bTeamHp / 100;
-                    otherWagonHp.transform.GetChild(0).GetComponent<Image>().fillAmount = wagon.GetComponent<Wagon>().aTeamHp / 100;
+                    otherHp.transform.GetChild(0).GetComponent<Image>().fillAmount = player.GetComponent<Player>().playerHp / 100;
+                    otherHp.transform.GetChild(1).GetComponent<Text>().text = PhotonNetwork.PlayerList[i].NickName;
                 }
             }
-            else if (player.name != PhotonNetwork.LocalPlayer.NickName)
+        }
+    }
+
+    void Tab()
+    {
+        if (Input.GetKeyDown(KeyCode.Tab))
+        {
+            tab.SetActive(true);
+        }
+        else if (Input.GetKeyUp(KeyCode.Tab))
+        {
+            tab.SetActive(false);
+        }
+
+        foreach (var player in players)
+        {
+            for (int i = 0; i < PhotonNetwork.PlayerList.Length; i++)
             {
-                otherHp.transform.GetChild(0).GetComponent<Image>().fillAmount = player.GetComponent<Player>().playerHp / 100;
-                otherHp.transform.GetChild(1).GetComponent<Text>().text = player.GetComponent<Player>().name;
+                if (player.name == PhotonNetwork.PlayerList[i].NickName && PhotonNetwork.PlayerList[i].NickName == PhotonNetwork.LocalPlayer.NickName)
+                {
+                    if (player.layer == 6)
+                    {
+                        tabPlayers[0].transform.GetChild(0).GetComponent<Image>().sprite = warriorSprite;
+                    }
+                    else if (player.layer == 7)
+                    {
+                        tabPlayers[0].transform.GetChild(0).GetComponent<Image>().sprite = archerSprite;
+                    }
+
+                    tabPlayers[0].transform.GetChild(1).GetComponent<Text>().text = PhotonNetwork.PlayerList[i].NickName;
+                }
+                else if (player.name != PhotonNetwork.LocalPlayer.NickName && PhotonNetwork.PlayerList[i].NickName != PhotonNetwork.LocalPlayer.NickName)
+                {
+                    if (player.layer == 6)
+                    {
+                        tabPlayers[1].transform.GetChild(0).GetComponent<Image>().sprite = warriorSprite;
+                    }
+                    else if (player.layer == 7)
+                    {
+                        tabPlayers[1].transform.GetChild(0).GetComponent<Image>().sprite = archerSprite;
+                    }
+
+                    tabPlayers[1].transform.GetChild(1).GetComponent<Text>().text = PhotonNetwork.PlayerList[i].NickName;
+                }
             }
         }
     }

@@ -23,7 +23,6 @@ public class Wagon : MonoBehaviourPunCallbacks
     void Update()
     {
         distance();
-        Debug.Log(aTeamHp);
     }
 
     void distance()

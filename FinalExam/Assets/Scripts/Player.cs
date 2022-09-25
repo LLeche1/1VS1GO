@@ -13,7 +13,8 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
     public bool isDead = false;
     public string classType;
     public string myTeam;
-    public string name;
+    public int kill;
+    public int death;
     public float playerHp;
     public GameObject wagon;
     private float speed = 5;
@@ -26,7 +27,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
     private PhotonView PV;
     private bool isJump;
     private bool isHit = false;
-    Camera camera;
+    private Camera camera;
 
     protected void Awake()
     {
@@ -35,7 +36,6 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
         animator = GetComponent<Animator>();
         wagon = GameObject.Find("Wagon");
         camera = GameObject.Find("Main Camera").GetComponent<Camera>();
-        name = PhotonNetwork.LocalPlayer.NickName;
     }
 
     protected void Update()
@@ -101,7 +101,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
 
     protected void Attack()
     {
-        if (Input.GetKeyDown(KeyCode.Z) && !isAttack)
+        if (Input.GetMouseButtonDown(0) && !isAttack)
         {
             isAttack = true;
             animator.SetBool("isAttack", isAttack);
