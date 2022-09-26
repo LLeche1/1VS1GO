@@ -27,7 +27,7 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
     PhotonView PV;
     IsClass isClass;
 
-    public GameObject player;
+    private string myTeam;
 
     void Awake()
     {
@@ -45,7 +45,6 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
 
     void Update()
     {
-        //Set();
         players = GameObject.FindGameObjectsWithTag("Player");
         PV.RPC("Hp", RpcTarget.All);
         PV.RPC("Recall", RpcTarget.All);
@@ -65,23 +64,14 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
         if (PhotonNetwork.IsMasterClient)
         {
             player.GetComponent<Player>().myTeam = "a";
+            myTeam = "a";
         }
         else if (!PhotonNetwork.IsMasterClient)
         {
             player.GetComponent<Player>().myTeam = "b";
+            myTeam = "b";
         }
     }
-
-    /*void Set()
-    {
-        foreach (var player in players)
-        {
-            if (player.name != PhotonNetwork.LocalPlayer.NickName)
-            {
-                player.GetComponent<Player>().myTeam = "a";
-            }
-        }
-    }*/
 
     [PunRPC]
     void Hp()
