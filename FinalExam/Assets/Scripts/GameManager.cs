@@ -86,13 +86,13 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
                     myHp.transform.GetChild(1).GetComponent<Text>().text = "HP " + player.GetComponent<Player>().playerHp + " / 100";
                     if (player.GetComponent<Player>().myTeam == "a")
                     {
-                        myWagonHp.transform.GetChild(0).GetComponent<Image>().fillAmount = wagon.aTeamHp / 100;
-                        otherWagonHp.transform.GetChild(0).GetComponent<Image>().fillAmount = wagon.bTeamHp / 100;
+                        myWagonHp.transform.GetChild(0).GetComponent<Image>().fillAmount = (float)wagon.aTeamHp / 100;
+                        otherWagonHp.transform.GetChild(0).GetComponent<Image>().fillAmount = (float)wagon.bTeamHp / 100;
                     }
                     else if (player.GetComponent<Player>().myTeam == "b")
                     {
-                        myWagonHp.transform.GetChild(0).GetComponent<Image>().fillAmount = wagon.bTeamHp / 100;
-                        otherWagonHp.transform.GetChild(0).GetComponent<Image>().fillAmount = wagon.aTeamHp / 100;
+                        myWagonHp.transform.GetChild(0).GetComponent<Image>().fillAmount = (float)wagon.bTeamHp / 100;
+                        otherWagonHp.transform.GetChild(0).GetComponent<Image>().fillAmount = (float)wagon.aTeamHp / 100;
                     }
                 }
                 else if (player.name != PhotonNetwork.LocalPlayer.NickName && PhotonNetwork.PlayerList[i].NickName != PhotonNetwork.LocalPlayer.NickName)
