@@ -27,6 +27,8 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
     PhotonView PV;
     IsClass isClass;
 
+    public GameObject player;
+
     void Awake()
     {
         wagon = GameObject.Find("Wagon").GetComponent<Wagon>();
@@ -43,7 +45,7 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
 
     void Update()
     {
-        Set();
+        //Set();
         players = GameObject.FindGameObjectsWithTag("Player");
         PV.RPC("Hp", RpcTarget.All);
         PV.RPC("Recall", RpcTarget.All);
@@ -60,22 +62,26 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
         GameObject player = PhotonNetwork.Instantiate(isClass.classType, position, Quaternion.identity);
         player.name = PhotonNetwork.LocalPlayer.NickName;
         player.GetComponent<Player>().classType = isClass.classType;
+        if (PhotonNetwork.IsMasterClient)
+        {
+            player.GetComponent<Player>().myTeam = "a";
+        }
+        else if (!PhotonNetwork.IsMasterClient)
+        {
+            player.GetComponent<Player>().myTeam = "b";
+        }
     }
 
-    void Set()
+    /*void Set()
     {
         foreach (var player in players)
         {
-            if (PhotonNetwork.IsMasterClient == player)
+            if (player.name != PhotonNetwork.LocalPlayer.NickName)
             {
                 player.GetComponent<Player>().myTeam = "a";
             }
-            else
-            {
-                player.GetComponent<Player>().myTeam = "b";
-            }
         }
-    }
+    }*/
 
     [PunRPC]
     void Hp()
@@ -133,7 +139,6 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
                     {
                         tabPlayers[0].transform.GetChild(0).GetComponent<Image>().sprite = archerSprite;
                     }
-
                     tabPlayers[0].transform.GetChild(1).GetComponent<Text>().text = PhotonNetwork.PlayerList[i].NickName;
                 }
                 else if (player.name != PhotonNetwork.LocalPlayer.NickName && PhotonNetwork.PlayerList[i].NickName != PhotonNetwork.LocalPlayer.NickName)
@@ -146,7 +151,6 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
                     {
                         tabPlayers[1].transform.GetChild(0).GetComponent<Image>().sprite = archerSprite;
                     }
-
                     tabPlayers[1].transform.GetChild(1).GetComponent<Text>().text = PhotonNetwork.PlayerList[i].NickName;
                 }
             }

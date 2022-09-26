@@ -58,6 +58,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         PV = GetComponent<PhotonView>();
         isClass = GameObject.Find("IsClass").GetComponent<IsClass>();
         Cursor.SetCursor(cursor, Vector2.zero, CursorMode.Auto);
+        Cursor.lockState = CursorLockMode.Confined;
     }
 
     void Start()

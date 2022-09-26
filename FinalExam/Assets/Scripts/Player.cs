@@ -29,6 +29,9 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
     private bool isHit = false;
     private Camera camera;
 
+    public int aKill;
+    public int bKill;
+
     protected void Awake()
     {
         playerHp = 100;
@@ -46,7 +49,6 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
             Move();
             Jump();
             Attack();
-            Death();
             Camera();
         }
     }
@@ -115,14 +117,6 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
         yield return new WaitForSeconds(0.683f);
         isAttack = false;
         animator.SetBool("isAttack", isAttack);
-    }
-
-    void Death()
-    {
-        if (playerHp <= 0 && !isDead)
-        {
-            isDead = true;
-        }
     }
 
     protected void Hit()
