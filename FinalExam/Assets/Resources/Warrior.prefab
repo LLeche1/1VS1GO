@@ -2590,8 +2590,6 @@ MonoBehaviour:
   death: 0
   playerHp: 0
   wagon: {fileID: 171952, guid: 37bb72f29b453d64bbe084f712d85bb4, type: 3}
-  aKill: 0
-  bKill: 0
 --- !u!114 &6988298235780317308
 MonoBehaviour:
   m_ObjectHideFlags: 0

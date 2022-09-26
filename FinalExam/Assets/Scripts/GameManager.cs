@@ -10,9 +10,15 @@ using Random = UnityEngine.Random;
 
 public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
 {
+    public int aKill;
+    public int bKill;
+    public int aDeath;
+    public int bDeath;
+    public string myTeam = "";
     public Text timeText;
     public GameObject[] players;
     public GameObject[] tabPlayers;
+    public GameObject[] killLogs;
     public GameObject recall;
     public GameObject myHp;
     public GameObject otherHp;
@@ -52,23 +58,88 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
         }
         Tab();
         Set();
+        KillLog();
+    }
+
+    void KillLog()
+    {
+        GameObject kill = null;
+        GameObject death = null;
+
+        foreach (var player in players)
+        {
+            if (player.GetComponent<Player>().isDead == true)
+            {
+                foreach (var player2 in players)
+                {
+                    if (player2.GetComponent<Player>().isDead == true)
+                    {
+                        death = player2;
+                    }
+                    else if (player2.GetComponent<Player>().isDead != true)
+                    {
+                        kill = player2;
+                    }
+                }
+
+                killLogs[0].SetActive(true);
+
+                if (player.GetComponent<Player>().myTeam == myTeam)
+                {
+                    killLogs[0].transform.GetChild(0).GetComponent<Image>().color = Color.red;
+                }
+                else if (player.GetComponent<Player>().myTeam != myTeam)
+                {
+                    killLogs[0].transform.GetChild(0).GetComponent<Image>().color = Color.blue;
+                }
+
+                if (kill.GetComponent<Player>().classType == "Warrior")
+                {
+                    killLogs[0].transform.GetChild(1).GetComponent<Image>().sprite = warriorSprite;
+                }
+                else if (kill.GetComponent<Player>().classType == "Archer")
+                {
+                    killLogs[0].transform.GetChild(1).GetComponent<Image>().sprite = archerSprite;
+                }
+
+                if (death.GetComponent<Player>().classType == "Warrior")
+                {
+                    killLogs[0].transform.GetChild(3).GetComponent<Image>().sprite = warriorSprite;
+                }
+                else if (death.GetComponent<Player>().classType == "Archer")
+                {
+                    killLogs[0].transform.GetChild(3).GetComponent<Image>().sprite = archerSprite;
+                }
+                StartCoroutine("KillLogDelay");
+            }
+        }
+    }
+
+    IEnumerator KillLogDelay()
+    {
+        float delay = 5;
+        while (delay > 0)
+        {
+            yield return new WaitForEndOfFrame();
+            delay -= 1.0f * Time.deltaTime;
+        }
+        killLogs[0].SetActive(false);
+        yield return null;
     }
 
     void Set()
     {
-        string setTeam = "";
-
         foreach (var player in players)
         {
             if (player.name == PhotonNetwork.LocalPlayer.NickName)
             {
                 if (player.GetComponent<Player>().myTeam == "a")
                 {
-                    setTeam = "b";
+                    myTeam = "a";
                 }
                 else if (player.GetComponent<Player>().myTeam == "b")
                 {
-                    setTeam = "a";
+                    myTeam = "b";
                 }
             }
         }
@@ -84,6 +155,7 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
                         player.name = PhotonNetwork.PlayerList[i].NickName;
                     }
                 }
+
                 if(player.layer == 6)
                 {
                     player.GetComponent<Player>().classType = "Warrior";
@@ -92,7 +164,16 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
                 {
                     player.GetComponent<Player>().classType = "Archer";
                 }
-                player.GetComponent<Player>().myTeam = setTeam;
+
+                if(myTeam == "a")
+                {
+                    player.GetComponent<Player>().myTeam = "b";
+                }
+                else if (myTeam == "b")
+                {
+                    player.GetComponent<Player>().myTeam = "a";
+                }
+
             }
         }
     }
@@ -169,7 +250,17 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
                     {
                         tabPlayers[0].transform.GetChild(0).GetComponent<Image>().sprite = archerSprite;
                     }
+
                     tabPlayers[0].transform.GetChild(1).GetComponent<Text>().text = PhotonNetwork.PlayerList[i].NickName;
+
+                    if(player.GetComponent<Player>().myTeam == "a")
+                    {
+                        tabPlayers[0].transform.GetChild(2).GetComponent<Text>().text = aKill.ToString() + " / " + aDeath.ToString();
+                    }
+                    else if (player.GetComponent<Player>().myTeam == "b")
+                    {
+                        tabPlayers[0].transform.GetChild(2).GetComponent<Text>().text = bKill.ToString() + " / " + bDeath.ToString();
+                    }
                 }
                 else if (player.name != PhotonNetwork.LocalPlayer.NickName && PhotonNetwork.PlayerList[i].NickName != PhotonNetwork.LocalPlayer.NickName)
                 {
@@ -181,7 +272,17 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
                     {
                         tabPlayers[1].transform.GetChild(0).GetComponent<Image>().sprite = archerSprite;
                     }
+
                     tabPlayers[1].transform.GetChild(1).GetComponent<Text>().text = PhotonNetwork.PlayerList[i].NickName;
+
+                    if (player.GetComponent<Player>().myTeam == "a")
+                    {
+                        tabPlayers[1].transform.GetChild(2).GetComponent<Text>().text = aKill.ToString() + " / " + aDeath.ToString();
+                    }
+                    else if (player.GetComponent<Player>().myTeam == "b")
+                    {
+                        tabPlayers[1].transform.GetChild(2).GetComponent<Text>().text = bKill.ToString() + " / " + bDeath.ToString();
+                    }
                 }
             }
         }

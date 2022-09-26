@@ -13,8 +13,6 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
     public bool isDead = false;
     public string classType;
     public string myTeam;
-    public int kill;
-    public int death;
     public float playerHp;
     public GameObject wagon;
     private float speed = 5;
@@ -28,9 +26,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
     private bool isJump;
     private bool isHit = false;
     private Camera camera;
-
-    public int aKill;
-    public int bKill;
+    GameManager gameManager;
 
     protected void Awake()
     {
@@ -39,6 +35,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
         animator = GetComponent<Animator>();
         wagon = GameObject.Find("Wagon");
         camera = GameObject.Find("Main Camera").GetComponent<Camera>();
+        gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
     }
 
     protected void Update()
@@ -131,6 +128,16 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
         playerHp += -50;
         if (playerHp <= 0)
         {
+            if(myTeam == "a")
+            {
+                gameManager.bKill++;
+                gameManager.aDeath++;
+            }
+            else if(myTeam == "b")
+            {
+                gameManager.aKill++;
+                gameManager.bDeath++;
+            }
             isDead = true;
         }
         StartCoroutine(HitDelay());
