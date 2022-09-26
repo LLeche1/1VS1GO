@@ -27,8 +27,6 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
     PhotonView PV;
     IsClass isClass;
 
-    private string myTeam;
-
     void Awake()
     {
         wagon = GameObject.Find("Wagon").GetComponent<Wagon>();
@@ -53,6 +51,50 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
             PV.RPC("limitTime", RpcTarget.All);
         }
         Tab();
+        Set();
+    }
+
+    void Set()
+    {
+        string setTeam = "";
+
+        foreach (var player in players)
+        {
+            if (player.name == PhotonNetwork.LocalPlayer.NickName)
+            {
+                if (player.GetComponent<Player>().myTeam == "a")
+                {
+                    setTeam = "b";
+                }
+                else if (player.GetComponent<Player>().myTeam == "b")
+                {
+                    setTeam = "a";
+                }
+            }
+        }
+
+        foreach (var player in players)
+        {
+            if (player.name != PhotonNetwork.LocalPlayer.NickName)
+            {
+                for (int i = 0; i < PhotonNetwork.PlayerList.Length; i++)
+                {
+                    if (PhotonNetwork.PlayerList[i].NickName != PhotonNetwork.LocalPlayer.NickName)
+                    {
+                        player.name = PhotonNetwork.PlayerList[i].NickName;
+                    }
+                }
+                if(player.layer == 6)
+                {
+                    player.GetComponent<Player>().classType = "Warrior";
+                }
+                else if (player.layer == 7)
+                {
+                    player.GetComponent<Player>().classType = "Archer";
+                }
+                player.GetComponent<Player>().myTeam = setTeam;
+            }
+        }
     }
 
     void Generate()
@@ -64,12 +106,10 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
         if (PhotonNetwork.IsMasterClient)
         {
             player.GetComponent<Player>().myTeam = "a";
-            myTeam = "a";
         }
         else if (!PhotonNetwork.IsMasterClient)
         {
             player.GetComponent<Player>().myTeam = "b";
-            myTeam = "b";
         }
     }
 
