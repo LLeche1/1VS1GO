@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class Camera : MonoBehaviour
 {
-    public GameObject cameraPlayer; //Player스크립트에서 player게임오브젝트를 받아온다.
+    public GameObject cameraPlayer;
     private Transform playerTr;
     private float distance = 10;
     private float height = 3;
@@ -28,7 +28,7 @@ public class Camera : MonoBehaviour
     {
         players = gameManager.players;
         playerTr = cameraPlayer.transform;
-        if (cameraPlayer.active == true)
+        if (playerTr.localScale != Vector3.zero)
         {
             cameraPos = playerTr.position - (Vector3.forward * distance) + (Vector3.up * height);
         }

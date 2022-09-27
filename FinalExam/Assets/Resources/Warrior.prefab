@@ -2586,8 +2586,6 @@ MonoBehaviour:
   isDead: 0
   classType: 
   myTeam: 0
-  kill: 0
-  death: 0
   playerHp: 0
   wagon: {fileID: 171952, guid: 37bb72f29b453d64bbe084f712d85bb4, type: 3}
 --- !u!114 &6988298235780317308

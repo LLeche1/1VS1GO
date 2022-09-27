@@ -25,10 +25,11 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
     public GameObject myWagonHp;
     public GameObject otherWagonHp;
     public GameObject tab;
+    public GameObject gameOver;
     public Sprite warriorSprite;
     public Sprite archerSprite;
     public Texture2D cursor;
-    private float time = 300;
+    private float time = 10;
     Wagon wagon;
     PhotonView PV;
     IsClass isClass;
@@ -59,6 +60,65 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
         Tab();
         Set();
         KillLog();
+        State();
+    }
+
+    void State()
+    {
+        if(wagon.aTeamHp == 0)
+        {
+            gameOver.SetActive(true);
+            if (myTeam == "a")
+            {
+                gameOver.transform.GetChild(2).gameObject.SetActive(true);
+            }
+            else if (myTeam == "b")
+            {
+                gameOver.transform.GetChild(1).gameObject.SetActive(true);
+            }
+        }
+        else if (wagon.bTeamHp == 0)
+        {
+            gameOver.SetActive(true);
+            if (myTeam == "a")
+            {
+                gameOver.transform.GetChild(1).gameObject.SetActive(true);
+            }
+            else if (myTeam == "b")
+            {
+                gameOver.transform.GetChild(2).gameObject.SetActive(true);
+            }
+        }
+        else if(time <= 0)
+        {
+            gameOver.SetActive(true);
+            if(wagon.aTeamHp > wagon.bTeamHp)
+            {
+                if(myTeam == "a")
+                {
+                    gameOver.transform.GetChild(1).gameObject.SetActive(true);
+                }
+                else if (myTeam == "b")
+                {
+                    gameOver.transform.GetChild(2).gameObject.SetActive(true);
+                }
+            }
+            else if (wagon.aTeamHp < wagon.bTeamHp)
+            {
+                if (myTeam == "a")
+                {
+                    gameOver.transform.GetChild(2).gameObject.SetActive(true);
+                }
+                else if (myTeam == "b")
+                {
+                    gameOver.transform.GetChild(1).gameObject.SetActive(true);
+                }
+            }
+            else if (wagon.aTeamHp == wagon.bTeamHp)
+            {
+                gameOver.transform.GetChild(3).gameObject.SetActive(true);
+            }
+        }
     }
 
     void KillLog()
@@ -303,7 +363,7 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
     IEnumerator RecallDelay(GameObject player)
     {
         float delay = 5;
-        player.SetActive(false);
+        player.transform.localScale = Vector3.zero;
         if(player.name == PhotonNetwork.LocalPlayer.NickName)
         {
             recall.SetActive(true);
@@ -313,8 +373,9 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
             yield return new WaitForEndOfFrame();
             delay -= 1.0f * Time.deltaTime;
             recall.transform.GetChild(1).GetComponent<Text>().text = delay.ToString("0");
+            Debug.Log(delay);
         }
-        player.transform.position = new Vector3(Random.Range(-4f, 4f), player.transform.position.y, wagon.transform.position.z - 20f);
+        player.transform.position = new Vector3(0, player.transform.position.y, wagon.transform.position.z - 20f);
         player.GetComponent<Player>().playerHp = 100;
         player.GetComponent<Player>().isDead = false;
         player.GetComponent<Player>().isAttack = false;
@@ -322,7 +383,7 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
         {
             recall.SetActive(false);
         }
-        player.SetActive(true);
+        player.transform.localScale = new Vector3(1.5f, 1.5f, 1.5f);
         yield return null;
     }
 
@@ -333,11 +394,6 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
         {
             time -= Time.deltaTime;
             timeText.text = TimeSpan.FromSeconds(time).ToString(@"m\:ss");
-        }
-
-        if (time <= 0)
-        {
-            SceneManager.LoadScene("Lobby");
         }
     }
 
