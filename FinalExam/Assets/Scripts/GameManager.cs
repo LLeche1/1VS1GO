@@ -30,6 +30,7 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
     public Sprite archerSprite;
     public Texture2D cursor;
     private float time = 300;
+    private bool recallTrigger = true;
     Wagon wagon;
     PhotonView PV;
     IsClass isClass;
@@ -375,8 +376,9 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
     {
         foreach (var player in players)
         {
-            if (player.GetComponent<Player>().isDead == true)
+            if (player.GetComponent<Player>().isDead == true && recallTrigger)
             {
+                recallTrigger = false;
                 StartCoroutine(RecallDelay(player));
             }
         }
@@ -405,6 +407,7 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
         {
             recall.SetActive(false);
         }
+        recallTrigger = true;
         player.transform.localScale = new Vector3(1.5f, 1.5f, 1.5f);
         yield return null;
     }
