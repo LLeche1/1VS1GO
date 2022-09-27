@@ -29,13 +29,14 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
     public Sprite warriorSprite;
     public Sprite archerSprite;
     public Texture2D cursor;
-    private float time = 10;
+    private float time = 300;
     Wagon wagon;
     PhotonView PV;
     IsClass isClass;
 
     void Awake()
     {
+        PhotonNetwork.AutomaticallySyncScene = true;
         wagon = GameObject.Find("Wagon").GetComponent<Wagon>();
         PV = GetComponent<PhotonView>();
         isClass = GameObject.Find("IsClass").GetComponent<IsClass>();
@@ -65,7 +66,7 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
 
     void State()
     {
-        if(wagon.aTeamHp == 0)
+        if(wagon.aTeamHp <= 0)
         {
             gameOver.SetActive(true);
             if (myTeam == "a")
@@ -76,8 +77,9 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
             {
                 gameOver.transform.GetChild(1).gameObject.SetActive(true);
             }
+            StartCoroutine("StateDelay");
         }
-        else if (wagon.bTeamHp == 0)
+        else if (wagon.bTeamHp <= 0)
         {
             gameOver.SetActive(true);
             if (myTeam == "a")
@@ -88,6 +90,7 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
             {
                 gameOver.transform.GetChild(2).gameObject.SetActive(true);
             }
+            StartCoroutine("StateDelay");
         }
         else if(time <= 0)
         {
@@ -118,7 +121,26 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
             {
                 gameOver.transform.GetChild(3).gameObject.SetActive(true);
             }
+            StartCoroutine("StateDelay");
         }
+    }
+
+    IEnumerator StateDelay()
+    {
+        float delay = 5;
+        while (delay > 0)
+        {
+            yield return new WaitForEndOfFrame();
+            delay -= 1.0f * Time.deltaTime;
+        }
+        if (PhotonNetwork.IsMasterClient)
+        {
+            PhotonNetwork.DestroyAll();
+            PhotonNetwork.CurrentRoom.IsVisible = true;
+        }
+        base.OnLeftRoom();
+        SceneManager.LoadScene("Lobby");
+        yield return null;
     }
 
     void KillLog()

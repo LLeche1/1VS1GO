@@ -34,6 +34,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks
     public GameObject Class;
     public GameObject createRoom;
     public GameObject set;
+    public GameObject result;
     public Texture2D cursor;
     public string classType;
     private string gameVersion = "1";
@@ -356,6 +357,11 @@ public class LobbyManager : MonoBehaviourPunCallbacks
             createRoom.SetActive(false);
             lobby.SetActive(true);
         }
+        else if (lastCanvas == "result")
+        {
+            result.SetActive(false);
+            lobby.SetActive(true);
+        }
     }
 
     public void SetBack()
@@ -389,6 +395,11 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         {
             set.SetActive(false);
             Class.SetActive(true);
+        }
+        else if (lastCanvas == "result")
+        {
+            set.SetActive(false);
+            result.SetActive(true);
         }
     }
 
@@ -590,6 +601,10 @@ public class LobbyManager : MonoBehaviourPunCallbacks
             {
                 Class.SetActive(false);
             }
+            else if (lastCanvas == "result")
+            {
+                result.SetActive(false);
+            }
             set.SetActive(true);
         }
     }
@@ -619,6 +634,10 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         else if (Class.activeSelf == true)
         {
             lastCanvas = "Class";
+        }
+        else if (result.activeSelf == true)
+        {
+            lastCanvas = "result";
         }
     }
 
