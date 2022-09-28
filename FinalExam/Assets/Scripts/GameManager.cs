@@ -26,6 +26,8 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
     public GameObject otherWagonHp;
     public GameObject tab;
     public GameObject gameOver;
+    public GameObject myCircle;
+    public GameObject otherCircle;
     public Sprite warriorSprite;
     public Sprite archerSprite;
     public Texture2D cursor;
@@ -35,18 +37,16 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
     PhotonView PV;
     Data data;
 
-    public GameObject myCircle;
-    public GameObject otherCircle;
+    public bool isMySpawn = false;
+    public bool isOtherSpawn = false;
 
     void Awake()
     {
-        PhotonNetwork.AutomaticallySyncScene = true;
         wagon = GameObject.Find("Wagon").GetComponent<Wagon>();
         PV = GetComponent<PhotonView>();
         data = GameObject.Find("Data").GetComponent<Data>();
         Cursor.SetCursor(cursor, Vector2.zero, CursorMode.Auto);
         Cursor.lockState = CursorLockMode.Confined;
-        PhotonNetwork.ConnectUsingSettings();
     }
 
     void Start()
@@ -452,6 +452,7 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
         }
         recallTrigger = true;
         player.transform.localScale = new Vector3(1.5f, 1.5f, 1.5f);
+        player.transform.GetChild(5).gameObject.GetComponentInChildren<ParticleSystem>().Play();
         yield return null;
     }
 
