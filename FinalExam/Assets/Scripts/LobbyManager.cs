@@ -49,7 +49,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks
     List<RoomInfo> roomList = new List<RoomInfo>();
     GameManager gameManager;
     PhotonView PV;
-    IsClass isClass;
+    Data data;
 
     void Awake()
     {
@@ -57,7 +57,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         Screen.SetResolution(1600, 900, false);
         PhotonNetwork.AutomaticallySyncScene = true;
         PV = GetComponent<PhotonView>();
-        isClass = GameObject.Find("IsClass").GetComponent<IsClass>();
+        data = GameObject.Find("Data").GetComponent<Data>();
         Cursor.SetCursor(cursor, Vector2.zero, CursorMode.Auto);
         Cursor.lockState = CursorLockMode.Confined;
     }
@@ -332,7 +332,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         roomReadyBtn.GetComponent<Image>().color = new Color32(255, 255, 255, 255);
         PV.RPC("ReadyRpc", RpcTarget.All, isReady);
         PV.RPC("ClassSelectBtnRpc", RpcTarget.All);
-        PhotonNetwork.LeaveRoom();
+        PhotonNetwork.LeaveRoom(); 
         room.SetActive(false);
         lobby.SetActive(true);
     }
@@ -495,19 +495,19 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         {
             if(isClassSelect == false)
             {
-                isClass.classType = "Warrior";
+                data.classType = "Warrior";
                 gameObject.GetComponent<Image>().color = new Color32(255, 255, 255, 100);
                 isClassSelect = true;
             }
             else if(isClassSelect == true && gameObject.GetComponent<Image>().color == new Color32(255, 255, 255, 100))
             {
-                isClass.classType = "";
+                data.classType = "";
                 gameObject.GetComponent<Image>().color = new Color32(255, 255, 255, 255);
                 isClassSelect = false;
             }
             else if (isClassSelect == true && classListBtn[1].GetComponent<Image>().color == new Color32(255, 255, 255, 100))
             {
-                isClass.classType = "Warrior";
+                data.classType = "Warrior";
                 gameObject.GetComponent<Image>().color = new Color32(255, 255, 255, 100);
                 classListBtn[1].GetComponent<Image>().color = new Color32(255, 255, 255, 255);
             }
@@ -517,19 +517,19 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         {
             if (isClassSelect == false)
             {
-                isClass.classType = "Archor";
+                data.classType = "Archor";
                 gameObject.GetComponent<Image>().color = new Color32(255, 255, 255, 100);
                 isClassSelect = true;
             }
             else if (isClassSelect == true && gameObject.GetComponent<Image>().color == new Color32(255, 255, 255, 100))
             {
-                isClass.classType = "";
+                data.classType = "";
                 gameObject.GetComponent<Image>().color = new Color32(255, 255, 255, 255);
                 isClassSelect = false;
             }
             else if (isClassSelect == true && classListBtn[0].GetComponent<Image>().color == new Color32(255, 255, 255, 100))
             {
-                isClass.classType = "Archor";
+                data.classType = "Archor";
                 gameObject.GetComponent<Image>().color = new Color32(255, 255, 255, 100);
                 classListBtn[0].GetComponent<Image>().color = new Color32(255, 255, 255, 255);
             }

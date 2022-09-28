@@ -33,16 +33,20 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
     private bool recallTrigger = true;
     Wagon wagon;
     PhotonView PV;
-    IsClass isClass;
+    Data data;
+
+    public GameObject myCircle;
+    public GameObject otherCircle;
 
     void Awake()
     {
         PhotonNetwork.AutomaticallySyncScene = true;
         wagon = GameObject.Find("Wagon").GetComponent<Wagon>();
         PV = GetComponent<PhotonView>();
-        isClass = GameObject.Find("IsClass").GetComponent<IsClass>();
+        data = GameObject.Find("Data").GetComponent<Data>();
         Cursor.SetCursor(cursor, Vector2.zero, CursorMode.Auto);
         Cursor.lockState = CursorLockMode.Confined;
+        PhotonNetwork.ConnectUsingSettings();
     }
 
     void Start()
@@ -63,6 +67,7 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
         Set();
         KillLog();
         State();
+        Circle();
     }
 
     void State()
@@ -137,11 +142,18 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
         if (PhotonNetwork.IsMasterClient)
         {
             PhotonNetwork.DestroyAll();
-            PhotonNetwork.CurrentRoom.IsVisible = true;
+            PhotonNetwork.CurrentRoom.IsVisible = false;
+            PhotonNetwork.CurrentRoom.IsOpen = false;
         }
-        base.OnLeftRoom();
-        SceneManager.LoadScene("Lobby");
+        PhotonNetwork.AutomaticallySyncScene = false;
+        PhotonNetwork.LeaveRoom();
+        data.lastScene = "InGame";
         yield return null;
+    }
+
+    public override void OnLeftRoom()
+    {
+        SceneManager.LoadScene("Lobby");
     }
 
     void KillLog()
@@ -264,9 +276,9 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
     void Generate()
     {
         Vector3 position = new Vector3(Random.Range(-4f, 4f), 0, 0);
-        GameObject player = PhotonNetwork.Instantiate(isClass.classType, position, Quaternion.identity);
+        GameObject player = PhotonNetwork.Instantiate(data.classType, position, Quaternion.identity);
         player.name = PhotonNetwork.LocalPlayer.NickName;
-        player.GetComponent<Player>().classType = isClass.classType;
+        player.GetComponent<Player>().classType = data.classType;
         if (PhotonNetwork.IsMasterClient)
         {
             player.GetComponent<Player>().myTeam = "a";
@@ -274,6 +286,38 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
         else if (!PhotonNetwork.IsMasterClient)
         {
             player.GetComponent<Player>().myTeam = "b";
+        }
+    }
+
+    void Circle()
+    {
+        foreach (var player in players)
+        {
+            if (player.name == PhotonNetwork.LocalPlayer.NickName)
+            {
+                myCircle.transform.position = new Vector3(player.transform.position.x, 0.6f, player.transform.position.z);
+                if (player.GetComponent<Player>().isDead == false)
+                {
+                    myCircle.SetActive(true);
+                }
+                else if (player.GetComponent<Player>().isDead == true)
+                {
+                    myCircle.SetActive(false);
+                }
+            }
+            else if (player.name != PhotonNetwork.LocalPlayer.NickName)
+            {
+                otherCircle.transform.position = new Vector3(player.transform.position.x, 0.6f, player.transform.position.z);
+                otherCircle.GetComponent<SpriteRenderer>().color = Color.red;
+                if (player.GetComponent<Player>().isDead == false)
+                {
+                    otherCircle.SetActive(true);
+                }
+                else if (player.GetComponent<Player>().isDead == true)
+                {
+                    otherCircle.SetActive(false);
+                }
+            }
         }
     }
 
@@ -397,7 +441,6 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
             yield return new WaitForEndOfFrame();
             delay -= 1.0f * Time.deltaTime;
             recall.transform.GetChild(1).GetComponent<Text>().text = delay.ToString("0");
-            Debug.Log(delay);
         }
         player.transform.position = new Vector3(0, player.transform.position.y, wagon.transform.position.z - 20f);
         player.GetComponent<Player>().playerHp = 100;

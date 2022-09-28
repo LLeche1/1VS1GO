@@ -8019,7 +8019,7 @@ GameObject:
   - component: {fileID: 1761063078}
   - component: {fileID: 1761063079}
   m_Layer: 0
-  m_Name: IsClass
+  m_Name: Data
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -8053,6 +8053,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   classType: 
+  lastScene: 
 --- !u!1 &1761943313
 GameObject:
   m_ObjectHideFlags: 0
