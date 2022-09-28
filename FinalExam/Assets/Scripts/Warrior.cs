@@ -4,7 +4,11 @@ using UnityEngine;
 
 public class Warrior : Player
 {
-    bool AuraAble = true;
+    bool isAura = false;
+    bool isShield = false;
+
+    bool shieldAble = true;
+    bool auraAble = true;
 
     // Start is called before the first frame update
     void Awake()
@@ -16,44 +20,84 @@ public class Warrior : Player
     void Update()
     {
         base.Update();
-        /*if (PV.IsMine)
+        if (PV.IsMine)
         {
+            Attack();
             Shield();
             Aura();
-            Debug.Log(AuraAble);
-        }*/
+            Debug.Log(auraAble);
+        }
     }
 
-    /*void Shield()
+    void Attack()
     {
-        if (Input.GetKeyDown(KeyCode.Alpha1))
+        if (Input.GetMouseButtonDown(0) && !isAttack && !otherSkillUsing())
+        {
+            animAdjVar = 1;
+            isAttack = true;
+            animator.SetBool("isAttack", true);
+        }
+    }
+    void Shield()
+    {
+        if (Input.GetKeyDown(KeyCode.Alpha1) && !isShield && shieldAble && !otherSkillUsing())
         {
             animAdjVar = 1;
             animator.SetBool("Shield", true);
-            
+
         }
         else if (Input.GetKeyUp(KeyCode.Alpha1))
         {
             animator.SetBool("Shield", false);
-            //animator.GetCurrentAnimatorStateInfo(0).normalizedTime 
         }
     }
 
     void Aura()
     {
-        if (Input.GetKeyDown(KeyCode.Q) && AuraAble)
+        if (Input.GetKeyDown(KeyCode.Q) && !isAura && auraAble && !otherSkillUsing())
         {
-            StartCoroutine(CoolTime(3.0f, AuraAble));
+            isAttack = true;
             animAdjVar = 1;
-            animator.SetTrigger("Aura");
+            StartCoroutine(CoolTime(5.0f, "Aura"));
+            animator.SetBool("Aura", true);
         }
     }
 
-    IEnumerator CoolTime(float time, bool skil)
+    void OtherSkillLock()
     {
-        AuraAble = false;
-        yield return new WaitForSeconds(time);
-        AuraAble = true;
 
-    }*/
+    }
+
+    bool otherSkillUsing()
+    {
+        if (isAttack || isAura || isShield)
+            return true;
+        else
+            return false;
+    }
+
+    IEnumerator CoolTime(float time,string skillname)
+    {
+        switch (skillname)
+        {
+            case "Aura":
+                auraAble = false;
+                break;
+            case "Shield":
+                shieldAble = false;
+                break;
+        }
+
+        yield return new WaitForSeconds(time);
+
+        switch (skillname)
+        {
+            case "Aura":
+                auraAble = true;
+                break;
+            case "Shield":
+                shieldAble = true;
+                break;
+        }
+    }
 }
