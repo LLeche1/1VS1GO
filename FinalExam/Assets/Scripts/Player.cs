@@ -30,6 +30,9 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
 
     private GameObject circle;
 
+    private const float maxAnimSpeed = 12f;
+    private float animSpeed = 1;
+    protected float animAdjVar = 1;
     protected void Awake()
     {
         playerHp = 100;
@@ -49,6 +52,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
             Jump();
             Attack();
             Camera();
+            AdjustAnimation();
         }
 
         //circle = GameObject.Find(PhotonNetwork.LocalPlayer.NickName + "Circle");
@@ -71,22 +75,27 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
     {
         if (wagon.transform.position.z - transform.transform.position.z > 10)
         {
+            animSpeed = speed / maxAnimSpeed;
             if (vAxis == 0)
             {
-                vAxis = 1;
-                speed = 5;
-                animator.SetFloat("AnimationSpeed", 1.0f);
+                if (speed > 7)
+                    speed += -15f * Time.deltaTime;
+                else
+                    speed += 15f * Time.deltaTime;
+                animator.SetFloat("AnimationSpeed", animSpeed);
             }
-            else if (vAxis == 1)
+            else if (vAxis == 1f)
             {
-                speed = 10;
-                animator.SetFloat("AnimationSpeed", 1.5f);
+                if (speed < 12)
+                    speed += 10f * Time.deltaTime;
+                animator.SetFloat("AnimationSpeed", animSpeed);
             }
-            else if (vAxis == -1)
+            else if (vAxis == -1f)
             {
-                vAxis = 1;
-                animator.SetFloat("AnimationSpeed", 0.75f);
-                speed = 2;
+                animator.SetFloat("AnimationSpeed", animSpeed);
+
+                if (speed > 3)
+                    speed += -10f * Time.deltaTime;
             }
             Vector3 moveDir = new Vector3(hAxis, 0, 3f).normalized;
             transform.LookAt(transform.position + moveDir);
@@ -102,7 +111,42 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
             isJump = true;
         }
     }
+    void AdjustAnimation()
+    {
 
+        if (animator.GetCurrentAnimatorStateInfo(1).normalizedTime > 0.7)
+        {
+            if (animAdjVar >= 0)
+                animAdjVar -= 5 * Time.deltaTime;
+        }
+
+        if (animator.GetCurrentAnimatorStateInfo(2).normalizedTime > 0.7)
+        {
+            if (animAdjVar >= 0)
+                animAdjVar -= 5 * Time.deltaTime;
+        }
+
+        animator.SetLayerWeight(1, animAdjVar);
+        animator.SetLayerWeight(2, animAdjVar);
+
+        if (animator.GetLayerWeight(1) < 0.2f)
+        {
+            animator.SetBool("isAttack", false);
+            animator.SetBool("Aura", false);
+            isAttack = false;
+        }
+        if (animator.GetLayerWeight(2) < 0.2f)
+        {
+            animator.SetBool("isAttack", false);
+            animator.SetBool("Collapsion", false);
+            isAttack = false;
+        }
+        if (!isAttack)
+        {
+            animAdjVar = 1;
+        }
+
+    }
     protected void Attack()
     {
         if (Input.GetMouseButtonDown(0) && !isAttack)
@@ -159,6 +203,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
         if (collision.gameObject.tag == "Floor")
         {
             isJump = false;
+            animator.SetBool("isJump", false);
         }
 
         if (collision.gameObject.tag == "Player")
