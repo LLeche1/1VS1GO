@@ -50,9 +50,6 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
             Attack();
             Camera();
         }
-
-        //circle = GameObject.Find(PhotonNetwork.LocalPlayer.NickName + "Circle");
-        //circle.transform.position = new Vector3(gameObject.transform.position.x, 0.6f, gameObject.transform.position.z);
     }
 
     void Camera()

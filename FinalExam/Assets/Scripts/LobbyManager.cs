@@ -51,6 +51,9 @@ public class LobbyManager : MonoBehaviourPunCallbacks
     PhotonView PV;
     Data data;
 
+    public Text[] roomChatText;
+    public InputField roomChatInput;
+
     void Awake()
     {
         Application.targetFrameRate = 144;
@@ -133,6 +136,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         createRoom.SetActive(false);
         room.SetActive(true);
         RoomRenewal();
+        roomChatInput.ActivateInputField();
         if (photonView.IsMine)
         {
             roomStartBtn.SetActive(true);
@@ -154,6 +158,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks
     public override void OnPlayerEnteredRoom(Photon.Realtime.Player newPlayer)
     {
         RoomRenewal();
+        PV.RPC("RoomChatRpc", RpcTarget.All, newPlayer.NickName + "님이 참가하셨습니다");
     }
 
     public override void OnPlayerLeftRoom(Photon.Realtime.Player otherPlayer)
@@ -164,6 +169,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         isReady = false;
         PV.RPC("ReadyRpc", RpcTarget.All, isReady);
         PV.RPC("ClassSelectBtnRpc", RpcTarget.All);
+        PV.RPC("RoomChatRpc", RpcTarget.All, otherPlayer.NickName + "님이 퇴장하셨습니다");
     }
 
     public override void OnRoomListUpdate(List<RoomInfo> room)
@@ -661,9 +667,43 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         roomCurrentPlayer.text = PhotonNetwork.CurrentRoom.PlayerCount + " / " + PhotonNetwork.CurrentRoom.MaxPlayers;
     }
 
-    void Update()
+    public void RoomChatInput()
+    {
+        if(roomChatInput.text != "")
+        {
+            PV.RPC("RoomChatRpc", RpcTarget.All, PhotonNetwork.NickName + " : " + roomChatInput.text);
+        }
+        roomChatInput.text = "";
+        roomChatInput.ActivateInputField();
+    }
+
+    [PunRPC]
+    void RoomChatRpc(string text)
+    {
+        bool isInput = false;
+        for (int i = 0; i < roomChatText.Length; i++)
+        {
+            if (roomChatText[i].text == "")
+            {
+                isInput = true;
+                roomChatText[i].text = text;
+                break;
+            }
+        }
+        if (!isInput)
+        {
+            for (int i = 1; i < roomChatText.Length; i++) roomChatText[i - 1].text = roomChatText[i].text;
+            roomChatText[roomChatText.Length - 1].text = text;
+        }
+    }
+
+void Update()
     {
         Set();
         LastCanvas();
+        if (room.activeSelf == true && Input.GetKeyDown(KeyCode.Return))
+        {
+            RoomChatInput();
+        }
     }
 }
