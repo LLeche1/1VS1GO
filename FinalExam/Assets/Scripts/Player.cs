@@ -44,10 +44,13 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
     {
         if (PV.IsMine)
         {
-            GetInput();
-            Move();
-            Jump();
-            Attack();
+            if (isDead == false)
+            {
+                GetInput();
+                Move();
+                Jump();
+                Attack();
+            }
             Camera();
         }
     }
