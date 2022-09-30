@@ -44,7 +44,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
     {
         if (PV.IsMine)
         {
-            if (isDead == false)
+            if(isDead == false)
             {
                 GetInput();
                 Move();

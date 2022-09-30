@@ -58,7 +58,7 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
     {
         players = GameObject.FindGameObjectsWithTag("Player");
         PV.RPC("Hp", RpcTarget.All);
-        Recall();
+        PV.RPC("Recall", RpcTarget.All);
         if (PV.IsMine)
         {
             PV.RPC("limitTime", RpcTarget.All);
@@ -185,7 +185,7 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
                 }
                 else if (player.GetComponent<Player>().myTeam != myTeam)
                 {
-                    killLogs[0].transform.GetChild(0).GetComponent<Image>().color = Color.white;
+                    killLogs[0].transform.GetChild(0).GetComponent<Image>().color = Color.blue;
                 }
 
                 if (kill.GetComponent<Player>().classType == "Warrior")
@@ -415,6 +415,7 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
         }
     }
 
+    [PunRPC]
     void Recall()
     {
         foreach (var player in players)
@@ -429,21 +430,17 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
 
     IEnumerator RecallDelay(GameObject player)
     {
-        float recallDelay = 5;
-        player.transform.GetChild(6).gameObject.GetComponentInChildren<ParticleSystem>().Play();
-        for(int i = 0; i < 5; i++)
-        {
-            player.transform.GetChild(i).gameObject.SetActive(false);
-        }
+        float delay = 5;
+        player.transform.localScale = Vector3.zero;
         if(player.name == PhotonNetwork.LocalPlayer.NickName)
         {
             recall.SetActive(true);
         }
-        while (recallDelay > 0)
+        while (delay > 0)
         {
             yield return new WaitForEndOfFrame();
-            recallDelay -= 1.0f * Time.deltaTime;
-            recall.transform.GetChild(1).GetComponent<Text>().text = recallDelay.ToString("0");
+            delay -= 1.0f * Time.deltaTime;
+            recall.transform.GetChild(1).GetComponent<Text>().text = delay.ToString("0");
         }
         player.transform.position = new Vector3(0, player.transform.position.y, wagon.transform.position.z - 20f);
         player.GetComponent<Player>().playerHp = 100;
@@ -454,10 +451,7 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
             recall.SetActive(false);
         }
         recallTrigger = true;
-        for (int i = 0; i < 5; i++)
-        {
-            player.transform.GetChild(i).gameObject.SetActive(true);
-        }
+        player.transform.localScale = new Vector3(1.5f, 1.5f, 1.5f);
         player.transform.GetChild(5).gameObject.GetComponentInChildren<ParticleSystem>().Play();
         yield return null;
     }
