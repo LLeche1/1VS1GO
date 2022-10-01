@@ -11,7 +11,7 @@ public class Wagon : MonoBehaviourPunCallbacks
     private GameObject[] player;
     private GameObject distant;
     private string playerTeam;
-    private float speed = 7f;
+    private float speed = 6f;
     private bool isHit = false;
     PhotonView PV;
 
@@ -22,36 +22,7 @@ public class Wagon : MonoBehaviourPunCallbacks
 
     void Update()
     {
-        distance();
-    }
-
-    void distance()
-    {
-        player = GameObject.FindGameObjectsWithTag("Player");
-
-        if (player.Length == 1)
-        {
-            distant = player[0];
-        }
-        else
-        {
-            for (int i = 0; i < player.Length - 1; i++)
-            {
-                if (player[i].transform.position.z < player[i + 1].transform.position.z)
-                {
-                    distant = player[i];
-                }
-                else
-                {
-                    distant = player[i + 1];
-                }
-            }
-        }
-
-        if (distant.transform.position.z + 40 > gameObject.transform.position.z)
-        {
-            gameObject.transform.Translate(new Vector3(-1, 0, 0) * speed * Time.deltaTime);
-        }
+        gameObject.transform.Translate(new Vector3(-1, 0, 0) * speed * Time.deltaTime);
     }
 
     private void OnTriggerEnter(Collider other)

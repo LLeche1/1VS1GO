@@ -1,12 +1,12 @@
 ScriptsOnlyBuild:
   usedScripts:
     Assembly-CSharp.dll:
-    - Camera
+    - Bridge
+    - CameraController
     - Data
+    - Effect
     - GameManager
     - LobbyManager
-    - SpawnBridge
-    - SpawnEffect
     - Wagon
     - Warrior
     PhotonUnityNetworking.Demos.dll:
@@ -190,13 +190,11 @@ ScriptsOnlyBuild:
     - Class: 108
       Script: {instanceID: 0}
     - Class: 114
-      Script: {instanceID: 1536}
-    - Class: 114
       Script: {instanceID: 1538}
     - Class: 114
-      Script: {instanceID: 2690}
+      Script: {instanceID: 1540}
     - Class: 114
-      Script: {instanceID: 2764}
+      Script: {instanceID: 2692}
     - Class: 114
       Script: {instanceID: 2920}
     - Class: 114
@@ -206,13 +204,15 @@ ScriptsOnlyBuild:
     - Class: 114
       Script: {instanceID: 5014}
     - Class: 114
-      Script: {instanceID: 6056}
+      Script: {instanceID: 5890}
     - Class: 114
-      Script: {instanceID: 6552}
+      Script: {instanceID: 6058}
     - Class: 114
-      Script: {instanceID: 6874}
+      Script: {instanceID: 6554}
     - Class: 114
-      Script: {instanceID: 7132}
+      Script: {instanceID: 6876}
+    - Class: 114
+      Script: {instanceID: 7134}
     - Class: 115
       Script: {instanceID: 0}
     - Class: 128
@@ -271,17 +271,17 @@ ScriptsOnlyBuild:
     - Class: 108
       Script: {instanceID: 0}
     - Class: 114
-      Script: {instanceID: 1536}
-    - Class: 114
       Script: {instanceID: 1538}
     - Class: 114
       Script: {instanceID: 1540}
     - Class: 114
-      Script: {instanceID: 1632}
+      Script: {instanceID: 1542}
     - Class: 114
-      Script: {instanceID: 1790}
+      Script: {instanceID: 1634}
     - Class: 114
-      Script: {instanceID: 2690}
+      Script: {instanceID: 1792}
+    - Class: 114
+      Script: {instanceID: 2692}
     - Class: 114
       Script: {instanceID: 2920}
     - Class: 114
@@ -319,27 +319,27 @@ ScriptsOnlyBuild:
     - Class: 114
       Script: {instanceID: 5850}
     - Class: 114
-      Script: {instanceID: 6056}
+      Script: {instanceID: 6058}
     - Class: 114
-      Script: {instanceID: 6552}
+      Script: {instanceID: 6554}
     - Class: 114
-      Script: {instanceID: 6566}
+      Script: {instanceID: 6568}
     - Class: 114
-      Script: {instanceID: 6744}
+      Script: {instanceID: 6746}
     - Class: 114
-      Script: {instanceID: 7010}
+      Script: {instanceID: 7012}
     - Class: 114
-      Script: {instanceID: 7194}
+      Script: {instanceID: 7196}
     - Class: 114
-      Script: {instanceID: 7734}
+      Script: {instanceID: 7736}
     - Class: 114
-      Script: {instanceID: 7738}
+      Script: {instanceID: 7740}
     - Class: 114
-      Script: {instanceID: 8110}
+      Script: {instanceID: 8112}
     - Class: 114
-      Script: {instanceID: 8242}
+      Script: {instanceID: 8244}
     - Class: 114
-      Script: {instanceID: 8576}
+      Script: {instanceID: 8578}
     - Class: 115
       Script: {instanceID: 0}
     - Class: 128
@@ -667,12 +667,6 @@ ScriptsOnlyBuild:
     assemblyName: Unity.VisualScripting.Core.dll
     namespaceName: Unity.VisualScripting
     className: UnityMessageListener
-  - hash:
-      serializedVersion: 2
-      Hash: 095670c2b21e91be9772d13c29533e75
-    assemblyName: Assembly-CSharp.dll
-    namespaceName: 
-    className: Camera
   - hash:
       serializedVersion: 2
       Hash: 0927e41b46e1bd11671f9b5adda4b832
@@ -1200,7 +1194,7 @@ ScriptsOnlyBuild:
       Hash: 36808e0bceda2a44a651d2c754474786
     assemblyName: Assembly-CSharp.dll
     namespaceName: 
-    className: SpawnEffect
+    className: Effect
   - hash:
       serializedVersion: 2
       Hash: 24f79094aff162c9aa69c31d64d777d3
@@ -1245,7 +1239,7 @@ ScriptsOnlyBuild:
     className: Line
   - hash:
       serializedVersion: 2
-      Hash: b490e13bf33849a20c4adbaeaffdacf4
+      Hash: 0b82a16e9c14602e052ead17a4c72e6d
     assemblyName: Assembly-CSharp.dll
     namespaceName: 
     className: LobbyManager
@@ -1381,6 +1375,12 @@ ScriptsOnlyBuild:
     assemblyName: PhotonUnityNetworking.Demos.dll
     namespaceName: Photon.Pun.Demo.PunBasics
     className: Launcher
+  - hash:
+      serializedVersion: 2
+      Hash: 095670c2b21e91be9772d13c29533e75
+    assemblyName: Assembly-CSharp.dll
+    namespaceName: 
+    className: CameraController
   - hash:
       serializedVersion: 2
       Hash: 71bb6a6b6c8f052f948db64c7dd3ca4f
@@ -1602,7 +1602,7 @@ ScriptsOnlyBuild:
       Hash: 633c0b7bf610641c9b400f4e99b2fb5f
     assemblyName: Assembly-CSharp.dll
     namespaceName: 
-    className: SpawnBridge
+    className: Bridge
   - hash:
       serializedVersion: 2
       Hash: c656dcc13ae391b68d594cc8f9c590b0
@@ -2003,4 +2003,4 @@ ScriptsOnlyBuild:
   scenePathNames:
   - Assets/Scenes/Lobby.unity
   - Assets/Scenes/InGame.unity
-  playerPath: /Users/heotaegyun/Desktop/Build.app
+  playerPath: /Users/heotaegyun/Documents/GitHub/3D/FinalExam/Build.app

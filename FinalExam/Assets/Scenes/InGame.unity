@@ -2028,7 +2028,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 963194225}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c476ee8f9b171451eb3d395953ffffa6, type: 3}
+  m_Script: {fileID: 11500000, guid: 36c4b478a83684f51aef6a659ec2ed27, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   cameraPlayer: {fileID: 0}
@@ -2764,7 +2764,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8486877121344546191, guid: 53b47a5ce0aeb44e6b34111ad4013a20, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -10
+      value: -1000
       objectReference: {fileID: 0}
     - target: {fileID: 8486877121344546191, guid: 53b47a5ce0aeb44e6b34111ad4013a20, type: 3}
       propertyPath: m_LocalPosition.y
@@ -4945,7 +4945,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8486877121344546191, guid: 53b47a5ce0aeb44e6b34111ad4013a20, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -10
+      value: -1000
       objectReference: {fileID: 0}
     - target: {fileID: 8486877121344546191, guid: 53b47a5ce0aeb44e6b34111ad4013a20, type: 3}
       propertyPath: m_LocalPosition.y

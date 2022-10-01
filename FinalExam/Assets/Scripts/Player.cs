@@ -25,7 +25,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
     private PhotonView PV;
     private bool isJump;
     private bool isHit = false;
-    private Camera camera;
+    CameraController cameraController;
     GameManager gameManager;
 
     private GameObject circle;
@@ -36,7 +36,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
         PV = GetComponent<PhotonView>();
         animator = GetComponent<Animator>();
         wagon = GameObject.Find("Wagon");
-        camera = GameObject.Find("Main Camera").GetComponent<Camera>();
+        cameraController = GameObject.Find("Main Camera").GetComponent<CameraController>();
         gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
     }
 
@@ -57,7 +57,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
 
     void Camera()
     {
-        camera.cameraPlayer = gameObject;
+        cameraController.cameraPlayer = gameObject;
     }
 
     void GetInput()
@@ -79,7 +79,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
             }
             else if (vAxis == 1)
             {
-                speed = 10;
+                speed = 8;
                 animator.SetFloat("AnimationSpeed", 1.5f);
             }
             else if (vAxis == -1)

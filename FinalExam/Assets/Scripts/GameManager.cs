@@ -185,7 +185,7 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
                 }
                 else if (player.GetComponent<Player>().myTeam != myTeam)
                 {
-                    killLogs[0].transform.GetChild(0).GetComponent<Image>().color = Color.blue;
+                    killLogs[0].transform.GetChild(0).GetComponent<Image>().color = Color.white;
                 }
 
                 if (kill.GetComponent<Player>().classType == "Warrior")
@@ -275,10 +275,10 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
 
     void Generate()
     {
-        Vector3 position = new Vector3(Random.Range(-4f, 4f), 0, 0);
-        GameObject player = PhotonNetwork.Instantiate(data.classType, position, Quaternion.identity);
+        GameObject player = PhotonNetwork.Instantiate(data.classType, Vector3.zero, Quaternion.identity);
         player.name = PhotonNetwork.LocalPlayer.NickName;
         player.GetComponent<Player>().classType = data.classType;
+
         if (PhotonNetwork.IsMasterClient)
         {
             player.GetComponent<Player>().myTeam = "a";
@@ -286,6 +286,15 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
         else if (!PhotonNetwork.IsMasterClient)
         {
             player.GetComponent<Player>().myTeam = "b";
+        }
+
+        if (player.GetComponent<Player>().myTeam == "a")
+        {
+            player.transform.position = new Vector3(-3, 0, 0);
+        }
+        else if (player.GetComponent<Player>().myTeam == "b")
+        {
+            player.transform.position = new Vector3(3, 0, 0);
         }
     }
 
@@ -431,8 +440,12 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
     IEnumerator RecallDelay(GameObject player)
     {
         float delay = 5;
-        player.transform.localScale = Vector3.zero;
-        if(player.name == PhotonNetwork.LocalPlayer.NickName)
+        for(int i =0; i < 5; i++)
+        {
+            player.transform.GetChild(i).gameObject.SetActive(false);
+        }
+        player.transform.GetChild(6).gameObject.GetComponentInChildren<ParticleSystem>().Play();
+        if (player.name == PhotonNetwork.LocalPlayer.NickName)
         {
             recall.SetActive(true);
         }
@@ -451,7 +464,10 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
             recall.SetActive(false);
         }
         recallTrigger = true;
-        player.transform.localScale = new Vector3(1.5f, 1.5f, 1.5f);
+        for (int i = 0; i < 5; i++)
+        {
+            player.transform.GetChild(i).gameObject.SetActive(true);
+        }
         player.transform.GetChild(5).gameObject.GetComponentInChildren<ParticleSystem>().Play();
         yield return null;
     }

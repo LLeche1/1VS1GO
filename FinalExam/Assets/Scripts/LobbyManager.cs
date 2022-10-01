@@ -1,10 +1,11 @@
+using System.Collections;
+using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using Photon.Pun;
 using Photon.Realtime;
 using UnityEngine;
-using UnityEngine.UI;
 using UnityEngine.EventSystems;
-using System.Collections.Generic;
-using System.Collections;
+using UnityEngine.UI;
 
 public class LobbyManager : MonoBehaviourPunCallbacks
 {
@@ -22,11 +23,15 @@ public class LobbyManager : MonoBehaviourPunCallbacks
     public GameObject roomStartBtn;
     public GameObject roomReadyBtn;
     public GameObject roomOutBtn;
+    public GameObject roomShadow;
     public Image[] roomPlayerList;
     public Button roomClassSelectBtn;
     public Button[] classListBtn;
     public InputField createRoomNum;
     public Button setBtn;
+    public Text[] roomChatText;
+    public InputField roomChatInput;
+    public GraphicRaycaster graphicRaycaster;
     public GameObject login;
     public GameObject error;
     public GameObject lobby;
@@ -50,9 +55,6 @@ public class LobbyManager : MonoBehaviourPunCallbacks
     GameManager gameManager;
     PhotonView PV;
     Data data;
-
-    public Text[] roomChatText;
-    public InputField roomChatInput;
 
     void Awake()
     {
@@ -243,7 +245,18 @@ public class LobbyManager : MonoBehaviourPunCallbacks
 
     public void CreateRoomCreateBtn()
     {
-        PhotonNetwork.CreateRoom(createRoomNum.text == "" ? Random.Range(0, 100) + "번" : createRoomNum.text + "번", new RoomOptions { MaxPlayers = 2 });
+        Regex regex = new Regex(@"^[0-9]*$");
+        if (regex.IsMatch(createRoomNum.text))
+        {
+            PhotonNetwork.CreateRoom(createRoomNum.text == "" ? Random.Range(0, 100) + "번" : createRoomNum.text + "번", new RoomOptions { MaxPlayers = 2 });
+        }
+        else if(!regex.IsMatch(createRoomNum.text))
+        {
+            createRoom.SetActive(false);
+            error.SetActive(true);
+            errorType = "createRoom";
+            error.transform.GetChild(1).GetComponent<Text>().text = "숫자 이외에 다른 문자가 포함되어있습니다.\n다시 입력해주세요.";
+        }
     }
 
     public void LobbyFastJoinBtn()
@@ -326,6 +339,10 @@ public class LobbyManager : MonoBehaviourPunCallbacks
 
     public void RoomOut()
     {
+        for (int i = 0; i < roomChatText.Length; i++)
+        {
+            roomChatText[i].text = "";
+        }
         roomStartBtn.GetComponent<Button>().interactable = false;
         roomReadyBtn.GetComponent<Button>().interactable = false;
         roomStartBtn.SetActive(false);
@@ -440,6 +457,8 @@ public class LobbyManager : MonoBehaviourPunCallbacks
             }
             roomOutBtn.GetComponent<Button>().interactable = false;
             roomClassSelectBtn.GetComponent<Button>().interactable = false;
+            roomShadow.gameObject.SetActive(true);
+
         }
         else if(time <= 0)
         {
@@ -450,6 +469,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks
             }
             roomOutBtn.GetComponent<Button>().interactable = true;
             roomClassSelectBtn.GetComponent<Button>().interactable = true;
+            roomShadow.gameObject.SetActive(false);
         }
     }
 
@@ -697,13 +717,42 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         }
     }
 
-void Update()
+    void RoomPlayerListSet()
     {
-        Set();
-        LastCanvas();
+        var ray = new PointerEventData(null);
+        ray.position = Input.mousePosition;
+        List<RaycastResult> results = new List<RaycastResult>();
+        graphicRaycaster.Raycast(ray, results);
+        for (int i = 0; i < results.Count; i++)
+        {
+            if (results[i].gameObject.name == "Cell (1)" && results[i].gameObject.transform.GetChild(0).transform.GetComponent<Text>().text != "")
+            {
+                if (PhotonNetwork.IsMasterClient && Input.GetMouseButtonDown(1))
+                {
+                    roomPlayerList[1].transform.GetChild(3).gameObject.SetActive(true);
+                }
+            }
+        }
+
+        if (roomPlayerList[1].transform.GetChild(3).gameObject.activeSelf == true && PhotonNetwork.IsMasterClient && Input.GetMouseButtonUp(0))
+        {
+            roomPlayerList[1].transform.GetChild(3).gameObject.SetActive(false);
+        }
+    }
+
+    void RoomChat()
+    {
         if (room.activeSelf == true && Input.GetKeyDown(KeyCode.Return))
         {
             RoomChatInput();
         }
+    }
+
+    void Update()
+    {
+        Set();
+        LastCanvas();
+        RoomPlayerListSet();
+        RoomChat();
     }
 }
