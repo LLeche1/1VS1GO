@@ -96,10 +96,19 @@ ScriptsOnlyBuild:
     methodName: LobbyFastJoinBtn
   - assembly: Assembly-CSharp
     fullTypeName: LobbyManager
+    methodName: Delegation
+  - assembly: Assembly-CSharp
+    fullTypeName: LobbyManager
+    methodName: Kick
+  - assembly: Assembly-CSharp
+    fullTypeName: LobbyManager
     methodName: ClassSelectBtn
   - assembly: Assembly-CSharp
     fullTypeName: LobbyManager
     methodName: Back
+  - assembly: Assembly-CSharp
+    fullTypeName: LobbyManager
+    methodName: Kick
   - assembly: Assembly-CSharp
     fullTypeName: LobbyManager
     methodName: LobbyCreateBtn
@@ -130,6 +139,9 @@ ScriptsOnlyBuild:
   - assembly: Assembly-CSharp
     fullTypeName: LobbyManager
     methodName: Back
+  - assembly: Assembly-CSharp
+    fullTypeName: LobbyManager
+    methodName: Delegation
   - assembly: Assembly-CSharp
     fullTypeName: LobbyManager
     methodName: LoginMemory
