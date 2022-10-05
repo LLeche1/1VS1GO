@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using Photon.Pun;
 using Photon.Realtime;
-using TMPro;
+using PlayFab;
+using PlayFab.ClientModels;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using TMPro;
 
 public class LobbyManager : MonoBehaviourPunCallbacks
 {
@@ -14,8 +16,12 @@ public class LobbyManager : MonoBehaviourPunCallbacks
     public GameObject titleLoading;
     public GameObject login;
     public TMP_InputField loginID;
+    public TMP_InputField loginPW;
+    public TMP_InputField signUpID;
+    public TMP_InputField signUpPW;
     public Button loginBtn;
     public Toggle loginRememberMe;
+    public GameObject signUp;
     public GameObject lobby;
     public TMP_Text lobbyLevel;
     public TMP_Text lobbyName;
@@ -68,6 +74,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks
 
     void Awake()
     {
+        PlayFabSettings.TitleId = "9BF08";
         Application.targetFrameRate = 144;
         PhotonNetwork.AutomaticallySyncScene = true;
         PV = GetComponent<PhotonView>();
@@ -99,15 +106,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks
             titleLoading.transform.GetChild(1).GetComponent<TMP_Text>().text = time.ToString("0") + "%";
         }
         titleLoading.SetActive(false);
-        if (loginID.text == "")
-        {
-            login.SetActive(true);
-        }
-        else if (loginID.text != "")
-        {
-            PhotonNetwork.JoinLobby();
-            PhotonNetwork.LocalPlayer.NickName = loginID.text;
-        }
+        login.SetActive(true);
         loginBtn.interactable = true;
         yield return null;
     }
@@ -125,30 +124,61 @@ public class LobbyManager : MonoBehaviourPunCallbacks
 
     public void Login()
     {
-        string id = loginID.text;
-        if (id != "")
-        {
-            loginBtn.interactable = false;
+        LoginMemory(loginRememberMe);
+        loginBtn.interactable = false;
+        var request = new LoginWithPlayFabRequest { Username = loginID.text, Password = loginPW.text };
+        PlayFabClientAPI.LoginWithPlayFab(request, LoginSuccess, LoginFail);
+        loginBtn.interactable = true;
+    }
 
-            if (PhotonNetwork.IsConnected)
-            {
-                Debug.Log("로비");
-                PhotonNetwork.JoinLobby();
-                PhotonNetwork.LocalPlayer.NickName = id;
-            }
-            else
-            {
-                Debug.Log("오프라인");
-                PhotonNetwork.ConnectUsingSettings();
-            }
+    void LoginSuccess(LoginResult result)
+    {
+        if (PhotonNetwork.IsConnected)
+        {
+            Debug.Log("로비");
+            PhotonNetwork.JoinLobby();
+            PhotonNetwork.LocalPlayer.NickName = loginID.text;
         }
         else
         {
-            login.SetActive(false);
-            error.SetActive(true);
-            errorInfo.text = "You have entered an incorrect username or password. ";
-            errorType = "login";
+            Debug.Log("오프라인");
+            PhotonNetwork.ConnectUsingSettings();
         }
+    }
+
+    void LoginFail(PlayFabError error2)
+    {
+        login.SetActive(false);
+        error.SetActive(true);
+        errorInfo.text = error2.GenerateErrorReport();
+        errorType = "login";
+        Debug.LogWarning("로그인 실패");
+        loginID.text = null;
+        loginPW.text = null;
+    }
+
+    public void Register()
+    {
+        var request = new RegisterPlayFabUserRequest { Username = signUpID.text, Password = signUpPW.text, RequireBothUsernameAndEmail = false };
+        PlayFabClientAPI.RegisterPlayFabUser(request, RegisterSuccess, RegisterFailure);
+    }
+
+    private void RegisterSuccess(RegisterPlayFabUserResult result)
+    {
+        signUp.SetActive(false);
+        login.SetActive(true);
+        Debug.Log("가입 성공");
+    }
+
+    private void RegisterFailure(PlayFabError error2)
+    {
+        signUp.SetActive(false);
+        error.SetActive(true);
+        errorInfo.text = error2.GenerateErrorReport();
+        errorType = "signUp";
+        Debug.LogWarning("가입 실패");
+        signUpID.text = null;
+        signUpPW.text = null;
     }
 
     public override void OnJoinedLobby()
@@ -158,6 +188,12 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         login.SetActive(false);
         lobbyLevel.text = 1.ToString();
         lobbyName.text = PhotonNetwork.LocalPlayer.NickName;
+    }
+
+    public void LoginSignUp()
+    {
+        signUp.SetActive(true);
+        login.SetActive(false);
     }
 
     public void LobbySet()
@@ -205,11 +241,14 @@ public class LobbyManager : MonoBehaviourPunCallbacks
     void RoomRenewal()
     {
         roomPlayer.text = PhotonNetwork.CurrentRoom.PlayerCount + " / " + PhotonNetwork.CurrentRoom.MaxPlayers;
-        if (PhotonNetwork.CurrentRoom.PlayerCount == PhotonNetwork.CurrentRoom.MaxPlayers && PhotonNetwork.IsMasterClient)
+        if (PhotonNetwork.CurrentRoom.PlayerCount == PhotonNetwork.CurrentRoom.MaxPlayers)
         {
-            StartCoroutine(StartDelay());
-            PhotonNetwork.LoadLevel("InGame");
-            PhotonNetwork.CurrentRoom.IsOpen = false;
+            roomCount.SetActive(true);
+            if (PhotonNetwork.IsMasterClient)
+            {
+                StartCoroutine(StartDelay());
+                PhotonNetwork.CurrentRoom.IsOpen = false;
+            }
         }
     }
 
@@ -222,13 +261,13 @@ public class LobbyManager : MonoBehaviourPunCallbacks
             time -= 1.0f * Time.deltaTime;
             PV.RPC("RoomCountdownRpc", RpcTarget.All, time);
         }
+        PhotonNetwork.LoadLevel("InGame");
         yield return null;
     }
 
     [PunRPC]
     public void RoomCountdownRpc(float time)
     {
-        roomCount.SetActive(true);
         roomCountText.text = time.ToString("0");
     }
 
@@ -243,6 +282,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         if (toggle.isOn)
         {
             PlayerPrefs.SetString("ID", loginID.text);
+            PlayerPrefs.SetString("PW", loginPW.text);
             PlayerPrefs.SetInt("IsOn", 1);
         }
         else
@@ -255,6 +295,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks
     void LoginLoad(Toggle toggle)
     {
         loginID.text = PlayerPrefs.GetString("ID");
+        loginPW.text = PlayerPrefs.GetString("PW");
         if (PlayerPrefs.GetInt("IsOn") == 1)
         {
             toggle.isOn = true;
@@ -279,6 +320,11 @@ public class LobbyManager : MonoBehaviourPunCallbacks
                 error.SetActive(false);
                 login.SetActive(true);
             }
+            if (errorType == "signUp")
+            {
+                error.SetActive(false);
+                signUp.SetActive(true);
+            }
         }
         else if (lastCanvas == "lobbySet")
         {
@@ -292,17 +338,26 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         {
             lobbyUserInfo.SetActive(false);
         }
+        else if (lastCanvas == "signUp")
+        {
+            signUp.SetActive(false);
+            login.SetActive(true);
+        }
     }
 
     void LastCanvas()
     {
-        if(title.activeSelf == true && error.activeSelf == false)
+        if(title.activeSelf == true && error.activeSelf == false && signUp.activeSelf == false)
         {
             lastCanvas = "title";
         }
         else if (login.activeSelf == true)
         {
             lastCanvas = "login";
+        }
+        else if (signUp.activeSelf == true)
+        {
+            lastCanvas = "signUp";
         }
         else if (title.activeSelf == true && error.activeSelf == true)
         {

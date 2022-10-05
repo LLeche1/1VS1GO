@@ -67,6 +67,7 @@ MonoBehaviour:
   - RoomClassSelectBtn
   - RoomRenewal
   - LobbyChatRpc
+  - StartDelayRpc
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1
