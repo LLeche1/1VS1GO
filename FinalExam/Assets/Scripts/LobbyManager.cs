@@ -14,7 +14,6 @@ public class LobbyManager : MonoBehaviourPunCallbacks
     public GameObject titleLoading;
     public GameObject login;
     public TMP_InputField loginID;
-    public TMP_InputField loginPW;
     public Button loginBtn;
     public Toggle loginRememberMe;
     public GameObject lobby;
@@ -84,21 +83,36 @@ public class LobbyManager : MonoBehaviourPunCallbacks
     {
         PhotonNetwork.ConnectUsingSettings();
         titleLoading.SetActive(true);
-        titleLoading.GetComponent<Slider>().value = 0.5f;
-        titleLoading.transform.GetChild(1).GetComponent<TMP_Text>().text = "50%";
+        StartCoroutine(LoadDelay());
+    }
+
+    IEnumerator LoadDelay()
+    {
+        float time = 0;
+        while (time < 100)
+        {
+            yield return new WaitForEndOfFrame();
+            time += 30.0f * Time.deltaTime;
+            titleLoading.GetComponent<Slider>().value = time * 0.01f;
+            titleLoading.transform.GetChild(1).GetComponent<TMP_Text>().text = time.ToString("0") + "%";
+        }
+        titleLoading.SetActive(false);
+        if (loginID.text == "")
+        {
+            login.SetActive(true);
+        }
+        else if (loginID.text != "")
+        {
+            PhotonNetwork.JoinLobby();
+            PhotonNetwork.LocalPlayer.NickName = loginID.text;
+        }
+        loginBtn.interactable = true;
+        yield return null;
     }
 
     public override void OnConnectedToMaster()
     {
         Debug.Log("온라인");
-        titleLoading.GetComponent<Slider>().value = 1f;
-        titleLoading.transform.GetChild(1).GetComponent<TMP_Text>().text = "100%";
-        titleLoading.SetActive(false);
-        if(lastCanvas != "lobby")
-        {
-            login.SetActive(true);
-        }
-        loginBtn.interactable = true;
     }
 
     public override void OnDisconnected(DisconnectCause cause)
@@ -110,8 +124,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks
     public void Login()
     {
         string id = loginID.text;
-        string pw = loginPW.text;
-        if (id != "" && pw != "")
+        if (id != "")
         {
             loginBtn.interactable = false;
 
@@ -138,9 +151,9 @@ public class LobbyManager : MonoBehaviourPunCallbacks
 
     public override void OnJoinedLobby()
     {
+        lobby.SetActive(true);
         title.SetActive(false);
         login.SetActive(false);
-        lobby.SetActive(true);
         lobbyLevel.text = 1.ToString();
         lobbyName.text = PhotonNetwork.LocalPlayer.NickName;
     }
@@ -186,12 +199,13 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         roomPlayer.text = PhotonNetwork.CurrentRoom.PlayerCount + " / " + PhotonNetwork.CurrentRoom.MaxPlayers;
         if (PhotonNetwork.CurrentRoom.PlayerCount == PhotonNetwork.CurrentRoom.MaxPlayers && PhotonNetwork.IsMasterClient)
         {
-            StartCoroutine(Delay());
+            StartCoroutine(StartDelay());
             PhotonNetwork.LoadLevel("InGame");
+            PhotonNetwork.CurrentRoom.IsOpen = false;
         }
     }
 
-    IEnumerator Delay()
+    IEnumerator StartDelay()
     {
         float time = 3;
         while (0.0f < time)
@@ -221,7 +235,6 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         if (toggle.isOn)
         {
             PlayerPrefs.SetString("ID", loginID.text);
-            PlayerPrefs.SetString("PW", loginPW.text);
             PlayerPrefs.SetInt("IsOn", 1);
         }
         else
@@ -229,6 +242,19 @@ public class LobbyManager : MonoBehaviourPunCallbacks
             PlayerPrefs.DeleteAll();
         }
 
+    }
+
+    void LoginLoad(Toggle toggle)
+    {
+        loginID.text = PlayerPrefs.GetString("ID");
+        if (PlayerPrefs.GetInt("IsOn") == 1)
+        {
+            toggle.isOn = true;
+        }
+        else
+        {
+            toggle.isOn = false;
+        }
     }
 
     public void Back()
@@ -282,20 +308,6 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         else if (lobby.activeSelf == true && lobbyChat.activeSelf == true)
         {
             lastCanvas = "lobbyChat";
-        }
-    }
-
-    void LoginLoad(Toggle toggle)
-    {
-        loginID.text = PlayerPrefs.GetString("ID");
-        loginPW.text = PlayerPrefs.GetString("PW");
-        if (PlayerPrefs.GetInt("IsOn") == 1)
-        {
-            toggle.isOn = true;
-        }
-        else
-        {
-            toggle.isOn = false;
         }
     }
 
