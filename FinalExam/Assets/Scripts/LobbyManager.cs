@@ -23,6 +23,8 @@ public class LobbyManager : MonoBehaviourPunCallbacks
     public GameObject lobbyChat;
     public TMP_Text[] lobbyChatText;
     public TMP_InputField lobbyChatInput;
+    public GameObject lobbyUserInfo;
+    public TMP_Text lobbyUserInfo_Name;
     public GameObject error;
     public TMP_Text errorInfo;
     public GameObject errorNetwork;
@@ -168,6 +170,12 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         lobbyChat.SetActive(true);
     }
 
+    public void LobbyUserInfo()
+    {
+        lobbyUserInfo.SetActive(true);
+        lobbyUserInfo_Name.text = PhotonNetwork.LocalPlayer.NickName;
+    }
+
     public void LobbyStart()
     {
         PhotonNetwork.JoinRandomRoom();
@@ -280,7 +288,10 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         {
             lobbyChat.SetActive(false);
         }
-        Debug.Log(lastCanvas);
+        else if (lastCanvas == "lobbyUserInfo")
+        {
+            lobbyUserInfo.SetActive(false);
+        }
     }
 
     void LastCanvas()
@@ -297,7 +308,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         {
             lastCanvas = "error";
         }
-        else if (lobby.activeSelf == true && lobbySet.activeSelf == false && lobbyChat.activeSelf == false && room.activeSelf == false)
+        else if (lobby.activeSelf == true && lobbySet.activeSelf == false && lobbyChat.activeSelf == false && room.activeSelf == false && lobbyUserInfo.activeSelf == false)
         {
             lastCanvas = "lobby";
         }
@@ -308,6 +319,10 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         else if (lobby.activeSelf == true && lobbyChat.activeSelf == true)
         {
             lastCanvas = "lobbyChat";
+        }
+        else if (lobby.activeSelf == true && lobbyUserInfo.activeSelf == true)
+        {
+            lastCanvas = "lobbyUserInfo";
         }
     }
 
