@@ -5237,6 +5237,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 448c6d41d37254b41bbe999546dcf86c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  jDown: 0
 --- !u!114 &-2975841426739816416
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5253,16 +5254,16 @@ MonoBehaviour:
   ShowParameterInspector: 1
   m_SynchronizeParameters:
   - Type: 1
-    SynchronizeType: 0
+    SynchronizeType: 2
     Name: Speed
   - Type: 4
-    SynchronizeType: 0
+    SynchronizeType: 2
     Name: isRun
   - Type: 4
-    SynchronizeType: 0
+    SynchronizeType: 2
     Name: isJump
   m_SynchronizeLayers:
-  - SynchronizeType: 0
+  - SynchronizeType: 2
     LayerIndex: 0
 --- !u!114 &3449254056286634462
 MonoBehaviour:

@@ -14,7 +14,7 @@ public class JoyStick : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDrag
 
     public GameObject player;
 
-    private Vector2 inputDir;
+    public Vector2 inputDir;
     private bool isInput;
     public void OnBeginDrag(PointerEventData eventData)
     {
@@ -61,8 +61,9 @@ public class JoyStick : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDrag
         if (isInput)
         {
             //Debug.Log(inputDir.x + " / " + inputDir.y);
-            player.transform.Translate(new Vector3(inputDir.x, 0, inputDir.y) * 10 * Time.deltaTime, Space.World);
-            player.transform.LookAt(player.transform.position + new Vector3(inputDir.x, 0, inputDir.y));
+            //player.transform.Translate(new Vector3(inputDir.x, 0, inputDir.y) * 10 * Time.deltaTime, Space.World);
+            //player.transform.LookAt(player.transform.position + new Vector3(inputDir.x, 0, inputDir.y));
+            
         }
     }
 }

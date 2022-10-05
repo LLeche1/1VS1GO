@@ -79,7 +79,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         PhotonNetwork.AutomaticallySyncScene = true;
         PV = GetComponent<PhotonView>();
         Cursor.SetCursor(cursor, Vector2.zero, CursorMode.Auto);
-        Cursor.lockState = CursorLockMode.Confined;
+        //Cursor.lockState = CursorLockMode.Confined;
     }
 
     void Start()
