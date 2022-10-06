@@ -15,11 +15,11 @@ MonoBehaviour:
   AppSettings:
     AppIdRealtime: 3aa49c86-404b-47e5-84d6-c27e0c606653
     AppIdFusion: 
-    AppIdChat: 
+    AppIdChat: 12948e4e-ff9c-421f-bd0f-8381c8d1b39b
     AppIdVoice: 
     AppVersion: 
     UseNameServer: 1
-    FixedRegion: kr
+    FixedRegion: 
     Server: 
     Port: 0
     ProxyServer: 
@@ -28,7 +28,7 @@ MonoBehaviour:
     AuthMode: 0
     EnableLobbyStatistics: 0
     NetworkLogging: 1
-  DevRegion: kr
+  DevRegion: 
   PunLogging: 0
   EnableSupportLogger: 0
   RunInBackground: 1
@@ -38,36 +38,9 @@ MonoBehaviour:
   - DestroyRpc
   - DestroySpaceship
   - Fire
-  - RespawnSpaceship
-  - limitTime
-  - Generate
-  - Participate
-  - PlayerLook
-  - DecreaseHP
-  - RPCHit
-  - ReadyBtn
-  - ReadyBtn2
-  - Ready2
-  - ReadySync
-  - ReadyRpc
-  - DelayRpc
-  - Hp
-  - WagonHit
-  - CountdownRpc
-  - RoomCountdownRpc
-  - RoomReadyBtnRpc
-  - ClassSelectBtnRpc
-  - RpcHit
-  - Recall
-  - HpBar
-  - RecallRPC
-  - disappear
-  - RoomChatRPC
-  - RoomChatRpc
-  - RoomClassSelectBtn
-  - RoomRenewal
   - LobbyChatRpc
-  - StartDelayRpc
+  - RespawnSpaceship
+  - RoomCountdownRpc
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

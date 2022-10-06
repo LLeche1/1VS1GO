@@ -9,6 +9,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.SceneManagement;
 
 public class LobbyManager : MonoBehaviourPunCallbacks
 {
@@ -56,7 +57,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks
     public TMP_Text roomCountText;
     private float level;
     private float exp;
-    private string name;
+    private string nickName;
     private float gold;
     private float crystal;
     private float highest_Trophies;
@@ -65,40 +66,11 @@ public class LobbyManager : MonoBehaviourPunCallbacks
     private float _2vs2;
     private float total_Play;
     private float mvp;
-
-
-
-    public Button lobbyPreviousBtn;
-    public Button lobbyNextBtn;
-    public Button[] lobbyRoomListBtn;
-    public Text roomTitle;
-
-    public GameObject roomStartBtn;
-    public GameObject roomReadyBtn;
-    public GameObject roomOutBtn;
-    public GameObject roomShadow;
-    public Image[] roomPlayerList;
-    public Button roomClassSelectBtn;
-    public Button[] classListBtn;
-    public InputField createRoomNum;
-    public Button setBtn;
-    public GraphicRaycaster graphicRaycaster;
-
-
-
-    public GameObject Class;
-    public GameObject createRoom;
-    public GameObject set;
-    public GameObject result;
-    public Texture2D cursor;
-    public string classType;
     private string gameVersion = "1";
     private string lastCanvas;
     private string errorType;
-    private int multiple;
-    private bool isReady = false;
-    private bool isReadyRpc = false;
-    List<RoomInfo> roomList = new List<RoomInfo>();
+    public GraphicRaycaster graphicRaycaster;
+
     PhotonView PV;
 
     void Awake()
@@ -107,8 +79,6 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         Application.targetFrameRate = 144;
         PhotonNetwork.AutomaticallySyncScene = true;
         PV = GetComponent<PhotonView>();
-        Cursor.SetCursor(cursor, Vector2.zero, CursorMode.Auto);
-        //Cursor.lockState = CursorLockMode.Confined;
     }
 
     void Start()
@@ -135,7 +105,14 @@ public class LobbyManager : MonoBehaviourPunCallbacks
             titleLoading.transform.GetChild(1).GetComponent<TMP_Text>().text = time.ToString("0") + "%";
         }
         titleLoading.SetActive(false);
-        login.SetActive(true);
+        if(loginID.text == "" && loginPW.text == "")
+        {
+            login.SetActive(true);
+        }
+        else if (loginID.text != "" && loginPW.text != "")
+        {
+            Login();
+        }
         loginBtn.interactable = true;
         yield return null;
     }
@@ -166,18 +143,19 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         {
             Debug.Log("로비");
             PhotonNetwork.JoinLobby();
-            PhotonNetwork.LocalPlayer.NickName = loginID.text;
             PlayFabClientAPI.GetUserData(new GetUserDataRequest(),
             (result) => {
                 foreach (var eachData in result.Data)
                 {
-                    if (eachData.Key == "Name")
+                    if (eachData.Key == "NickName")
                     {
-                        name = eachData.Value.Value;
+                        nickName = eachData.Value.Value;
                     }
                 }
             },
             (error) => print("데이터 불러오기 실패"));
+
+            PhotonNetwork.LocalPlayer.NickName = nickName;
 
             PlayFabClientAPI.GetPlayerStatistics(new GetPlayerStatisticsRequest(),
             (result) =>
@@ -262,7 +240,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         {
             Data = new Dictionary<string, string>
             {
-                { "Name", signUpID.text }
+                { "NickName", signUpID.text }
             }
         },
         (result) => print("데이터 저장 성공"),
@@ -322,6 +300,12 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         lobbySet_Language.SetActive(true);
     }
 
+    public void LobbySet_Logout()
+    {
+        PlayerPrefs.DeleteAll();
+        SceneManager.LoadScene("Lobby");
+    }
+
     public void LobbyChat()
     {
         lobbyChat.SetActive(true);
@@ -339,7 +323,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks
 
     public void UserInfo_ChangeName_Name()
     {
-        if(userInfo_ChangeName_Name.text != "")
+        if(userInfo_ChangeName_Name.text != "" && crystal >= 10)
         {
             PlayFabClientAPI.UpdateUserData(new UpdateUserDataRequest
             {
@@ -354,7 +338,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks
                     {
                         if (eachData.Key == "Name")
                         {
-                            name = eachData.Value.Value;
+                            nickName = eachData.Value.Value;
                         }
                     }
                 },
@@ -387,9 +371,18 @@ public class LobbyManager : MonoBehaviourPunCallbacks
             userInfo_ChangeName.SetActive(false);
             userInfo_ChangeName_Name.text = "";
         }
-
-
-
+        else if(userInfo_ChangeName_Name.text == "")
+        {
+            errorInfo.text = "UserName must be between 3 and 20 characters";
+            errorType = "userInfo_ChangeName_Name_Empty";
+            error.SetActive(true);
+        }
+        else if(crystal < 10)
+        {
+            errorInfo.text = "You need more than 10 Crystal";
+            errorType = "userInfo_ChangeName_Name_Crystal";
+            error.SetActive(true);
+        }
     }
 
     public void LobbyStart()
@@ -469,7 +462,6 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         {
             PlayerPrefs.DeleteAll();
         }
-
     }
 
     void LoginLoad(Toggle toggle)
@@ -505,10 +497,14 @@ public class LobbyManager : MonoBehaviourPunCallbacks
                 error.SetActive(false);
                 login.SetActive(true);
             }
-            if (errorType == "signUp")
+            else if (errorType == "signUp")
             {
                 error.SetActive(false);
                 signUp.SetActive(true);
+            }
+            else if (errorType == "userInfo_ChangeName_Name_Empty" || errorType == "userInfo_ChangeName_Name_Crystal")
+            {
+                error.SetActive(false);
             }
         }
         else if (lastCanvas == "lobbySet")
@@ -575,7 +571,14 @@ public class LobbyManager : MonoBehaviourPunCallbacks
             {
                 if (userInfo_ChangeName.activeSelf == true)
                 {
-                    lastCanvas = "userInfo_ChangeName";
+                    if (error.activeSelf == true)
+                    {
+                        lastCanvas = "error";
+                    }
+                    else
+                    {
+                        lastCanvas = "userInfo_ChangeName";
+                    }
                 }
                 else
                 {
@@ -629,7 +632,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks
 
     void SetData()
     {
-        lobbyName.text = name;
+        lobbyName.text = nickName;
         lobbyLevel.text = level.ToString();
         lobbyExp.text = exp.ToString() + "/500";
         lobbyExp_Slider.GetComponent<Slider>().value = exp / 500;
@@ -638,7 +641,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         lobbyUserInfo_Level.text = level.ToString();
         lobbyUserInfo_Exp.text = exp.ToString() + "/500";
         lobbyUserInfo_Exp_Slider.GetComponent<Slider>().value = exp / 500;
-        lobbyUserInfo_Name.text = name;
+        lobbyUserInfo_Name.text = nickName;
         lobbyUserInfo_Highest_Trophies.text = highest_Trophies.ToString();
         lobbyUserInfo_Most_Wins.text = most_Wins.ToString();
         lobbyUserInfo_1vs1.text = _1vs1.ToString();
