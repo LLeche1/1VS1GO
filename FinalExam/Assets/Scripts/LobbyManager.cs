@@ -24,13 +24,29 @@ public class LobbyManager : MonoBehaviourPunCallbacks
     public GameObject signUp;
     public GameObject lobby;
     public TMP_Text lobbyLevel;
+    public TMP_Text lobbyExp;
+    public GameObject lobbyExp_Slider;
     public TMP_Text lobbyName;
+    public TMP_Text lobbyGold;
+    public TMP_Text lobbyCrystal;
     public GameObject lobbySet;
+    public GameObject lobbySet_Language;
     public GameObject lobbyChat;
     public TMP_Text[] lobbyChatText;
     public TMP_InputField lobbyChatInput;
-    public GameObject lobbyUserInfo;
+    public GameObject userInfo;
+    public GameObject userInfo_ChangeName;
+    public TMP_InputField userInfo_ChangeName_Name;
+    public TMP_Text lobbyUserInfo_Level;
+    public TMP_Text lobbyUserInfo_Exp;
+    public GameObject lobbyUserInfo_Exp_Slider;
     public TMP_Text lobbyUserInfo_Name;
+    public TMP_Text lobbyUserInfo_Highest_Trophies;
+    public TMP_Text lobbyUserInfo_Most_Wins;
+    public TMP_Text lobbyUserInfo_1vs1;
+    public TMP_Text lobbyUserInfo_2vs2;
+    public TMP_Text lobbyUserInfo_Total_Play;
+    public TMP_Text lobbyUserInfo_MVP;
     public GameObject error;
     public TMP_Text errorInfo;
     public GameObject errorNetwork;
@@ -38,6 +54,19 @@ public class LobbyManager : MonoBehaviourPunCallbacks
     public TMP_Text roomPlayer;
     public GameObject roomCount;
     public TMP_Text roomCountText;
+    private float level;
+    private float exp;
+    private string name;
+    private float gold;
+    private float crystal;
+    private float highest_Trophies;
+    private float most_Wins;
+    private float _1vs1;
+    private float _2vs2;
+    private float total_Play;
+    private float mvp;
+
+
 
     public Button lobbyPreviousBtn;
     public Button lobbyNextBtn;
@@ -138,6 +167,66 @@ public class LobbyManager : MonoBehaviourPunCallbacks
             Debug.Log("로비");
             PhotonNetwork.JoinLobby();
             PhotonNetwork.LocalPlayer.NickName = loginID.text;
+            PlayFabClientAPI.GetUserData(new GetUserDataRequest(),
+            (result) => {
+                foreach (var eachData in result.Data)
+                {
+                    if (eachData.Key == "Name")
+                    {
+                        name = eachData.Value.Value;
+                    }
+                }
+            },
+            (error) => print("데이터 불러오기 실패"));
+
+            PlayFabClientAPI.GetPlayerStatistics(new GetPlayerStatisticsRequest(),
+            (result) =>
+            {
+                foreach (var eachStat in result.Statistics)
+                {
+                    if (eachStat.StatisticName == "Level")
+                    {
+                        level = eachStat.Value;
+                    }
+                    else if (eachStat.StatisticName == "Exp")
+                    {
+                        exp = eachStat.Value;
+                    }
+                    else if (eachStat.StatisticName == "Gold")
+                    {
+                        gold = eachStat.Value;
+                    }
+                    else if (eachStat.StatisticName == "Crystal")
+                    {
+                        crystal = eachStat.Value;
+                    }
+                    else if (eachStat.StatisticName == "Highest_Trophies")
+                    {
+                        highest_Trophies = eachStat.Value;
+                    }
+                    else if (eachStat.StatisticName == "Most_Wins")
+                    {
+                        most_Wins = eachStat.Value;
+                    }
+                    else if (eachStat.StatisticName == "1vs1")
+                    {
+                        _1vs1 = eachStat.Value;
+                    }
+                    else if (eachStat.StatisticName == "2vs2")
+                    {
+                        _2vs2 = eachStat.Value;
+                    }
+                    else if (eachStat.StatisticName == "Total_Play")
+                    {
+                        total_Play = eachStat.Value;
+                    }
+                    else if (eachStat.StatisticName == "MVP")
+                    {
+                        mvp = eachStat.Value;
+                    }
+                }
+            },
+            (error) => { Debug.Log("값 로딩 실패"); });
         }
         else
         {
@@ -168,6 +257,35 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         signUp.SetActive(false);
         login.SetActive(true);
         Debug.Log("가입 성공");
+        var request = new UpdateUserDataRequest() { Data = new Dictionary<string, string>() { { "Name", signUpID.text } } };
+        PlayFabClientAPI.UpdateUserData(new UpdateUserDataRequest
+        {
+            Data = new Dictionary<string, string>
+            {
+                { "Name", signUpID.text }
+            }
+        },
+        (result) => print("데이터 저장 성공"),
+        (error) => print("데이터 저장 실패"));
+
+        PlayFabClientAPI.UpdatePlayerStatistics(new UpdatePlayerStatisticsRequest
+        {
+            Statistics = new List<StatisticUpdate>
+            {
+                new StatisticUpdate {StatisticName = "Level", Value = int.Parse(1.ToString())},
+                new StatisticUpdate {StatisticName = "Exp", Value = int.Parse(0.ToString())},
+                new StatisticUpdate {StatisticName = "Gold", Value = int.Parse(0.ToString())},
+                new StatisticUpdate {StatisticName = "Crystal", Value = int.Parse(0.ToString())},
+                new StatisticUpdate {StatisticName = "Highest_Trophies", Value = int.Parse(0.ToString())},
+                new StatisticUpdate {StatisticName = "Most_Wins", Value = int.Parse(0.ToString())},
+                new StatisticUpdate {StatisticName = "1vs1", Value = int.Parse(0.ToString())},
+                new StatisticUpdate {StatisticName = "2vs2", Value = int.Parse(0.ToString())},
+                new StatisticUpdate {StatisticName = "Total_Play", Value = int.Parse(0.ToString())},
+                new StatisticUpdate {StatisticName = "MVP", Value = int.Parse(0.ToString())}
+            }
+        },
+        (result) => { Debug.Log("값 저장 완료"); },
+        (error) => { Debug.Log("값 저장 실패"); });
     }
 
     private void RegisterFailure(PlayFabError error2)
@@ -186,8 +304,6 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         lobby.SetActive(true);
         title.SetActive(false);
         login.SetActive(false);
-        lobbyLevel.text = 1.ToString();
-        lobbyName.text = PhotonNetwork.LocalPlayer.NickName;
     }
 
     public void LoginSignUp()
@@ -201,15 +317,79 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         lobbySet.SetActive(true);
     }
 
+    public void LobbySet_Language()
+    {
+        lobbySet_Language.SetActive(true);
+    }
+
     public void LobbyChat()
     {
         lobbyChat.SetActive(true);
     }
 
-    public void LobbyUserInfo()
+    public void UserInfo()
     {
-        lobbyUserInfo.SetActive(true);
-        lobbyUserInfo_Name.text = PhotonNetwork.LocalPlayer.NickName;
+        userInfo.SetActive(true);
+    }
+
+    public void UserInfo_ChangeName()
+    {
+        userInfo_ChangeName.SetActive(true);
+    }
+
+    public void UserInfo_ChangeName_Name()
+    {
+        if(userInfo_ChangeName_Name.text != "")
+        {
+            PlayFabClientAPI.UpdateUserData(new UpdateUserDataRequest
+            {
+                Data = new Dictionary<string, string>
+            {
+                { "Name", userInfo_ChangeName_Name.text }
+            }
+            },
+            (result) => PlayFabClientAPI.GetUserData(new GetUserDataRequest(),
+                (result) => {
+                    foreach (var eachData in result.Data)
+                    {
+                        if (eachData.Key == "Name")
+                        {
+                            name = eachData.Value.Value;
+                        }
+                    }
+                },
+                (error) => print("데이터 불러오기 실패")),
+            (error) => print("데이터 저장 실패"));
+
+            PlayFabClientAPI.UpdatePlayerStatistics(new UpdatePlayerStatisticsRequest
+            {
+                Statistics = new List<StatisticUpdate>
+            {
+                new StatisticUpdate {StatisticName = "Crystal", Value = int.Parse((crystal - 10).ToString())},
+            }
+            },
+            (result) => {
+                PlayFabClientAPI.GetPlayerStatistics(new GetPlayerStatisticsRequest(),
+                (result) =>
+                {
+                    foreach (var eachStat in result.Statistics)
+                    {
+                        if (eachStat.StatisticName == "Crystal")
+                        {
+                            crystal = eachStat.Value;
+                        }
+                    }
+                },
+                (error) => { Debug.Log("값 로딩 실패"); });
+            },
+            (error) => { Debug.Log("값 저장 실패"); });
+
+            userInfo_ChangeName.SetActive(false);
+            userInfo_ChangeName_Name.text = "";
+        }
+
+
+
     }
 
     public void LobbyStart()
@@ -308,10 +488,15 @@ public class LobbyManager : MonoBehaviourPunCallbacks
 
     public void Back()
     {
-        if(lastCanvas == "title")
+        if(lastCanvas == "login")
         {
             login.SetActive(false);
             title.SetActive(true);
+        }
+        else if (lastCanvas == "signUp")
+        {
+            signUp.SetActive(false);
+            login.SetActive(true);
         }
         else if(lastCanvas == "error")
         {
@@ -330,54 +515,77 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         {
             lobbySet.SetActive(false);
         }
+        else if (lastCanvas == "lobbySet_Language")
+        {
+            lobbySet_Language.SetActive(false);
+        }
         else if (lastCanvas == "lobbyChat")
         {
             lobbyChat.SetActive(false);
         }
-        else if (lastCanvas == "lobbyUserInfo")
+        else if (lastCanvas == "userInfo")
         {
-            lobbyUserInfo.SetActive(false);
+            userInfo.SetActive(false);
         }
-        else if (lastCanvas == "signUp")
+        else if (lastCanvas == "userInfo_ChangeName")
         {
-            signUp.SetActive(false);
-            login.SetActive(true);
+            userInfo_ChangeName.SetActive(false);
         }
     }
 
     void LastCanvas()
     {
-        if(title.activeSelf == true && error.activeSelf == false && signUp.activeSelf == false)
+        if(title.activeSelf == true)
         {
-            lastCanvas = "title";
+            if (login.activeSelf == true)
+            {
+                lastCanvas = "login";
+            }
+            else if (signUp.activeSelf == true)
+            {
+                lastCanvas = "signUp";
+            }
+            else if (error.activeSelf == true)
+            {
+                lastCanvas = "error";
+            }
+            else
+            {
+                lastCanvas = "title";
+            }
         }
-        else if (login.activeSelf == true)
+        else if (lobby.activeSelf == true && room.activeSelf == false)
         {
-            lastCanvas = "login";
-        }
-        else if (signUp.activeSelf == true)
-        {
-            lastCanvas = "signUp";
-        }
-        else if (title.activeSelf == true && error.activeSelf == true)
-        {
-            lastCanvas = "error";
-        }
-        else if (lobby.activeSelf == true && lobbySet.activeSelf == false && lobbyChat.activeSelf == false && room.activeSelf == false && lobbyUserInfo.activeSelf == false)
-        {
-            lastCanvas = "lobby";
-        }
-        else if (lobby.activeSelf == true && lobbySet.activeSelf == true)
-        {
-            lastCanvas = "lobbySet";
-        }
-        else if (lobby.activeSelf == true && lobbyChat.activeSelf == true)
-        {
-            lastCanvas = "lobbyChat";
-        }
-        else if (lobby.activeSelf == true && lobbyUserInfo.activeSelf == true)
-        {
-            lastCanvas = "lobbyUserInfo";
+            if (lobbySet.activeSelf == true)
+            {
+                if (lobbySet_Language.activeSelf == true)
+                {
+                    lastCanvas = "lobbySet_Language";
+                }
+                else
+                {
+                    lastCanvas = "lobbySet";
+                }
+            }
+            else if (lobbyChat.activeSelf == true)
+            {
+                lastCanvas = "lobbyChat";
+            }
+            else if (userInfo.activeSelf == true)
+            {
+                if (userInfo_ChangeName.activeSelf == true)
+                {
+                    lastCanvas = "userInfo_ChangeName";
+                }
+                else
+                {
+                    lastCanvas = "userInfo";
+                }
+            }
+            else
+            {
+                lastCanvas = "lobby";
+            }
         }
     }
 
@@ -419,9 +627,30 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         }
     }
 
+    void SetData()
+    {
+        lobbyName.text = name;
+        lobbyLevel.text = level.ToString();
+        lobbyExp.text = exp.ToString() + "/500";
+        lobbyExp_Slider.GetComponent<Slider>().value = exp / 500;
+        lobbyGold.text = gold.ToString();
+        lobbyCrystal.text = crystal.ToString();
+        lobbyUserInfo_Level.text = level.ToString();
+        lobbyUserInfo_Exp.text = exp.ToString() + "/500";
+        lobbyUserInfo_Exp_Slider.GetComponent<Slider>().value = exp / 500;
+        lobbyUserInfo_Name.text = name;
+        lobbyUserInfo_Highest_Trophies.text = highest_Trophies.ToString();
+        lobbyUserInfo_Most_Wins.text = most_Wins.ToString();
+        lobbyUserInfo_1vs1.text = _1vs1.ToString();
+        lobbyUserInfo_2vs2.text = _2vs2.ToString();
+        lobbyUserInfo_Total_Play.text = total_Play.ToString();
+        lobbyUserInfo_MVP.text = mvp.ToString();
+    }
+
     void Update()
     {
         LastCanvas();
         LobbyChatEnter();
+        SetData();
     }
 }
