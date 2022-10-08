@@ -15,46 +15,36 @@ public class PlayerController : MonoBehaviourPunCallbacks
     private float speed = 5.0f;
     private float jumpForce = 5.0f;
     private Vector2 inputDir = Vector2.zero;
-
     private Vector3 moveDir;
     private float moveMag;
-
-    private PhotonView PV;
-    private Transform tr;
-    private Animator animator;
-    private Rigidbody rb;
-
-
     private JoyStick joyStick;
-    private Button jumpBt;
-
-    // Start is called before the first frame update
+    private Button jumpBtn;
+    public bool isDead = false;
+    PhotonView PV;
+    Transform tr;
+    Animator animator;
+    Rigidbody rb;
+    CameraController cameraController;
 
     private void Awake()
     {
-
         PV = GetComponent<PhotonView>();
         tr = GetComponent<Transform>();
         rb = GetComponent<Rigidbody>();
         animator = GetComponent<Animator>();
-
+        cameraController = GameObject.Find("Main Camera").GetComponent<CameraController>();
 
         if (PV.IsMine)
         {
             joyStick = GameObject.Find("JoyStick").GetComponent<JoyStick>();
-            jumpBt = GameObject.Find("JumpButton").GetComponent<Button>();
-            if (jumpBt != null)
+            jumpBtn = GameObject.Find("Button_Jump").GetComponent<Button>();
+            if (jumpBtn != null)
             {
-                jumpBt.onClick.AddListener(ButtonJump);
+                jumpBtn.onClick.AddListener(ButtonJump);
             }
         }
     }
-    void Start()
-    {
 
-    }
-
-    // Update is called once per frame
     void Update()
     {
         if (PV.IsMine)
@@ -62,7 +52,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
             GetInput();
             Jump();
             JoyStickMove();
-            //Move();
+            cameraController.player = gameObject;
         }
     }
 
@@ -100,6 +90,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
         transform.Translate(new Vector3(inputDir.x, 0, inputDir.y) * speed * Time.deltaTime, Space.World);
         transform.LookAt(transform.position + new Vector3(inputDir.x, 0, inputDir.y));
     }
+
     void JoyStickMove()
     {
         moveMag = joyStick.inputDir.magnitude;
@@ -120,6 +111,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
             animator.SetBool("isJump", true);
         }
     }
+
     public void ButtonJump()
     {
         if (!isJump)
@@ -129,6 +121,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
             animator.SetBool("isJump", true);
         }
     }
+
     private void OnCollisionEnter(Collision collision)
     {
         if (collision.transform.tag == "Floor")

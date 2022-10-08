@@ -5238,6 +5238,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   jDown: 0
+  isDead: 0
 --- !u!114 &-2975841426739816416
 MonoBehaviour:
   m_ObjectHideFlags: 0

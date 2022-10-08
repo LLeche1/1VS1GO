@@ -5,17 +5,20 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 using Random = UnityEngine.Random;
 
 public class GameManager : MonoBehaviourPunCallbacks
 {
     public GameObject[] players;
     public GameObject joystick;
+    public GameObject pause;
     PhotonView PV;
 
     void Awake()
     {
         PV = GetComponent<PhotonView>();
+        GameObject.Find("Main Camera").transform.GetComponent<CameraController>().enabled = true;
     }
 
     void Start()
@@ -26,12 +29,9 @@ public class GameManager : MonoBehaviourPunCallbacks
     void Update()
     {
         players = GameObject.FindGameObjectsWithTag("Player");
-        foreach (var player in players)
+        foreach(GameObject player in players)
         {
-            if (player.name == PhotonNetwork.LocalPlayer.NickName)
-            {
-                joystick.GetComponent<JoyStick>().player = player;
-            }
+            player.transform.GetComponent<PlayerController>().enabled = true;
         }
     }
 
@@ -40,5 +40,21 @@ public class GameManager : MonoBehaviourPunCallbacks
         Vector3 position = new Vector3(Random.Range(-4f, 4f), 0, 0);
         GameObject player = PhotonNetwork.Instantiate("C01", position, Quaternion.identity);
         player.name = PhotonNetwork.LocalPlayer.NickName;
+        player.transform.parent = GameObject.Find("InGame").transform;
+    }
+
+    public void Pause()
+    {
+        pause.SetActive(true);
+    }
+
+    public void Back()
+    {
+        pause.SetActive(false);
+    }
+
+    public void GivpUp()
+    {
+        
     }
 }

@@ -50,13 +50,19 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
     public TMP_Text lobbyUserInfo_2vs2;
     public TMP_Text lobbyUserInfo_Total_Play;
     public TMP_Text lobbyUserInfo_MVP;
+    public GameObject lobbyShop;
+    public TMP_Text lobbyShop_Gold;
+    public TMP_Text lobbyShop_Crystal;
+    public GameObject lobbyInventory;
+    public TMP_Text lobbyInventory_Gold;
+    public TMP_Text lobbyInventory_Crystal;
     public GameObject error;
     public TMP_Text errorInfo;
     public GameObject errorNetwork;
     public GameObject room;
     public TMP_Text roomPlayer;
-    public GameObject roomCount;
-    public TMP_Text roomCountText;
+    public GameObject roomLoading;
+    public GameObject roomLoading_Slider;
     private float level;
     private float exp;
     private string nickName;
@@ -79,6 +85,10 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
     public GameObject chatScroll;
     public TMP_Text chatText;
     PhotonView PV;
+
+    public GameObject gameManager;
+    public GameObject main;
+    public GameObject inGame;
 
     void Awake()
     {
@@ -111,10 +121,10 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
         PhotonNetwork.ConnectUsingSettings();
         title.transform.GetChild(2).gameObject.SetActive(false);
         titleLoading.SetActive(true);
-        StartCoroutine(LoadDelay());
+        StartCoroutine(TitleLoadDelay());
     }
 
-    IEnumerator LoadDelay()
+    IEnumerator TitleLoadDelay()
     {
         float time = 0;
         while (time < 100)
@@ -412,6 +422,16 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
         }
     }
 
+    public void LobbyShop()
+    {
+        lobbyShop.SetActive(true);
+    }
+
+    public void LobbyInventory()
+    {
+        lobbyInventory.SetActive(true);
+    }
+
     public void LobbyStart()
     {
         PhotonNetwork.JoinRandomRoom();
@@ -443,32 +463,40 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
         roomPlayer.text = PhotonNetwork.CurrentRoom.PlayerCount + " / " + PhotonNetwork.CurrentRoom.MaxPlayers;
         if (PhotonNetwork.CurrentRoom.PlayerCount == PhotonNetwork.CurrentRoom.MaxPlayers)
         {
-            roomCount.SetActive(true);
+            roomLoading.SetActive(true);
             if (PhotonNetwork.IsMasterClient)
             {
-                StartCoroutine(StartDelay());
                 PhotonNetwork.CurrentRoom.IsOpen = false;
+                StartCoroutine(RoomLoadingDelay());
             }
         }
     }
 
-    IEnumerator StartDelay()
+    IEnumerator RoomLoadingDelay()
     {
-        float time = 3;
-        while (0.0f < time)
+        float time = 0;
+        while (time < 100)
         {
             yield return new WaitForEndOfFrame();
-            time -= 1.0f * Time.deltaTime;
-            PV.RPC("RoomCountdownRpc", RpcTarget.All, time);
+            time += 30.0f * Time.deltaTime;
+            PV.RPC("RoomLoadingCountRpc", RpcTarget.All, time);
         }
-        PhotonNetwork.LoadLevel("InGame");
         yield return null;
     }
 
     [PunRPC]
-    public void RoomCountdownRpc(float time)
+    public void RoomLoadingCountRpc(float time)
     {
-        roomCountText.text = time.ToString("0");
+        roomLoading_Slider.GetComponent<Slider>().value = time * 0.01f;
+        roomLoading_Slider.transform.GetChild(1).GetComponent<TMP_Text>().text = "Loading..." + time.ToString("0") + "%";
+        if(time >= 100)
+        {
+            gameManager.SetActive(true);
+            inGame.SetActive(true);
+            main.SetActive(false);
+            room.SetActive(false);
+            roomLoading.SetActive(false);
+        }
     }
 
     public void RoomOut()
@@ -554,6 +582,14 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
         {
             userInfo_ChangeName.SetActive(false);
         }
+        else if (lastCanvas == "lobbyShop")
+        {
+            lobbyShop.SetActive(false);
+        }
+        else if (lastCanvas == "lobbyInventory")
+        {
+            lobbyInventory.SetActive(false);
+        }
     }
 
     void LastCanvas()
@@ -612,6 +648,14 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
                     lastCanvas = "userInfo";
                 }
             }
+            else if(lobbyShop.activeSelf == true)
+            {
+                lastCanvas = "lobbyShop";
+            }
+            else if (lobbyInventory.activeSelf == true)
+            {
+                lastCanvas = "lobbyInventory";
+            }
             else
             {
                 lastCanvas = "lobby";
@@ -637,6 +681,10 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
         lobbyUserInfo_2vs2.text = _2vs2.ToString();
         lobbyUserInfo_Total_Play.text = total_Play.ToString();
         lobbyUserInfo_MVP.text = mvp.ToString();
+        lobbyShop_Gold.text = gold.ToString();
+        lobbyShop_Crystal.text = crystal.ToString();
+        lobbyInventory_Gold.text = gold.ToString();
+        lobbyInventory_Crystal.text = crystal.ToString();
     }
 
     public void OnApplicationQuit()
