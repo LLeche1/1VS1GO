@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using Photon.Pun;
 using Photon.Realtime;
+using Photon.Chat;
+using AuthenticationValues = Photon.Chat.AuthenticationValues;
 using PlayFab;
 using PlayFab.ClientModels;
 using UnityEngine;
@@ -11,7 +13,7 @@ using UnityEngine.UI;
 using TMPro;
 using UnityEngine.SceneManagement;
 
-public class LobbyManager : MonoBehaviourPunCallbacks
+public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
 {
     public GameObject title;
     public GameObject titleLoading;
@@ -70,13 +72,19 @@ public class LobbyManager : MonoBehaviourPunCallbacks
     private string lastCanvas;
     private string errorType;
     public GraphicRaycaster graphicRaycaster;
-
+    public ChatClient chatClient;
+    private string channelName = "Global";
+    public GameObject myChatPrefab;
+    public GameObject otherChatPrefab;
+    public GameObject chatScroll;
+    public TMP_Text chatText;
     PhotonView PV;
 
     void Awake()
     {
-        PlayFabSettings.TitleId = "9BF08";
+        Screen.SetResolution(2532, 1170, false);
         Application.targetFrameRate = 144;
+        PlayFabSettings.TitleId = "9BF08";
         PhotonNetwork.AutomaticallySyncScene = true;
         PV = GetComponent<PhotonView>();
     }
@@ -87,9 +95,21 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         PhotonNetwork.GameVersion = gameVersion;
     }
 
+    void Update()
+    {
+        LastCanvas();
+        LobbyChatEnter();
+        SetData();
+        if (this.chatClient != null)
+        {
+            this.chatClient.Service();
+        }
+    }
+
     public void Title_Start()
     {
         PhotonNetwork.ConnectUsingSettings();
+        title.transform.GetChild(2).gameObject.SetActive(false);
         titleLoading.SetActive(true);
         StartCoroutine(LoadDelay());
     }
@@ -105,7 +125,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks
             titleLoading.transform.GetChild(1).GetComponent<TMP_Text>().text = time.ToString("0") + "%";
         }
         titleLoading.SetActive(false);
-        if(loginID.text == "" && loginPW.text == "")
+        if (loginID.text == "" && loginPW.text == "")
         {
             login.SetActive(true);
         }
@@ -144,7 +164,8 @@ public class LobbyManager : MonoBehaviourPunCallbacks
             Debug.Log("로비");
             PhotonNetwork.JoinLobby();
             PlayFabClientAPI.GetUserData(new GetUserDataRequest(),
-            (result) => {
+            (result) =>
+            {
                 foreach (var eachData in result.Data)
                 {
                     if (eachData.Key == "NickName")
@@ -156,6 +177,10 @@ public class LobbyManager : MonoBehaviourPunCallbacks
             (error) => print("데이터 불러오기 실패"));
 
             PhotonNetwork.LocalPlayer.NickName = nickName;
+
+            this.chatClient = new ChatClient(this);
+            chatClient.UseBackgroundWorkerForSending = true;
+            this.chatClient.Connect(PhotonNetwork.PhotonServerSettings.AppSettings.AppIdChat, "1.0", new AuthenticationValues(loginID.text));
 
             PlayFabClientAPI.GetPlayerStatistics(new GetPlayerStatisticsRequest(),
             (result) =>
@@ -323,7 +348,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks
 
     public void UserInfo_ChangeName_Name()
     {
-        if(userInfo_ChangeName_Name.text != "" && crystal >= 10)
+        if (userInfo_ChangeName_Name.text != "" && crystal >= 10)
         {
             PlayFabClientAPI.UpdateUserData(new UpdateUserDataRequest
             {
@@ -333,7 +358,8 @@ public class LobbyManager : MonoBehaviourPunCallbacks
             }
             },
             (result) => PlayFabClientAPI.GetUserData(new GetUserDataRequest(),
-                (result) => {
+                (result) =>
+                {
                     foreach (var eachData in result.Data)
                     {
                         if (eachData.Key == "Name")
@@ -352,7 +378,8 @@ public class LobbyManager : MonoBehaviourPunCallbacks
                 new StatisticUpdate {StatisticName = "Crystal", Value = int.Parse((crystal - 10).ToString())},
             }
             },
-            (result) => {
+            (result) =>
+            {
                 PlayFabClientAPI.GetPlayerStatistics(new GetPlayerStatisticsRequest(),
                 (result) =>
                 {
@@ -371,13 +398,13 @@ public class LobbyManager : MonoBehaviourPunCallbacks
             userInfo_ChangeName.SetActive(false);
             userInfo_ChangeName_Name.text = "";
         }
-        else if(userInfo_ChangeName_Name.text == "")
+        else if (userInfo_ChangeName_Name.text == "")
         {
             errorInfo.text = "UserName must be between 3 and 20 characters";
             errorType = "userInfo_ChangeName_Name_Empty";
             error.SetActive(true);
         }
-        else if(crystal < 10)
+        else if (crystal < 10)
         {
             errorInfo.text = "You need more than 10 Crystal";
             errorType = "userInfo_ChangeName_Name_Crystal";
@@ -480,7 +507,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks
 
     public void Back()
     {
-        if(lastCanvas == "login")
+        if (lastCanvas == "login")
         {
             login.SetActive(false);
             title.SetActive(true);
@@ -490,9 +517,9 @@ public class LobbyManager : MonoBehaviourPunCallbacks
             signUp.SetActive(false);
             login.SetActive(true);
         }
-        else if(lastCanvas == "error")
+        else if (lastCanvas == "error")
         {
-            if(errorType == "login")
+            if (errorType == "login")
             {
                 error.SetActive(false);
                 login.SetActive(true);
@@ -531,7 +558,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks
 
     void LastCanvas()
     {
-        if(title.activeSelf == true)
+        if (title.activeSelf == true)
         {
             if (login.activeSelf == true)
             {
@@ -592,44 +619,6 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         }
     }
 
-    public void LobbyChatInput()
-    {
-        if(lobbyChatInput.text != "")
-        {
-            PV.RPC("LobbyChatRpc", RpcTarget.All, lobbyChatInput.text);
-        }
-        lobbyChatInput.text = "";
-        lobbyChatInput.ActivateInputField();
-    }
-
-    [PunRPC]
-    void LobbyChatRpc(string text)
-    {
-        bool isInput = false;
-        for (int i = 0; i < lobbyChatText.Length; i++)
-        {
-            if (lobbyChatText[i].text == "")
-            {
-                isInput = true;
-                lobbyChatText[i].text = text;
-                break;
-            }
-        }
-        if (!isInput)
-        {
-            for (int i = 1; i < lobbyChatText.Length; i++) lobbyChatText[i - 1].text = lobbyChatText[i].text;
-            lobbyChatText[lobbyChatText.Length - 1].text = text;
-        }
-    }
-
-    void LobbyChatEnter()
-    {
-        if (lobbyChat.activeSelf == true && Input.GetKeyDown(KeyCode.Return))
-        {
-            LobbyChatInput();
-        }
-    }
-
     void SetData()
     {
         lobbyName.text = nickName;
@@ -650,10 +639,144 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         lobbyUserInfo_MVP.text = mvp.ToString();
     }
 
-    void Update()
+    public void OnApplicationQuit()
     {
-        LastCanvas();
-        LobbyChatEnter();
-        SetData();
+        if (chatClient != null)
+        {
+            chatClient.Disconnect();
+        }
+    }
+
+    public void OnConnected()
+    {
+        chatClient.Subscribe(channelName, 0);
+        this.chatClient.SetOnlineStatus(ChatUserStatus.Online);
+        Debug.Log("채팅 온라인");
+    }
+
+    private void SendChatMessage(string inputLine)
+    {
+        if (string.IsNullOrEmpty(inputLine))
+        {
+            return;
+        }
+
+        chatClient.PublishMessage(channelName, inputLine);
+    }
+
+    public void OnGetMessages(string channel, string[] senders, object[] messages)
+    {
+        if (channel.Equals(channelName))
+        {
+            ShowChannel(channelName);
+        }
+    }
+
+    public void ShowChannel(string channelName)
+    {
+        if (string.IsNullOrEmpty(channelName))
+        {
+            Debug.Log("ShowChannel error");
+            return;
+        }
+
+        ChatChannel channel = null;
+
+        bool found = this.chatClient.TryGetChannel(channelName, out channel);
+
+        if (!found)
+        {
+            Debug.Log("ShowChannel failed to find channel: " + channelName);
+            return;
+        }
+
+        this.channelName = channelName;
+
+        chatText.text = channel.ToStringMessages();
+
+        for (int i = channel.Messages.Count - 1; i < channel.Messages.Count; i++)
+        {
+            ShowMessage(channel.Senders[i], channel.Messages[i]);
+        }
+    }
+
+    public void ShowMessage(string sender, object message)
+    {
+        if (sender != loginID.text)
+        {
+            GameObject chat = Instantiate(otherChatPrefab, chatScroll.transform);
+            chat.transform.GetChild(1).transform.GetChild(0).transform.GetChild(0).GetComponent<TMP_Text>().text = sender;
+            chat.transform.GetChild(1).transform.GetChild(1).GetComponent<TMP_Text>().text = message.ToString();
+        }
+        else
+        {
+            GameObject chat = Instantiate(myChatPrefab, chatScroll.transform);
+            chat.transform.GetChild(0).transform.GetChild(0).transform.GetChild(0).GetComponent<TMP_Text>().text = sender;
+            chat.transform.GetChild(0).transform.GetChild(1).GetComponent<TMP_Text>().text = message.ToString();
+        }
+    }
+
+    public void OnEnterSend()
+    {
+        SendChatMessage(lobbyChatInput.text);
+        lobbyChatInput.text = "";
+    }
+
+    void LobbyChatEnter()
+    {
+        if (lobbyChat.activeSelf == true && Input.GetKeyDown(KeyCode.Return))
+        {
+            OnEnterSend();
+        }
+    }
+
+    public void DebugReturn(ExitGames.Client.Photon.DebugLevel level, string message)
+    {
+
+    }
+
+    public void OnDisconnected()
+    {
+
+    }
+
+    public void OnChatStateChange(ChatState state)
+    {
+
+    }
+
+    public void OnPrivateMessage(string sender, object message, string channelName)
+    {
+
+    }
+
+    public void OnSubscribed(string[] channels, bool[] results)
+    {
+
+    }
+
+    public void OnSubscribed(string channel, string[] users, Dictionary<object, object> properties)
+    {
+
+    }
+
+    public void OnUnsubscribed(string[] channels)
+    {
+
+    }
+
+    public void OnStatusUpdate(string user, int status, bool gotMessage, object message)
+    {
+
+    }
+
+    public void OnUserSubscribed(string channel, string user)
+    {
+
+    }
+
+    public void OnUserUnsubscribed(string channel, string user)
+    {
+
     }
 }
