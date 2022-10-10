@@ -69,6 +69,10 @@ public class GameManager : MonoBehaviourPunCallbacks
         }
         else if (random == 1)
         {
+            if(cannonGame.activeSelf == false)
+            {
+                cannonGame.transform.GetComponent<CannonGame>().genAble = true;
+            }
             cannonGame.SetActive(true);
         }
         isRandom = true;

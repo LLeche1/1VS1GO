@@ -10,7 +10,7 @@ public class CannonGame : MonoBehaviourPunCallbacks
     const int colSize = 16;
     private int i = 0;
     private int j = 0;
-    private bool genAble = true;
+    public bool genAble = true;
     private const float shootForce = 1500f;
     public GameObject boardBlockObj;
     public GameObject cannonObj;
@@ -36,7 +36,7 @@ public class CannonGame : MonoBehaviourPunCallbacks
 
     void Update()
     {
-        PV.RPC("ObtacleSpawner", RpcTarget.All);   
+        PV.RPC("ObstacleSpawner", RpcTarget.All);   
     }
 
     void BoardGenerate()
@@ -84,7 +84,7 @@ public class CannonGame : MonoBehaviourPunCallbacks
 
 
     [PunRPC]
-    void ObtacleSpawner()
+    void ObstacleSpawner()
     {
         if (genAble)
         {

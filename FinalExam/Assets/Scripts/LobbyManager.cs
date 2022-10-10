@@ -467,7 +467,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
     void RoomRenewal()
     {
         roomPlayer.text = PhotonNetwork.CurrentRoom.PlayerCount + " / " + PhotonNetwork.CurrentRoom.MaxPlayers;
-        if (PhotonNetwork.CurrentRoom.PlayerCount != PhotonNetwork.CurrentRoom.MaxPlayers)
+        if (PhotonNetwork.CurrentRoom.PlayerCount == PhotonNetwork.CurrentRoom.MaxPlayers)
         {
             roomLoading.SetActive(true);
             if (PhotonNetwork.IsMasterClient)
