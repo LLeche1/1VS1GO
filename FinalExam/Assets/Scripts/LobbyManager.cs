@@ -15,6 +15,9 @@ using UnityEngine.SceneManagement;
 
 public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
 {
+    public GameObject gameManager;
+    public GameObject main;
+    public GameObject inGame;
     public GameObject title;
     public GameObject titleLoading;
     public GameObject login;
@@ -87,9 +90,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
     public TMP_Text chatText;
     PhotonView PV;
 
-    public GameObject gameManager;
-    public GameObject main;
-    public GameObject inGame;
+    private bool isTest = false;
 
     void Awake()
     {
@@ -443,6 +444,12 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
         PhotonNetwork.JoinRandomRoom();
     }
 
+    public void LobbyStart2()
+    {
+        isTest = true;
+        PhotonNetwork.JoinRandomRoom();
+    }
+
     public override void OnJoinedRoom()
     {
         room.SetActive(true);
@@ -467,13 +474,26 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
     void RoomRenewal()
     {
         roomPlayer.text = PhotonNetwork.CurrentRoom.PlayerCount + " / " + PhotonNetwork.CurrentRoom.MaxPlayers;
-        if (PhotonNetwork.CurrentRoom.PlayerCount == PhotonNetwork.CurrentRoom.MaxPlayers)
+        if (isTest == true)
         {
+            isTest = false;
             roomLoading.SetActive(true);
             if (PhotonNetwork.IsMasterClient)
             {
                 PhotonNetwork.CurrentRoom.IsOpen = false;
                 StartCoroutine(RoomLoadingDelay());
+            }
+        }
+        else if (isTest == false)
+        {
+            if (PhotonNetwork.CurrentRoom.PlayerCount == PhotonNetwork.CurrentRoom.MaxPlayers)
+            {
+                roomLoading.SetActive(true);
+                if (PhotonNetwork.IsMasterClient)
+                {
+                    PhotonNetwork.CurrentRoom.IsOpen = false;
+                    StartCoroutine(RoomLoadingDelay());
+                }
             }
         }
     }
