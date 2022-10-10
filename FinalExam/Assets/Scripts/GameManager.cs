@@ -11,6 +11,8 @@ using TMPro;
 
 public class GameManager : MonoBehaviourPunCallbacks
 {
+    public GameObject runningGame;
+    public GameObject cannonGame;
     public GameObject[] players;
     public GameObject joystick;
     public GameObject pause;
@@ -18,6 +20,7 @@ public class GameManager : MonoBehaviourPunCallbacks
     public TMP_Text timeText;
     private float limitTime = 300;
     private bool isGenerate = false;
+    private bool isRandom = false;
     private string lastCanvas;
     PhotonView PV;
     LobbyManager lobbyManager;
@@ -28,14 +31,27 @@ public class GameManager : MonoBehaviourPunCallbacks
         lobbyManager = GameObject.Find("LobbyManager").GetComponent<LobbyManager>();
     }
 
+    void Start()
+    {
+
+    }
+
     void Update()
     {
+        if(PhotonNetwork.IsMasterClient && isRandom == false)
+        {
+            int random = Random.Range(0, 2);
+            PV.RPC("RandomMap", RpcTarget.All, random);
+        }
+
         if(isGenerate == false)
         {
             Generate();
         }
+
         players = GameObject.FindGameObjectsWithTag("Player");
-        foreach(GameObject player in players)
+
+        foreach (GameObject player in players)
         {
             player.transform.GetComponent<PlayerController>().enabled = true;
         }
@@ -44,9 +60,23 @@ public class GameManager : MonoBehaviourPunCallbacks
         Statue();
     }
 
+    [PunRPC]
+    void RandomMap(int random)
+    {
+        if (random == 0)
+        {
+            runningGame.SetActive(true);
+        }
+        else if (random == 1)
+        {
+            cannonGame.SetActive(true);
+        }
+        isRandom = true;
+    }
+
     void Generate()
     {
-        Vector3 position = new Vector3(Random.Range(-4f, 4f), 0, 0);
+        Vector3 position = new Vector3(Random.Range(5f, 10f), 0, 4f);
         GameObject player = PhotonNetwork.Instantiate("C01", position, Quaternion.identity);
         player.name = PhotonNetwork.LocalPlayer.NickName;
         player.transform.parent = GameObject.Find("InGame").transform;
@@ -100,6 +130,9 @@ public class GameManager : MonoBehaviourPunCallbacks
         GameObject.Find("Main Camera").transform.GetComponent<CameraController>().enabled = false;
         limitTime = 300;
         isGenerate = false;
+        isRandom = false;
+        runningGame.SetActive(false);
+        cannonGame.SetActive(false);
     }
 
     void LastCanvas()
@@ -119,7 +152,7 @@ public class GameManager : MonoBehaviourPunCallbacks
 
     void Statue()
     {
-        if(limitTime <= 0 || PhotonNetwork.CurrentRoom.PlayerCount == 1)
+        if(limitTime <= 0)
         {
             GivpUp();
         }

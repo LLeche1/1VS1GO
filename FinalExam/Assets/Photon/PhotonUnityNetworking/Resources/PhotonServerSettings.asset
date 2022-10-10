@@ -40,6 +40,12 @@ MonoBehaviour:
   - Fire
   - RespawnSpaceship
   - RoomLoadingCountRpc
+  - ObtacleSpawner
+  - RandPosSynch
+  - TrackNumSynch
+  - TrackNumSync
+  - ObstacleSpawner
+  - RandomMap
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

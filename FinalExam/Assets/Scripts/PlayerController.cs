@@ -19,13 +19,22 @@ public class PlayerController : MonoBehaviourPunCallbacks
     private float moveMag;
     private JoyStick joyStick;
     private Button jumpBtn;
+    private Button slideBtn;
     public bool isDead = false;
-    private float time = 300;
     PhotonView PV;
     Transform tr;
     Animator animator;
     Rigidbody rb;
     CameraController cameraController;
+
+    public bool jumpKeyDown = false;
+    private bool slideKeyDown = false;
+    private bool isSlide = false;
+    public bool isFallDown = false;
+    private bool fallAble = true;
+    private Vector2 jumpMoveDir;
+    private float jumpMoveMag;
+    private Button jumpBt;
 
     private void Awake()
     {
@@ -39,9 +48,14 @@ public class PlayerController : MonoBehaviourPunCallbacks
         {
             joyStick = GameObject.Find("JoyStick").GetComponent<JoyStick>();
             jumpBtn = GameObject.Find("Button_Jump").GetComponent<Button>();
+            slideBtn = GameObject.Find("Button_Slider").GetComponent<Button>();
             if (jumpBtn != null)
             {
                 jumpBtn.onClick.AddListener(ButtonJump);
+            }
+            if (slideBtn != null)
+            {
+                slideBtn.onClick.AddListener(ButtonSlide);
             }
         }
     }
@@ -53,6 +67,8 @@ public class PlayerController : MonoBehaviourPunCallbacks
             GetInput();
             Jump();
             JoyStickMove();
+            Slide();
+            FallDown();
             cameraController.player = gameObject;
         }
     }
@@ -62,6 +78,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
         hAxis = Input.GetAxis("Horizontal");
         vAxis = Input.GetAxis("Vertical");
         jDown = Input.GetButtonDown("Jump");
+        slideKeyDown = Input.GetKeyDown(KeyCode.Q);
         this.inputDir = joyStick.inputDir;
 
         if (Mathf.Abs(Input.GetAxisRaw("Horizontal")) == 1.0f || Mathf.Abs(Input.GetAxisRaw("Vertical")) == 1.0f)
@@ -88,19 +105,30 @@ public class PlayerController : MonoBehaviourPunCallbacks
         animator.SetBool("isRun", moveDir != Vector3.zero);
         animator.SetFloat("Speed", moveMag);
 
-        transform.Translate(new Vector3(inputDir.x, 0, inputDir.y) * speed * Time.deltaTime, Space.World);
-        transform.LookAt(transform.position + new Vector3(inputDir.x, 0, inputDir.y));
+        //transform.Translate(new Vector3(inputDir.x, 0, inputDir.y) * speed * Time.deltaTime, Space.World);
+        //transform.LookAt(transform.position + new Vector3(inputDir.x, 0, inputDir.y));
     }
 
     void JoyStickMove()
     {
-        moveMag = joyStick.inputDir.magnitude;
+        if (!isSlide && !isFallDown && !isJump)
+        {
+            moveMag = joyStick.inputDir.magnitude;
 
-        animator.SetBool("isRun", inputDir != Vector2.zero);
-        animator.SetFloat("Speed", moveMag);
+            animator.SetBool("isRun", inputDir != Vector2.zero);
+            animator.SetFloat("Speed", moveMag);
 
-        transform.Translate(new Vector3(inputDir.x, 0, inputDir.y) * speed * Time.deltaTime, Space.World);
-        transform.LookAt(transform.position + new Vector3(inputDir.x, 0, inputDir.y));
+            transform.Translate(new Vector3(inputDir.x, 0, inputDir.y) * speed * Time.deltaTime, Space.World);
+            //transform.LookAt(transform.position + new Vector3(inputDir.x, 0, inputDir.y));
+            //transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.Euler(inputDir.x, 0f, inputDir.y), 100f);
+            transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.LookRotation(new Vector3(inputDir.x, 0f, inputDir.y)), 20f * Time.deltaTime);
+            //벡터의 Euler Rotation 값을 알고 싶으면 LookRotation을 사용하면 된다.
+        }
+        else if (isJump)
+        {
+            transform.Translate(new Vector3(jumpMoveDir.x, 0, jumpMoveDir.y) * speed * Time.deltaTime, Space.World);
+            transform.LookAt(transform.position + new Vector3(jumpMoveDir.x, 0, jumpMoveDir.y));
+        }
     }
 
     void Jump()
@@ -108,8 +136,9 @@ public class PlayerController : MonoBehaviourPunCallbacks
         if (jDown && !isJump)
         {
             isJump = true;
+            jumpMoveDir = inputDir;
             rb.AddForce(new Vector3(0, jumpForce, 0), ForceMode.Impulse);
-            animator.SetBool("isJump", true);
+            animator.SetBool("isJump", isJump);
         }
     }
 
@@ -129,6 +158,55 @@ public class PlayerController : MonoBehaviourPunCallbacks
         {
             isJump = false;
             animator.SetBool("isJump", false);
+            //isSlide = false;
+            //animator.SetBool("isSlide", false);
         }
+    }
+
+    void Slide()
+    {
+        if (slideKeyDown && !isSlide)
+        {
+            isSlide = true;
+            animator.SetBool("isSlide", isSlide);
+            StartCoroutine(SlideCoolTime());
+            rb.AddForce(new Vector3(0, jumpForce / 2, 0), ForceMode.Impulse); ;
+        }
+    }
+
+    void ButtonSlide()
+    {
+        if (!isSlide)
+        {
+            isSlide = true;
+            animator.SetBool("isSlide", isSlide);
+            StartCoroutine(SlideCoolTime());
+            rb.AddForce(new Vector3(0, jumpForce / 2, 0), ForceMode.Impulse); ;
+        }
+    }
+
+    IEnumerator SlideCoolTime()
+    {
+        yield return new WaitForSeconds(1.167f);
+        isSlide = false;
+        animator.SetBool("isSlide", isSlide);
+    }
+    void FallDown()
+    {
+        if (isFallDown && fallAble)
+        {
+            fallAble = false;
+            animator.SetBool("isSlide", false);
+            animator.SetBool("isFallDown", isFallDown);
+            StartCoroutine(FallUp());
+        }
+    }
+
+    IEnumerator FallUp()
+    {
+        yield return new WaitForSeconds(1f);
+        isFallDown = false;
+        fallAble = true;
+        animator.SetBool("isFallDown", isFallDown);
     }
 }
