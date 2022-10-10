@@ -38,9 +38,7 @@ MonoBehaviour:
   - DestroyRpc
   - DestroySpaceship
   - Fire
-  - LobbyChatRpc
   - RespawnSpaceship
-  - RoomCountdownRpc
   - RoomLoadingCountRpc
   DisableAutoOpenWizard: 1
   ShowSettings: 1

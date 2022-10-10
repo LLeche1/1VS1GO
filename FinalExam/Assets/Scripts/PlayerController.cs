@@ -20,6 +20,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
     private JoyStick joyStick;
     private Button jumpBtn;
     public bool isDead = false;
+    private float time = 300;
     PhotonView PV;
     Transform tr;
     Animator animator;

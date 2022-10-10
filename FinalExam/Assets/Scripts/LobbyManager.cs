@@ -56,6 +56,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
     public GameObject lobbyInventory;
     public TMP_Text lobbyInventory_Gold;
     public TMP_Text lobbyInventory_Crystal;
+    public GameObject lobbyRanking;
     public GameObject error;
     public TMP_Text errorInfo;
     public GameObject errorNetwork;
@@ -338,7 +339,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
     public void LobbySet_Logout()
     {
         PlayerPrefs.DeleteAll();
-        SceneManager.LoadScene("Lobby");
+        SceneManager.LoadScene("Main");
     }
 
     public void LobbyChat()
@@ -432,6 +433,11 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
         lobbyInventory.SetActive(true);
     }
 
+    public void LobbyRanking()
+    {
+        lobbyRanking.SetActive(true);
+    }
+
     public void LobbyStart()
     {
         PhotonNetwork.JoinRandomRoom();
@@ -488,7 +494,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
     public void RoomLoadingCountRpc(float time)
     {
         roomLoading_Slider.GetComponent<Slider>().value = time * 0.01f;
-        roomLoading_Slider.transform.GetChild(1).GetComponent<TMP_Text>().text = "Loading..." + time.ToString("0") + "%";
+        roomLoading_Slider.transform.GetChild(1).GetComponent<TMP_Text>().text = time.ToString("0") + "%";
         if(time >= 100)
         {
             gameManager.SetActive(true);
@@ -590,6 +596,10 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
         {
             lobbyInventory.SetActive(false);
         }
+        else if (lastCanvas == "lobbyRanking")
+        {
+            lobbyRanking.SetActive(false);
+        }
     }
 
     void LastCanvas()
@@ -655,6 +665,10 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
             else if (lobbyInventory.activeSelf == true)
             {
                 lastCanvas = "lobbyInventory";
+            }
+            else if (lobbyRanking.activeSelf == true)
+            {
+                lastCanvas = "lobbyRanking";
             }
             else
             {
