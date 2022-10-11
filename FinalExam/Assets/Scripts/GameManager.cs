@@ -35,7 +35,7 @@ public class GameManager : MonoBehaviourPunCallbacks
     {
 
     }
-    
+
     void Update()
     {
         if(PhotonNetwork.IsMasterClient && isRandom == false)

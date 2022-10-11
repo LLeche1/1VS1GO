@@ -34,13 +34,14 @@ public class RunningGame : MonoBehaviourPunCallbacks
         fT.transform.parent = GameObject.Find("InGame").transform.GetChild(1).transform;
 
         GameObject eT = Instantiate(endTrack, this.transform);
-        eT.transform.position = new Vector3(0f, 0f, trackLength * (trackNum + 1));
+        eT.transform.position = new Vector3(0f, 0f, trackLength * trackNum);
         eT.transform.parent = GameObject.Find("InGame").transform.GetChild(1).transform;
     }
+
     [PunRPC]
     void BoardSetting()
     {
-        for (int i = 1; i <= trackNum; i++)
+        for (int i = 1; i < trackNum - 1; i++)
         {
             int randVal = Random.Range(0, tracks.Length);
             GameObject track = Instantiate(tracks[randNumArray[i - 1]]);

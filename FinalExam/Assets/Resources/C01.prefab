@@ -6896,11 +6896,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   jDown: 0
-  isJump: 0
   isDead: 0
   jumpKeyDown: 0
   isFallDown: 0
-  jumpMoveDir: {x: 0, y: 0}
 --- !u!114 &2454238730925186208
 MonoBehaviour:
   m_ObjectHideFlags: 0
