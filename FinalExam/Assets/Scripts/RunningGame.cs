@@ -8,7 +8,7 @@ public class RunningGame : MonoBehaviourPunCallbacks
 {
     const int trackNum = 10;
     const int trackLength = 16;
-    private int randN = 0;
+    private int[] randNumArray;
     public GameObject firstTrack;
     public GameObject endTrack;
     public GameObject[] tracks;
@@ -18,6 +18,12 @@ public class RunningGame : MonoBehaviourPunCallbacks
     {
         PV = GetComponent<PhotonView>();
         FirstEndTrackSet();
+        if (PhotonNetwork.IsMasterClient)
+        {
+            randNumArray = RandNumGenerate();
+            PV.RPC("TrackNumSync", RpcTarget.All, randNumArray);
+            //PV.RPC("BoardSetting", RpcTarget.All);
+        }
         BoardSetting();
     }
 
@@ -32,24 +38,30 @@ public class RunningGame : MonoBehaviourPunCallbacks
         eT.transform.parent = GameObject.Find("InGame").transform.GetChild(1).transform;
     }
 
+    [PunRPC]
     void BoardSetting()
     {
-        for (int i = 1; i < trackNum; i++)
+        for (int i = 1; i < trackNum - 1; i++)
         {
-            if (PhotonNetwork.IsMasterClient)
-            {
-                int randVal = Random.Range(0, tracks.Length);
-                PV.RPC("TrackNumSynch", RpcTarget.All, randVal);
-            }
-            GameObject track = Instantiate(tracks[randN]);
+            int randVal = Random.Range(0, tracks.Length);
+            GameObject track = Instantiate(tracks[randNumArray[i - 1]]);
             track.transform.position = new Vector3(0f, 0f, trackLength * i);
             track.transform.parent = GameObject.Find("InGame").transform.GetChild(1).transform;
         }
     }
+    int[] RandNumGenerate()
+    {
+        int[] numArray = new int[trackNum];
+        for (int i = 0; i < trackNum; i++)
+        {
+            numArray[i] = Random.Range(0, tracks.Length);
+        }
+        return numArray;
+    }
 
     [PunRPC]
-    void TrackNumSynch(int r)
+    void TrackNumSync(int[] numArray)
     {
-        randN = r;
+        randNumArray = numArray;
     }
 }

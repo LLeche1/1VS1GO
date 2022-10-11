@@ -34,7 +34,6 @@ public class PlayerController : MonoBehaviourPunCallbacks
     private bool fallAble = true;
     private Vector2 jumpMoveDir;
     private float jumpMoveMag;
-    private Button jumpBt;
 
     private void Awake()
     {
@@ -65,8 +64,8 @@ public class PlayerController : MonoBehaviourPunCallbacks
         if (PV.IsMine)
         {
             GetInput();
-            Jump();
             JoyStickMove();
+            Jump();
             Slide();
             FallDown();
             cameraController.player = gameObject;
@@ -104,9 +103,6 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
         animator.SetBool("isRun", moveDir != Vector3.zero);
         animator.SetFloat("Speed", moveMag);
-
-        //transform.Translate(new Vector3(inputDir.x, 0, inputDir.y) * speed * Time.deltaTime, Space.World);
-        //transform.LookAt(transform.position + new Vector3(inputDir.x, 0, inputDir.y));
     }
 
     void JoyStickMove()
@@ -119,8 +115,6 @@ public class PlayerController : MonoBehaviourPunCallbacks
             animator.SetFloat("Speed", moveMag);
 
             transform.Translate(new Vector3(inputDir.x, 0, inputDir.y) * speed * Time.deltaTime, Space.World);
-            //transform.LookAt(transform.position + new Vector3(inputDir.x, 0, inputDir.y));
-            //transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.Euler(inputDir.x, 0f, inputDir.y), 100f);
             transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.LookRotation(new Vector3(inputDir.x, 0f, inputDir.y)), 20f * Time.deltaTime);
             //벡터의 Euler Rotation 값을 알고 싶으면 LookRotation을 사용하면 된다.
         }
@@ -131,7 +125,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
         }
     }
 
-    void Jump()
+    void Jump() //키보드 조작
     {
         if (jDown && !isJump)
         {
@@ -142,11 +136,12 @@ public class PlayerController : MonoBehaviourPunCallbacks
         }
     }
 
-    public void ButtonJump()
+    public void ButtonJump() //UI 점프 버튼 조작
     {
         if (!isJump)
         {
             isJump = true;
+            jumpMoveDir = inputDir;
             rb.AddForce(new Vector3(0, jumpForce, 0), ForceMode.Impulse);
             animator.SetBool("isJump", true);
         }
@@ -158,8 +153,6 @@ public class PlayerController : MonoBehaviourPunCallbacks
         {
             isJump = false;
             animator.SetBool("isJump", false);
-            //isSlide = false;
-            //animator.SetBool("isSlide", false);
         }
     }
 
