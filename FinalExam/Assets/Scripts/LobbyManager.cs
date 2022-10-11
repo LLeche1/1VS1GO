@@ -66,6 +66,8 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
     public TMP_Text lobbyInventory_Level;
     public TMP_Text lobbyInventory_Exp;
     public GameObject lobbyRanking;
+    public TMP_Text lobbyRanking_Name;
+    public TMP_Text lobbyRanking_Highest_Trophies;
     public GameObject error;
     public TMP_Text errorInfo;
     public GameObject errorNetwork;
@@ -788,6 +790,16 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
         lobbyRanking.SetActive(true);
     }
 
+    public void GetLeaderboardAroundPlayerGet()
+    {
+
+    }
+
+    void OnLeaderBoardAroundPlayerGet(GetLeaderboardAroundPlayerResult result)
+    {
+
+    }
+
     public void LobbyStart()
     {
         PhotonNetwork.JoinRandomRoom();
@@ -1079,9 +1091,11 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
         lobbyShop_Crystal.text = crystal.ToString();
         lobbyInventory_Gold.text = gold.ToString();
         lobbyInventory_Crystal.text = crystal.ToString();
-        lobbyInventory_Name.text = nickName.ToString();
+        lobbyInventory_Name.text = nickName;
         lobbyInventory_Level.text = level.ToString();
         lobbyInventory_Exp.text = exp.ToString() + "/500";
+        lobbyRanking_Name.text = nickName;
+        lobbyRanking_Highest_Trophies.text = highest_Trophies.ToString();
     }
 
     public void OnApplicationQuit()
@@ -1091,6 +1105,8 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
             chatClient.Disconnect();
         }
     }
+
+    // 채팅서버
 
     public void OnConnected()
     {
