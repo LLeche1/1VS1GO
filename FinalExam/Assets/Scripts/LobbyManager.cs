@@ -54,11 +54,17 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
     public TMP_Text lobbyUserInfo_Total_Play;
     public TMP_Text lobbyUserInfo_MVP;
     public GameObject lobbyShop;
+    public GameObject lobbyShop_Purchase;
+    public GameObject lobbyShop_Purchase_Success;
+    public GameObject lobbyShop_Purchase_Fail;
     public TMP_Text lobbyShop_Gold;
     public TMP_Text lobbyShop_Crystal;
     public GameObject lobbyInventory;
     public TMP_Text lobbyInventory_Gold;
     public TMP_Text lobbyInventory_Crystal;
+    public TMP_Text lobbyInventory_Name;
+    public TMP_Text lobbyInventory_Level;
+    public TMP_Text lobbyInventory_Exp;
     public GameObject lobbyRanking;
     public GameObject error;
     public TMP_Text errorInfo;
@@ -81,6 +87,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
     private string gameVersion = "1";
     private string lastCanvas;
     private string errorType;
+    private string lobbyShop_Name;
     public GraphicRaycaster graphicRaycaster;
     public ChatClient chatClient;
     private string channelName = "Global";
@@ -429,6 +436,348 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
         lobbyShop.SetActive(true);
     }
 
+    public void LobbyShop_Purchase()
+    {
+        lobbyShop_Name = EventSystem.current.currentSelectedGameObject.name;
+        lobbyShop_Purchase.SetActive(true);
+    }
+
+    public void LobbyShop_Purchase_Yes()
+    {
+        if (lobbyShop_Name == "Gold_1500")
+        {
+            if(crystal >= 12)
+            {
+                PlayFabClientAPI.UpdatePlayerStatistics(new UpdatePlayerStatisticsRequest
+                {
+                    Statistics = new List<StatisticUpdate>
+                    {
+                        new StatisticUpdate {StatisticName = "Gold", Value = int.Parse((gold + 1500).ToString())},
+                        new StatisticUpdate {StatisticName = "Crystal", Value = int.Parse((crystal - 12).ToString())},
+                    }
+                },
+                    (result) => {
+                        PlayFabClientAPI.GetPlayerStatistics(new GetPlayerStatisticsRequest(),
+                        (result) =>
+                        {
+                            foreach (var eachStat in result.Statistics)
+                            {
+                                if (eachStat.StatisticName == "Gold")
+                                {
+                                    gold = eachStat.Value;
+                                }
+                                if (eachStat.StatisticName == "Crystal")
+                                {
+                                    crystal = eachStat.Value;
+                                }
+                            }
+                        },
+                        (error) => { Debug.Log("값 로딩 실패"); });
+                },
+                (error) => { Debug.Log("값 저장 실패"); });
+                lobbyShop_Purchase_Success.SetActive(true);
+            }
+            else
+            {
+                lobbyShop_Purchase_Fail.SetActive(true);
+            }
+        }
+        else if (lobbyShop_Name == "Gold_4000")
+        {
+            if (crystal >= 48)
+            {
+                PlayFabClientAPI.UpdatePlayerStatistics(new UpdatePlayerStatisticsRequest
+                {
+                    Statistics = new List<StatisticUpdate>
+                    {
+                        new StatisticUpdate {StatisticName = "Gold", Value = int.Parse((gold + 4000).ToString())},
+                        new StatisticUpdate {StatisticName = "Crystal", Value = int.Parse((crystal - 48).ToString())},
+                    }
+                },
+                    (result) => {
+                        PlayFabClientAPI.GetPlayerStatistics(new GetPlayerStatisticsRequest(),
+                        (result) =>
+                        {
+                            foreach (var eachStat in result.Statistics)
+                            {
+                                if (eachStat.StatisticName == "Gold")
+                                {
+                                    gold = eachStat.Value;
+                                }
+                                if (eachStat.StatisticName == "Crystal")
+                                {
+                                    crystal = eachStat.Value;
+                                }
+                            }
+                        },
+                        (error) => { Debug.Log("값 로딩 실패"); });
+                    },
+                (error) => { Debug.Log("값 저장 실패"); });
+                lobbyShop_Purchase_Success.SetActive(true);
+            }
+            else
+            {
+                lobbyShop_Purchase_Fail.SetActive(true);
+            }
+        }
+        else if (lobbyShop_Name == "Gold_12000")
+        {
+            if (crystal >= 120)
+            {
+                PlayFabClientAPI.UpdatePlayerStatistics(new UpdatePlayerStatisticsRequest
+                {
+                    Statistics = new List<StatisticUpdate>
+                    {
+                        new StatisticUpdate {StatisticName = "Gold", Value = int.Parse((gold + 12000).ToString())},
+                        new StatisticUpdate {StatisticName = "Crystal", Value = int.Parse((crystal - 120).ToString())},
+                    }
+                },
+                    (result) => {
+                        PlayFabClientAPI.GetPlayerStatistics(new GetPlayerStatisticsRequest(),
+                        (result) =>
+                        {
+                            foreach (var eachStat in result.Statistics)
+                            {
+                                if (eachStat.StatisticName == "Gold")
+                                {
+                                    gold = eachStat.Value;
+                                }
+                                if (eachStat.StatisticName == "Crystal")
+                                {
+                                    crystal = eachStat.Value;
+                                }
+                            }
+                        },
+                        (error) => { Debug.Log("값 로딩 실패"); });
+                    },
+                (error) => { Debug.Log("값 저장 실패"); });
+                lobbyShop_Purchase_Success.SetActive(true);
+            }
+            else
+            {
+                lobbyShop_Purchase_Fail.SetActive(true);
+            }
+        }
+        else if (lobbyShop_Name == "Gold_25000")
+        {
+            if (crystal >= 240)
+            {
+                PlayFabClientAPI.UpdatePlayerStatistics(new UpdatePlayerStatisticsRequest
+                {
+                    Statistics = new List<StatisticUpdate>
+                    {
+                        new StatisticUpdate {StatisticName = "Gold", Value = int.Parse((gold + 25000).ToString())},
+                        new StatisticUpdate {StatisticName = "Crystal", Value = int.Parse((crystal - 240).ToString())},
+                    }
+                },
+                    (result) => {
+                        PlayFabClientAPI.GetPlayerStatistics(new GetPlayerStatisticsRequest(),
+                        (result) =>
+                        {
+                            foreach (var eachStat in result.Statistics)
+                            {
+                                if (eachStat.StatisticName == "Gold")
+                                {
+                                    gold = eachStat.Value;
+                                }
+                                if (eachStat.StatisticName == "Crystal")
+                                {
+                                    crystal = eachStat.Value;
+                                }
+                            }
+                        },
+                        (error) => { Debug.Log("값 로딩 실패"); });
+                    },
+                (error) => { Debug.Log("값 저장 실패"); });
+                lobbyShop_Purchase_Success.SetActive(true);
+            }
+            else
+            {
+                lobbyShop_Purchase_Fail.SetActive(true);
+            }
+        }
+        else if (lobbyShop_Name == "Gold_60000")
+        {
+            if (crystal >= 490)
+            {
+                PlayFabClientAPI.UpdatePlayerStatistics(new UpdatePlayerStatisticsRequest
+                {
+                    Statistics = new List<StatisticUpdate>
+                    {
+                        new StatisticUpdate {StatisticName = "Gold", Value = int.Parse((gold + 60000).ToString())},
+                        new StatisticUpdate {StatisticName = "Crystal", Value = int.Parse((crystal - 490).ToString())},
+                    }
+                },
+                    (result) => {
+                        PlayFabClientAPI.GetPlayerStatistics(new GetPlayerStatisticsRequest(),
+                        (result) =>
+                        {
+                            foreach (var eachStat in result.Statistics)
+                            {
+                                if (eachStat.StatisticName == "Gold")
+                                {
+                                    gold = eachStat.Value;
+                                }
+                                if (eachStat.StatisticName == "Crystal")
+                                {
+                                    crystal = eachStat.Value;
+                                }
+                            }
+                        },
+                        (error) => { Debug.Log("값 로딩 실패"); });
+                    },
+                (error) => { Debug.Log("값 저장 실패"); });
+                lobbyShop_Purchase_Success.SetActive(true);
+            }
+            else
+            {
+                lobbyShop_Purchase_Fail.SetActive(true);
+            }
+        }
+        else if (lobbyShop_Name == "Crystal_40")
+        {
+            PlayFabClientAPI.UpdatePlayerStatistics(new UpdatePlayerStatisticsRequest
+            {
+                Statistics = new List<StatisticUpdate>
+                {
+                    new StatisticUpdate {StatisticName = "Crystal", Value = int.Parse((crystal + 40).ToString())},
+                }
+            },
+                (result) => {
+                    PlayFabClientAPI.GetPlayerStatistics(new GetPlayerStatisticsRequest(),
+                    (result) =>
+                    {
+                        foreach (var eachStat in result.Statistics)
+                        {
+                            if (eachStat.StatisticName == "Crystal")
+                            {
+                                crystal = eachStat.Value;
+                            }
+                        }
+                    },
+                    (error) => { Debug.Log("값 로딩 실패"); });
+                },
+            (error) => { Debug.Log("값 저장 실패"); });
+            lobbyShop_Purchase_Success.SetActive(true);
+        }
+        else if (lobbyShop_Name == "Crystal_220")
+        {
+            PlayFabClientAPI.UpdatePlayerStatistics(new UpdatePlayerStatisticsRequest
+            {
+                Statistics = new List<StatisticUpdate>
+                {
+                    new StatisticUpdate {StatisticName = "Crystal", Value = int.Parse((crystal + 220).ToString())},
+                }
+            },
+                (result) => {
+                    PlayFabClientAPI.GetPlayerStatistics(new GetPlayerStatisticsRequest(),
+                    (result) =>
+                    {
+                        foreach (var eachStat in result.Statistics)
+                        {
+                            if (eachStat.StatisticName == "Crystal")
+                            {
+                                crystal = eachStat.Value;
+                            }
+                        }
+                    },
+                    (error) => { Debug.Log("값 로딩 실패"); });
+                },
+            (error) => { Debug.Log("값 저장 실패"); });
+            lobbyShop_Purchase_Success.SetActive(true);
+        }
+        else if (lobbyShop_Name == "Crystal_480")
+        {
+            PlayFabClientAPI.UpdatePlayerStatistics(new UpdatePlayerStatisticsRequest
+            {
+                Statistics = new List<StatisticUpdate>
+                {
+                    new StatisticUpdate {StatisticName = "Crystal", Value = int.Parse((crystal + 480).ToString())},
+                }
+            },
+                (result) => {
+                    PlayFabClientAPI.GetPlayerStatistics(new GetPlayerStatisticsRequest(),
+                    (result) =>
+                    {
+                        foreach (var eachStat in result.Statistics)
+                        {
+                            if (eachStat.StatisticName == "Crystal")
+                            {
+                                crystal = eachStat.Value;
+                            }
+                        }
+                    },
+                    (error) => { Debug.Log("값 로딩 실패"); });
+                },
+            (error) => { Debug.Log("값 저장 실패"); });
+            lobbyShop_Purchase_Success.SetActive(true);
+        }
+        else if (lobbyShop_Name == "Crystal_1200")
+        {
+            PlayFabClientAPI.UpdatePlayerStatistics(new UpdatePlayerStatisticsRequest
+            {
+                Statistics = new List<StatisticUpdate>
+                {
+                    new StatisticUpdate {StatisticName = "Crystal", Value = int.Parse((crystal + 1200).ToString())},
+                }
+            },
+                (result) => {
+                    PlayFabClientAPI.GetPlayerStatistics(new GetPlayerStatisticsRequest(),
+                    (result) =>
+                    {
+                        foreach (var eachStat in result.Statistics)
+                        {
+                            if (eachStat.StatisticName == "Crystal")
+                            {
+                                crystal = eachStat.Value;
+                            }
+                        }
+                    },
+                    (error) => { Debug.Log("값 로딩 실패"); });
+                },
+            (error) => { Debug.Log("값 저장 실패"); });
+            lobbyShop_Purchase_Success.SetActive(true);
+        }
+        else if (lobbyShop_Name == "Crystal_2100")
+        {
+            PlayFabClientAPI.UpdatePlayerStatistics(new UpdatePlayerStatisticsRequest
+            {
+                Statistics = new List<StatisticUpdate>
+                {
+                    new StatisticUpdate {StatisticName = "Crystal", Value = int.Parse((crystal + 2100).ToString())},
+                }
+            },
+                (result) => {
+                    PlayFabClientAPI.GetPlayerStatistics(new GetPlayerStatisticsRequest(),
+                    (result) =>
+                    {
+                        foreach (var eachStat in result.Statistics)
+                        {
+                            if (eachStat.StatisticName == "Crystal")
+                            {
+                                crystal = eachStat.Value;
+                            }
+                        }
+                    },
+                    (error) => { Debug.Log("값 로딩 실패"); });
+                },
+            (error) => { Debug.Log("값 저장 실패"); });
+            lobbyShop_Purchase_Success.SetActive(true);
+        }
+    }
+
+    public void LobbyShop_Purchase_Success_Ok()
+    {
+        lobbyShop_Purchase_Success.SetActive(false);
+        lobbyShop_Purchase.SetActive(false);
+    }
+
+    public void LobbyShop_Purchase_Fail_Ok()
+    {
+        lobbyShop_Purchase_Fail.SetActive(false);
+        lobbyShop_Purchase.SetActive(false);
+    }
+
     public void LobbyInventory()
     {
         lobbyInventory.SetActive(true);
@@ -612,6 +961,10 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
         {
             lobbyShop.SetActive(false);
         }
+        else if (lastCanvas == "lobbyShop_Purchase")
+        {
+            lobbyShop_Purchase.SetActive(false);
+        }
         else if (lastCanvas == "lobbyInventory")
         {
             lobbyInventory.SetActive(false);
@@ -680,7 +1033,14 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
             }
             else if(lobbyShop.activeSelf == true)
             {
-                lastCanvas = "lobbyShop";
+                if(lobbyShop_Purchase.activeSelf == true)
+                {
+                    lastCanvas = "lobbyShop_Purchase";
+                }
+                else
+                {
+                    lastCanvas = "lobbyShop";
+                }
             }
             else if (lobbyInventory.activeSelf == true)
             {
@@ -719,6 +1079,9 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
         lobbyShop_Crystal.text = crystal.ToString();
         lobbyInventory_Gold.text = gold.ToString();
         lobbyInventory_Crystal.text = crystal.ToString();
+        lobbyInventory_Name.text = nickName.ToString();
+        lobbyInventory_Level.text = level.ToString();
+        lobbyInventory_Exp.text = exp.ToString() + "/500";
     }
 
     public void OnApplicationQuit()
