@@ -9,6 +9,9 @@ TagManager:
   - hpBarImg
   - Wagon
   - Bullet
+  - Spike
+  - JumpPad
+  - SpeedPad
   layers:
   - Default
   - TransparentFX
