@@ -468,7 +468,7 @@ GameObject:
   - component: {fileID: 1322528982358967083}
   m_Layer: 0
   m_Name: Waypoint 01
-  m_TagString: Untagged
+  m_TagString: JumpPad
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 4294967295

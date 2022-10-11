@@ -10,7 +10,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
     private float hAxis;
     private float vAxis;
     public bool jDown = false;
-    private bool isJump = false;
+    public bool isJump = false;
     private bool isMove = false;
     private float speed = 5.0f;
     private float jumpForce = 5.0f;
@@ -32,7 +32,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
     private bool isSlide = false;
     public bool isFallDown = false;
     private bool fallAble = true;
-    private Vector2 jumpMoveDir;
+    public Vector2 jumpMoveDir;
     private float jumpMoveMag;
 
     private void Awake()
@@ -129,9 +129,9 @@ public class PlayerController : MonoBehaviourPunCallbacks
     {
         if (jDown && !isJump)
         {
-            isJump = true;
             jumpMoveDir = inputDir;
             rb.AddForce(new Vector3(0, jumpForce, 0), ForceMode.Impulse);
+            isJump = true;
             animator.SetBool("isJump", isJump);
         }
     }
@@ -140,22 +140,12 @@ public class PlayerController : MonoBehaviourPunCallbacks
     {
         if (!isJump)
         {
-            isJump = true;
             jumpMoveDir = inputDir;
             rb.AddForce(new Vector3(0, jumpForce, 0), ForceMode.Impulse);
+            isJump = true;
             animator.SetBool("isJump", true);
         }
     }
-
-    private void OnCollisionEnter(Collision collision)
-    {
-        if (collision.transform.tag == "Floor")
-        {
-            isJump = false;
-            animator.SetBool("isJump", false);
-        }
-    }
-
     void Slide()
     {
         if (slideKeyDown && !isSlide)
@@ -199,7 +189,37 @@ public class PlayerController : MonoBehaviourPunCallbacks
     {
         yield return new WaitForSeconds(1f);
         isFallDown = false;
-        fallAble = true;
         animator.SetBool("isFallDown", isFallDown);
+        fallAble = true;
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (collision.transform.tag == "Floor")
+        {
+            isJump = false;
+            animator.SetBool("isJump", false);
+        }
+
+        if (collision.transform.tag == "Spike")
+        {
+            isJump = false;
+            isFallDown = true;
+            fallAble = true;
+        }
+
+        if (collision.transform.tag == "JumpPad")
+        {
+            isJump = true;
+            jumpMoveDir = inputDir;
+            rb.velocity = Vector3.zero;
+            rb.AddForce(new Vector3(0, 10f, 0), ForceMode.Impulse);
+            animator.SetBool("isJump", true);
+        }
+
+        if (collision.transform.tag == "SpeedPad")
+        {
+
+        }
     }
 }
