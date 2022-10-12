@@ -1221,6 +1221,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
 
     public void Notification()
     {
+        #if UNITY_IOS
         UnityEngine.iOS.LocalNotification notice = new UnityEngine.iOS.LocalNotification();
         notice.alertTitle = "알림";
         notice.alertBody = "게임 종료";
@@ -1228,6 +1229,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
         notice.applicationIconBadgeNumber = 1;
         notice.fireDate = DateTime.Now.AddSeconds(3);
         UnityEngine.iOS.NotificationServices.ScheduleLocalNotification(notice);
+        #endif  
     }
 
     public void OnApplicationQuit()
@@ -1237,12 +1239,12 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
             chatClient.Disconnect();
         }
 
-        #if UNITY_IOS
+#if UNITY_IOS
         if(isPush == 1)
         {
             Notification();
         }
-        #endif
+#endif
     }
 
     // 채팅서버

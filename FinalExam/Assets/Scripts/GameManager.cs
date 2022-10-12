@@ -72,6 +72,7 @@ public class GameManager : MonoBehaviourPunCallbacks
             if(cannonGame.activeSelf == false)
             {
                 cannonGame.transform.GetComponent<CannonGame>().randGenTrigger = true;
+                cannonGame.transform.GetComponent<CannonGame>().lineGenTrigger = true;
             }
             cannonGame.SetActive(true);
         }
