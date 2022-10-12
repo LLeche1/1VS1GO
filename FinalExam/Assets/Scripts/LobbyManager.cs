@@ -32,6 +32,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
     public TMP_InputField loginPW;
     public TMP_InputField signUpID;
     public TMP_InputField signUpPW;
+    public TMP_InputField signUpNickName;
     public Button loginBtn;
     public Toggle loginRememberMe;
     public GameObject signUp;
@@ -79,6 +80,9 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
     public TMP_Text lobbyInventory_Level;
     public TMP_Text lobbyInventory_Exp;
     public GameObject lobbyRanking;
+    public GameObject lobbyRanking_Scroll;
+    public GameObject rankingPrefab;
+    public TMP_Text lobbyRanking_Count;
     public TMP_Text lobbyRanking_Name;
     public TMP_Text lobbyRanking_Highest_Trophies;
     public GameObject error;
@@ -220,8 +224,6 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
             },
             (error) => print("데이터 불러오기 실패"));
 
-            PhotonNetwork.LocalPlayer.NickName = nickName;
-
             this.chatClient = new ChatClient(this);
             chatClient.UseBackgroundWorkerForSending = true;
             this.chatClient.Connect(PhotonNetwork.PhotonServerSettings.AppSettings.AppIdChat, "1.0", new AuthenticationValues(loginID.text));
@@ -295,7 +297,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
 
     public void Register()
     {
-        var request = new RegisterPlayFabUserRequest { Username = signUpID.text, Password = signUpPW.text, RequireBothUsernameAndEmail = false };
+        var request = new RegisterPlayFabUserRequest { Username = signUpID.text, Password = signUpPW.text, DisplayName = signUpNickName.text, RequireBothUsernameAndEmail = false };
         PlayFabClientAPI.RegisterPlayFabUser(request, RegisterSuccess, RegisterFailure);
     }
 
@@ -304,12 +306,11 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
         signUp.SetActive(false);
         login.SetActive(true);
         Debug.Log("가입 성공");
-        var request = new UpdateUserDataRequest() { Data = new Dictionary<string, string>() { { "Name", signUpID.text } } };
         PlayFabClientAPI.UpdateUserData(new UpdateUserDataRequest
         {
             Data = new Dictionary<string, string>
             {
-                { "NickName", signUpID.text }
+                { "NickName", signUpNickName.text }
             }
         },
         (result) => print("데이터 저장 성공"),
@@ -466,7 +467,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
             {
                 Data = new Dictionary<string, string>
             {
-                { "Name", userInfo_ChangeName_Name.text }
+                { "NickName", userInfo_ChangeName_Name.text }
             }
             },
             (result) => PlayFabClientAPI.GetUserData(new GetUserDataRequest(),
@@ -474,14 +475,14 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
                 {
                     foreach (var eachData in result.Data)
                     {
-                        if (eachData.Key == "Name")
+                        if (eachData.Key == "NickName")
                         {
                             nickName = eachData.Value.Value;
                         }
                     }
                 },
-                (error) => print("데이터 불러오기 실패")),
-            (error) => print("데이터 저장 실패"));
+                (error) => Debug.Log("데이터 불러오기 실패")),
+            (error) => Debug.Log("데이터 저장 실패"));
 
             PlayFabClientAPI.UpdatePlayerStatistics(new UpdatePlayerStatisticsRequest
             {
@@ -506,6 +507,15 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
                 (error) => { Debug.Log("값 로딩 실패"); });
             },
             (error) => { Debug.Log("값 저장 실패"); });
+
+            PlayFabClientAPI.UpdateUserTitleDisplayName(new UpdateUserTitleDisplayNameRequest
+            {
+                DisplayName = userInfo_ChangeName_Name.text
+            },
+            result => {
+               
+            },
+            error => { Debug.Log("값 저장 실패"); });
 
             userInfo_ChangeName.SetActive(false);
             userInfo_ChangeName_Name.text = "";
@@ -878,17 +888,75 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
 
     public void LobbyRanking()
     {
+        var child = lobbyRanking_Scroll.GetComponentsInChildren<Transform>();
+
+        foreach (var item in child)
+        {
+            if(item.name != "Content")
+            {
+                Destroy(item.gameObject);
+            }
+        }
+
+        lobbyRanking_Count.transform.GetChild(0).gameObject.SetActive(false);
+        lobbyRanking_Count.transform.GetChild(1).gameObject.SetActive(false);
+        lobbyRanking_Count.transform.GetChild(2).gameObject.SetActive(false);
+
         lobbyRanking.SetActive(true);
+        GetLeaderboard();
     }
 
-    public void GetLeaderboardAroundPlayerGet()
+    public void GetLeaderboard()
     {
-
+        var request = new GetLeaderboardRequest { StatisticName = "Highest_Trophies", MaxResultsCount = 9 };
+        PlayFabClientAPI.GetLeaderboard(request, OnGetLeaderBoard, OnErrorLeaderBoard);
     }
 
-    void OnLeaderBoardAroundPlayerGet(GetLeaderboardAroundPlayerResult result)
+    void OnGetLeaderBoard(GetLeaderboardResult result)
     {
+        int count = 0;
+        foreach (PlayerLeaderboardEntry player in result.Leaderboard)
+        {
+            count++;
+            GameObject ranking = Instantiate(rankingPrefab, lobbyRanking_Scroll.transform);
+            ranking.transform.GetChild(0).GetComponent<TMP_Text>().text = count.ToString();
+            ranking.transform.GetChild(3).GetComponent<TMP_Text>().text = player.DisplayName;
+            ranking.transform.GetChild(4).GetComponent<TMP_Text>().text = player.StatValue.ToString();
+            if (count == 1)
+            {
+                ranking.transform.GetChild(0).GetChild(0).gameObject.SetActive(true);
+            }
+            else if (count == 2)
+            {
+                ranking.transform.GetChild(0).GetChild(1).gameObject.SetActive(true);
+            }
+            else if (count == 3)
+            {
+                ranking.transform.GetChild(0).GetChild(2).gameObject.SetActive(true);
+            }
 
+            if (player.DisplayName == nickName)
+            {
+                lobbyRanking_Count.text = count.ToString();
+                if(count == 1)
+                {
+                    lobbyRanking_Count.transform.GetChild(0).gameObject.SetActive(true);
+                }
+                else if (count == 2)
+                {
+                    lobbyRanking_Count.transform.GetChild(1).gameObject.SetActive(true);
+                }
+                else if (count == 3)
+                {
+                    lobbyRanking_Count.transform.GetChild(2).gameObject.SetActive(true);
+                }
+            }
+        }
+    }
+
+    void OnErrorLeaderBoard(PlayFabError error)
+    {
+        Debug.LogError(error.GenerateErrorReport());
     }
 
     public void LobbyStart()
@@ -1239,12 +1307,12 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
             chatClient.Disconnect();
         }
 
-#if UNITY_IOS
+        #if UNITY_IOS
         if(isPush == 1)
         {
             Notification();
         }
-#endif
+        #endif
     }
 
     // 채팅서버
