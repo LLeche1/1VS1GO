@@ -12,6 +12,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
     public bool jDown = false;
     public bool isJump = false;
     private bool isMove = false;
+    private bool isHit = false;
     private float speed = 5.0f;
     private float jumpForce = 5.0f;
     private Vector2 inputDir = Vector2.zero;
@@ -26,6 +27,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
     Animator animator;
     Rigidbody rb;
     CameraController cameraController;
+    Material material;
 
     public bool jumpKeyDown = false;
     private bool slideKeyDown = false;
@@ -37,6 +39,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
     private void Awake()
     {
+        material = transform.Find("Bodies").Find("MainBody01").GetComponent<SkinnedMeshRenderer>().sharedMaterial;
         PV = GetComponent<PhotonView>();
         tr = GetComponent<Transform>();
         rb = GetComponent<Rigidbody>();
@@ -80,7 +83,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
         slideKeyDown = Input.GetKeyDown(KeyCode.Q);
         this.inputDir = joyStick.inputDir;
 
-        if (Mathf.Abs(Input.GetAxisRaw("Horizontal")) == 1.0f || Mathf.Abs(Input.GetAxisRaw("Vertical")) == 1.0f)
+        if (Mathf.Abs(Input.GetAxisRaw("Horizontal")) == 1.0f || Mathf.Abs(Input.GetAxisRaw("Vertical")) == 1.0f || inputDir != Vector2.zero)
         {
             isMove = true;
         }
@@ -111,21 +114,23 @@ public class PlayerController : MonoBehaviourPunCallbacks
         {
             moveMag = joyStick.inputDir.magnitude;
 
-            animator.SetBool("isRun", inputDir != Vector2.zero);
+            animator.SetBool("isRun", isMove);
             animator.SetFloat("Speed", moveMag);
-
-            transform.Translate(new Vector3(inputDir.x, 0, inputDir.y) * speed * Time.deltaTime, Space.World);
-            transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.LookRotation(new Vector3(inputDir.x, 0f, inputDir.y)), 20f * Time.deltaTime);
-            //º¤ÅÍÀÇ Euler Rotation °ªÀ» ¾Ë°í ½ÍÀ¸¸é LookRotationÀ» »ç¿ëÇÏ¸é µÈ´Ù.
+            if (isMove)
+            {
+                transform.Translate(new Vector3(inputDir.x, 0, inputDir.y) * speed * Time.deltaTime, Space.World);
+                transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.LookRotation(new Vector3(inputDir.x, 0f, inputDir.y)), 20f * Time.deltaTime);
+                //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Euler Rotation ï¿½ï¿½ï¿½ï¿½ ï¿½Ë°ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ LookRotationï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ï¸ï¿½ ï¿½È´ï¿½.
+            }
         }
         else if (isJump)
         {
             transform.Translate(new Vector3(jumpMoveDir.x, 0, jumpMoveDir.y) * speed * Time.deltaTime, Space.World);
-            transform.LookAt(transform.position + new Vector3(jumpMoveDir.x, 0, jumpMoveDir.y));
+            //transform.LookAt(transform.position + new Vector3(jumpMoveDir.x, 0, jumpMoveDir.y));
         }
     }
 
-    void Jump() //Å°º¸µå Á¶ÀÛ
+    void Jump() //Å°ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
     {
         if (jDown && !isJump)
         {
@@ -136,7 +141,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
         }
     }
 
-    public void ButtonJump() //UI Á¡ÇÁ ¹öÆ° Á¶ÀÛ
+    public void ButtonJump() //UI ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Æ° ï¿½ï¿½ï¿½ï¿½
     {
         if (!isJump)
         {
@@ -192,7 +197,6 @@ public class PlayerController : MonoBehaviourPunCallbacks
         animator.SetBool("isFallDown", isFallDown);
         fallAble = true;
     }
-
     private void OnCollisionEnter(Collision collision)
     {
 
@@ -200,14 +204,18 @@ public class PlayerController : MonoBehaviourPunCallbacks
         {
             isJump = false;
             animator.SetBool("isJump", false);
+            if (isHit)
+            {
+
+            }
         }
 
         if (collision.transform.tag == "CannonBall")
-        {   
+        {
             Vector3 contatsDir = collision.contacts[0].normal;
             rb.velocity = Vector3.zero;
             rb.AddForce(new Vector3(0f, 3f, 0f), ForceMode.Impulse);
-            jumpMoveDir = new Vector3(contatsDir.x, contatsDir.z).normalized * 1.5f;
+            jumpMoveDir = new Vector2(contatsDir.x, contatsDir.z).normalized * 1.5f;
             isJump = true;
             animator.SetBool("isJump", isJump);
 
@@ -216,23 +224,44 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
         if (collision.transform.tag == "Spike")
         {
-            isJump = false;
-            isFallDown = true;
-            fallAble = true;
+            if (!isHit)
+            {
+                rb.AddForce(new Vector3(0f, 1.5f, 0f), ForceMode.Impulse);
+                jumpMoveDir = new Vector2(0f, -0.5f);
+                isJump = true;
+                isHit = true;
+                animator.SetBool("isJump", isJump);
+                StartCoroutine(UnHittable());
+            }
         }
-
         if (collision.transform.tag == "JumpPad")
         {
+
             isJump = true;
             jumpMoveDir = inputDir;
             rb.velocity = Vector3.zero;
             rb.AddForce(new Vector3(0, 10f, 0), ForceMode.Impulse);
             animator.SetBool("isJump", true);
+
         }
 
         if (collision.transform.tag == "SpeedPad")
         {
 
         }
+    }
+    IEnumerator UnHittable()
+    {
+        material.SetColor("_Color", Color.red);
+        yield return new WaitForSeconds(0.5f);
+        for (int i = 0; i < 5; i++)
+        {
+            material.SetColor("_Color", Color.white);
+            yield return new WaitForSeconds(0.25f);
+            material.SetColor("_Color", Color.grey);
+            yield return new WaitForSeconds(0.25f);
+        }
+        material.SetColor("_Color", Color.white);
+        isHit = false;
     }
 }
