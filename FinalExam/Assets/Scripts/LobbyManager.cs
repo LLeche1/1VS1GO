@@ -10,8 +10,15 @@ using PlayFab.ClientModels;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using UnityEngine.Audio;
 using TMPro;
 using UnityEngine.SceneManagement;
+using System;
+#if UNITY_IOS
+using NotificationServices = UnityEngine.iOS.NotificationServices;
+using NotificationType = UnityEngine.iOS.NotificationType;
+using LocalNotification = UnityEngine.iOS.LocalNotification;
+#endif
 
 public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
 {
@@ -36,7 +43,13 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
     public TMP_Text lobbyGold;
     public TMP_Text lobbyCrystal;
     public GameObject lobbySet;
-    public GameObject lobbySet_Language;
+    public GameObject lobbySet_Push_No;
+    public GameObject lobbySet_Push_Yes;
+    public AudioMixer audioMixer;
+    public Slider lobbySet_Music;
+    public Slider lobbySet_Fx;
+    public GameObject lobbySet_Vibration_No;
+    public GameObject lobbySet_Vibration_Yes;
     public GameObject lobbyChat;
     public TMP_Text[] lobbyChatText;
     public TMP_InputField lobbyChatInput;
@@ -71,8 +84,9 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
     public GameObject error;
     public TMP_Text errorInfo;
     public GameObject errorNetwork;
-    public GameObject room;
-    public TMP_Text roomPlayer;
+    public GameObject lobby1vs1;
+    public GameObject lobby2vs2;
+    public TMP_Text lobby1vs1_Count;
     public GameObject roomLoading;
     public GameObject roomLoading_Slider;
     private float level;
@@ -90,7 +104,11 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
     private string lastCanvas;
     private string errorType;
     private string lobbyShop_Name;
-    public GraphicRaycaster graphicRaycaster;
+    private int isPush = 0;
+    private float fxValue = 1;
+    private float musicValue = 1;
+    private int isVibration = 0;
+    private bool isMatching = false;
     public ChatClient chatClient;
     private string channelName = "Global";
     public GameObject myChatPrefab;
@@ -112,6 +130,11 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
 
     void Start()
     {
+        #if UNITY_IOS
+        NotificationServices.ClearLocalNotifications();
+        NotificationServices.CancelAllLocalNotifications();
+        NotificationServices.RegisterForNotifications(NotificationType.Alert | NotificationType.Badge | NotificationType.Sound);
+        #endif
         LoginLoad(loginRememberMe);
         PhotonNetwork.GameVersion = gameVersion;
     }
@@ -338,12 +361,80 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
 
     public void LobbySet()
     {
+        if(isPush == 0)
+        {
+            lobbySet_Push_Yes.SetActive(false);
+            lobbySet_Push_No.SetActive(true);
+        }
+        else if (isPush == 1)
+        {
+            lobbySet_Push_Yes.SetActive(true);
+            lobbySet_Push_No.SetActive(false);
+        }
+
+        lobbySet_Fx.value = fxValue;
+        lobbySet_Music.value = musicValue;
+
+        if (isVibration == 0)
+        {
+            lobbySet_Vibration_Yes.SetActive(false);
+            lobbySet_Vibration_No.SetActive(true);
+        }
+        else if (isVibration == 1)
+        {
+            lobbySet_Vibration_Yes.SetActive(true);
+            lobbySet_Vibration_No.SetActive(false);
+        }
+
         lobbySet.SetActive(true);
     }
 
-    public void LobbySet_Language()
+    public void LobbySet_Push()
     {
-        lobbySet_Language.SetActive(true);
+        if(isPush == 0)
+        {
+            lobbySet_Push_Yes.SetActive(true);
+            lobbySet_Push_No.SetActive(false);
+            isPush = 1;
+            PlayerPrefs.SetInt("isPush", isPush);
+        }
+        else if (isPush == 1)
+        {
+            lobbySet_Push_Yes.SetActive(false);
+            lobbySet_Push_No.SetActive(true);
+            isPush = 0;
+            PlayerPrefs.SetInt("isPush", isPush);
+        }
+    }
+
+    public void LobbySet_Fx()
+    {
+        audioMixer.SetFloat("FX", Mathf.Log10(lobbySet_Fx.value) * 20);
+        PlayerPrefs.SetFloat("fxValue", lobbySet_Fx.value);
+    }
+
+    public void LobbySet_Music()
+    {
+        audioMixer.SetFloat("Music", Mathf.Log10(lobbySet_Music.value) * 20);
+        PlayerPrefs.SetFloat("musicValue", lobbySet_Music.value);
+    }
+
+    public void LobbySet_Vibration()
+    {
+        if (isVibration == 0)
+        {
+            lobbySet_Vibration_Yes.SetActive(true);
+            lobbySet_Vibration_No.SetActive(false);
+            isVibration = 1;
+            PlayerPrefs.SetInt("isVibration", isVibration);
+        }
+        else if (isVibration == 1)
+        {
+            lobbySet_Vibration_Yes.SetActive(false);
+            lobbySet_Vibration_No.SetActive(true);
+            isVibration = 0;
+            PlayerPrefs.SetInt("isVibration", isVibration);
+        }
     }
 
     public void LobbySet_Logout()
@@ -357,17 +448,17 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
         lobbyChat.SetActive(true);
     }
 
-    public void UserInfo()
+    public void LobbyUserInfo()
     {
         userInfo.SetActive(true);
     }
 
-    public void UserInfo_ChangeName()
+    public void LobbyUserInfo_ChangeName()
     {
         userInfo_ChangeName.SetActive(true);
     }
 
-    public void UserInfo_ChangeName_Name()
+    public void LobbyUserInfo_ChangeName_Name()
     {
         if (userInfo_ChangeName_Name.text != "" && crystal >= 10)
         {
@@ -802,7 +893,25 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
 
     public void LobbyStart()
     {
-        PhotonNetwork.JoinRandomRoom();
+        if (isMatching == false)
+        {
+            lobby1vs1.transform.GetChild(0).gameObject.SetActive(false);
+            lobby1vs1.transform.GetChild(1).gameObject.SetActive(false);
+            lobby1vs1.transform.GetChild(2).gameObject.SetActive(true);
+            lobby1vs1.transform.GetChild(3).gameObject.SetActive(true);
+            isMatching = true;
+            PhotonNetwork.JoinRandomRoom();
+            StartCoroutine(LobbyMatchingCount());
+        }
+        else if (isMatching == true)
+        {
+            lobby1vs1.transform.GetChild(0).gameObject.SetActive(true);
+            lobby1vs1.transform.GetChild(1).gameObject.SetActive(true);
+            lobby1vs1.transform.GetChild(2).gameObject.SetActive(false);
+            lobby1vs1.transform.GetChild(3).gameObject.SetActive(false);
+            isMatching = false;
+            PhotonNetwork.LeaveRoom();
+        }
     }
 
     public void LobbyStart2()
@@ -811,9 +920,20 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
         PhotonNetwork.JoinRandomRoom();
     }
 
+    IEnumerator LobbyMatchingCount()
+    {
+        float time = 0;
+        while (roomLoading.activeSelf == false)
+        {
+            yield return new WaitForEndOfFrame();
+            time += Time.deltaTime;
+            lobby1vs1_Count.text = TimeSpan.FromSeconds(time).ToString(@"m\:ss");
+        }
+        yield return null;
+    }
+
     public override void OnJoinedRoom()
     {
-        room.SetActive(true);
         RoomRenewal();
     }
 
@@ -834,7 +954,6 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
 
     void RoomRenewal()
     {
-        roomPlayer.text = PhotonNetwork.CurrentRoom.PlayerCount + " / " + PhotonNetwork.CurrentRoom.MaxPlayers;
         if (isTest == true)
         {
             isTest = false;
@@ -849,6 +968,10 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
         {
             if (PhotonNetwork.CurrentRoom.PlayerCount == PhotonNetwork.CurrentRoom.MaxPlayers)
             {
+                lobby1vs1.transform.GetChild(0).gameObject.SetActive(true);
+                lobby1vs1.transform.GetChild(1).gameObject.SetActive(true);
+                lobby1vs1.transform.GetChild(2).gameObject.SetActive(false);
+                lobby1vs1.transform.GetChild(3).gameObject.SetActive(false);
                 roomLoading.SetActive(true);
                 if (PhotonNetwork.IsMasterClient)
                 {
@@ -881,15 +1004,8 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
             gameManager.SetActive(true);
             inGame.SetActive(true);
             main.SetActive(false);
-            room.SetActive(false);
             roomLoading.SetActive(false);
         }
-    }
-
-    public void RoomOut()
-    {
-        PhotonNetwork.LeaveRoom();
-        room.SetActive(false);
     }
 
     public void LoginMemory(Toggle toggle)
@@ -918,6 +1034,22 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
         {
             toggle.isOn = false;
         }
+
+        isPush = PlayerPrefs.GetInt("isPush");
+
+        if(PlayerPrefs.GetFloat("fxValue") != 0)
+        {
+            fxValue = PlayerPrefs.GetFloat("fxValue");
+        }
+
+        if (PlayerPrefs.GetFloat("musicValue") != 0)
+        {
+            musicValue = PlayerPrefs.GetFloat("musicValue");
+        }
+
+        isVibration = PlayerPrefs.GetInt("isVibration");
+        audioMixer.SetFloat("FX", Mathf.Log10(fxValue) * 20);
+        audioMixer.SetFloat("Music", Mathf.Log10(musicValue) * 20);
     }
 
     public void Back()
@@ -952,10 +1084,6 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
         else if (lastCanvas == "lobbySet")
         {
             lobbySet.SetActive(false);
-        }
-        else if (lastCanvas == "lobbySet_Language")
-        {
-            lobbySet_Language.SetActive(false);
         }
         else if (lastCanvas == "lobbyChat")
         {
@@ -1008,18 +1136,11 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
                 lastCanvas = "title";
             }
         }
-        else if (lobby.activeSelf == true && room.activeSelf == false)
+        else if (lobby.activeSelf == true)
         {
             if (lobbySet.activeSelf == true)
             {
-                if (lobbySet_Language.activeSelf == true)
-                {
-                    lastCanvas = "lobbySet_Language";
-                }
-                else
-                {
-                    lastCanvas = "lobbySet";
-                }
+                lastCanvas = "lobbySet";
             }
             else if (lobbyChat.activeSelf == true)
             {
@@ -1098,16 +1219,33 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
         lobbyRanking_Highest_Trophies.text = highest_Trophies.ToString();
     }
 
+    public void Notification()
+    {
+        LocalNotification notice = new LocalNotification();
+        notice.alertTitle = "알림";
+        notice.alertBody = "게임 종료";
+        notice.soundName = LocalNotification.defaultSoundName;
+        notice.applicationIconBadgeNumber = 1;
+        notice.fireDate = DateTime.Now.AddSeconds(3);
+        NotificationServices.ScheduleLocalNotification(notice);
+    }
+
     public void OnApplicationQuit()
     {
         if (chatClient != null)
         {
             chatClient.Disconnect();
         }
+
+        #if UNITY_IOS
+        if(isPush == 1)
+        {
+            Notification();
+        }
+        #endif
     }
 
     // 채팅서버
-
     public void OnConnected()
     {
         chatClient.Subscribe(channelName, 0);

@@ -40,7 +40,7 @@ public class GameManager : MonoBehaviourPunCallbacks
     {
         if(PhotonNetwork.IsMasterClient && isRandom == false)
         {
-            int random = 0;
+            int random = Random.Range(0,2);
             PV.RPC("RandomMap", RpcTarget.All, random);
         }
 
