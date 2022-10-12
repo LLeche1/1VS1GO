@@ -47,6 +47,8 @@ MonoBehaviour:
   - ObstacleSpawner
   - RandomMap
   - BoardSetting
+  - RandPosSync
+  - CannonBallSpawner
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

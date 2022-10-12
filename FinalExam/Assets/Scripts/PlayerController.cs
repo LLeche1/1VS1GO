@@ -195,10 +195,23 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
     private void OnCollisionEnter(Collision collision)
     {
+
         if (collision.transform.tag == "Floor")
         {
             isJump = false;
             animator.SetBool("isJump", false);
+        }
+
+        if (collision.transform.tag == "CannonBall")
+        {   
+            Vector3 contatsDir = collision.contacts[0].normal;
+            rb.velocity = Vector3.zero;
+            rb.AddForce(new Vector3(0f, 3f, 0f), ForceMode.Impulse);
+            jumpMoveDir = new Vector3(contatsDir.x, contatsDir.z).normalized * 1.5f;
+            isJump = true;
+            animator.SetBool("isJump", isJump);
+
+            collision.transform.GetComponent<Rigidbody>().velocity = -contatsDir.normalized * 15f;
         }
 
         if (collision.transform.tag == "Spike")

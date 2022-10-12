@@ -12,6 +12,7 @@ TagManager:
   - Spike
   - JumpPad
   - SpeedPad
+  - CannonBall
   layers:
   - Default
   - TransparentFX

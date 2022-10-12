@@ -1221,13 +1221,13 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
 
     public void Notification()
     {
-        LocalNotification notice = new LocalNotification();
+        UnityEngine.iOS.LocalNotification notice = new UnityEngine.iOS.LocalNotification();
         notice.alertTitle = "알림";
         notice.alertBody = "게임 종료";
-        notice.soundName = LocalNotification.defaultSoundName;
+        notice.soundName = UnityEngine.iOS.LocalNotification.defaultSoundName;
         notice.applicationIconBadgeNumber = 1;
         notice.fireDate = DateTime.Now.AddSeconds(3);
-        NotificationServices.ScheduleLocalNotification(notice);
+        UnityEngine.iOS.NotificationServices.ScheduleLocalNotification(notice);
     }
 
     public void OnApplicationQuit()

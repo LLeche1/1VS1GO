@@ -40,7 +40,7 @@ public class GameManager : MonoBehaviourPunCallbacks
     {
         if(PhotonNetwork.IsMasterClient && isRandom == false)
         {
-            int random = Random.Range(0,2);
+            int random = Random.Range(0, 2);
             PV.RPC("RandomMap", RpcTarget.All, random);
         }
 
@@ -71,7 +71,7 @@ public class GameManager : MonoBehaviourPunCallbacks
         {
             if(cannonGame.activeSelf == false)
             {
-                cannonGame.transform.GetComponent<CannonGame>().genAble = true;
+                cannonGame.transform.GetComponent<CannonGame>().randGenTrigger = true;
             }
             cannonGame.SetActive(true);
         }

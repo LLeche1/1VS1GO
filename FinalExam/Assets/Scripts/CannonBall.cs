@@ -4,11 +4,15 @@ using UnityEngine;
 
 public class CannonBall : MonoBehaviour
 {
-    private void OnCollisionEnter(Collision collision)
+    private void Update()
     {
-        if(collision.transform.tag == "Player")
+        OutLandDestroy();
+    }
+    void OutLandDestroy()
+    {
+        if(transform.position.y < -30f)
         {
-            collision.transform.GetComponent<PlayerController>().isFallDown = true;
+            Destroy(gameObject);
         }
     }
 }

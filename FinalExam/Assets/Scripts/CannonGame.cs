@@ -10,9 +10,10 @@ public class CannonGame : MonoBehaviourPunCallbacks
     const int colSize = 16;
     private int i = 0;
     private int j = 0;
-    public bool genAble = true;
-    private const float shootForce = 1500f;
-    public GameObject boardBlockObj;
+    public bool randGenTrigger = true;
+    public bool lineGenTrigger = true;
+    private const float shootForce = 120f;
+    public GameObject landBlockObj;
     public GameObject cannonObj;
     public GameObject cannonBallObj;
     private GameObject map;
@@ -36,20 +37,12 @@ public class CannonGame : MonoBehaviourPunCallbacks
 
     void Update()
     {
-        PV.RPC("ObstacleSpawner", RpcTarget.All);   
+        PV.RPC("CannonBallSpawner", RpcTarget.All);
     }
 
     void BoardGenerate()
     {
-        for (int i = 0; i < rowSize; i++)
-        {
-            for (int j = 0; j < colSize; j++)
-            {
-                GameObject boardblock = Instantiate(boardBlockObj);
-                boardblock.transform.SetParent(map.transform);
-                boardblock.transform.position = new Vector3(j, 0, i);
-            }
-        }
+        GameObject land = Instantiate(landBlockObj);
     }
     void CannonGenerate()
     {
@@ -84,27 +77,33 @@ public class CannonGame : MonoBehaviourPunCallbacks
 
 
     [PunRPC]
-    void ObstacleSpawner()
+    void CannonBallSpawner()
     {
-        if (genAble)
+        /*if (randGenTrigger)
         {
-            genAble = false;
-            StartCoroutine(RandPosGenObtacle());
+            randGenTrigger = false;
+            StartCoroutine(RandomCannonAttack());
+        }*/
+
+        if (lineGenTrigger)
+        {
+            lineGenTrigger = false;
+            StartCoroutine(LineCannonAttack());
         }
     }
 
-    IEnumerator RandPosGenObtacle()
+    IEnumerator RandomCannonAttack()
     {
         int ranI = 0; int ranJ = 0;
         if (PhotonNetwork.IsMasterClient)
         {
             ranI = Random.Range(0, 4);
             ranJ = Random.Range(0, 8);
-            PV.RPC("RandPosSynch", RpcTarget.All, ranI, ranJ);
+            PV.RPC("RandPosSync", RpcTarget.All, ranI, ranJ); //randI와 randJ에 랜덤한 값을 넣어준뒤 그 값을 RPC로 모든 디바이스에 동기화 하여준다.
         }
         yield return new WaitForSeconds(0.5f);
         Transform genPos = null;
-        
+
         GameObject cannon = Instantiate(cannonBallObj, transform.Find("Cannons").transform);
         switch (i)
         {
@@ -126,11 +125,66 @@ public class CannonGame : MonoBehaviourPunCallbacks
                 break;
         }
         cannon.transform.position = genPos.position;
-        genAble = true;
+        randGenTrigger = true;
+    }
+
+    IEnumerator LineCannonAttack()
+    {
+        int ranI = 0; int ranJ = 0;
+        if (PhotonNetwork.IsMasterClient)
+        {
+            ranI = Random.Range(0, 4);
+            ranJ = Random.Range(0, 2);
+            PV.RPC("RandPosSync", RpcTarget.All, ranI, ranJ); //randI와 randJ에 랜덤한 값을 넣어준뒤 그 값을 RPC로 모든 디바이스에 동기화 하여준다.
+        }
+        yield return new WaitForSeconds(2f);
+        Transform genPos = null;
+
+        GameObject[] cannons = new GameObject[4];
+        for (int k = 0; k < 4; k++)
+        {
+            cannons[k] = Instantiate(cannonBallObj, transform.Find("Cannons").transform);
+        }
+        switch (i)
+        {
+            case 0:
+                for (int l = 0; l < 4; l++)
+                {
+                    genPos = leftSideCannons.transform.GetChild((2 * l) + j).transform.Find("Cannon").transform;
+                    cannons[l].transform.position = genPos.position;
+                    cannons[l].GetComponent<Rigidbody>().AddForce(new Vector3(shootForce, 0f, 0f), ForceMode.Impulse);
+                }
+                break;
+            case 1:
+                for (int l = 0; l < 4; l++)
+                {
+                    genPos = rightSideCannons.transform.GetChild((2 * l) + j).transform.Find("Cannon").transform;
+                    cannons[l].transform.position = genPos.position;
+                    cannons[l].GetComponent<Rigidbody>().AddForce(new Vector3(-shootForce, 0f, 0f), ForceMode.Impulse);
+                }
+                break;
+            case 2:
+                for (int l = 0; l < 4; l++)
+                {
+                    genPos = topSideCannons.transform.GetChild((2 * l) + j).transform.Find("Cannon").transform;
+                    cannons[l].transform.position = genPos.position;
+                    cannons[l].GetComponent<Rigidbody>().AddForce(new Vector3(0f, 0f, -shootForce), ForceMode.Impulse);
+                }
+                break;
+            case 3:
+                for (int l = 0; l < 4; l++)
+                {
+                    genPos = bottomSideCannons.transform.GetChild((2 * l) + j).transform.Find("Cannon").transform;
+                    cannons[l].transform.position = genPos.position;
+                    cannons[l].GetComponent<Rigidbody>().AddForce(new Vector3(0f, 0f, shootForce), ForceMode.Impulse);
+                }
+                break;
+        }
+        lineGenTrigger = true;
     }
 
     [PunRPC]
-    void RandPosSynch(int a, int b)
+    void RandPosSync(int a, int b)
     {
         i = a;
         j = b;
