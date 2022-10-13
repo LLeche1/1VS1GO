@@ -47,8 +47,8 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
     public GameObject lobbySet_Push_No;
     public GameObject lobbySet_Push_Yes;
     public AudioMixer audioMixer;
-    public Slider lobbySet_Music;
     public Slider lobbySet_Fx;
+    public Slider lobbySet_Music;
     public GameObject lobbySet_Vibration_No;
     public GameObject lobbySet_Vibration_Yes;
     public GameObject lobbyChat;
@@ -89,13 +89,12 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
     public TMP_Text errorInfo;
     public GameObject errorNetwork;
     public GameObject lobby1vs1;
-    public GameObject lobby2vs2;
     public TMP_Text lobby1vs1_Count;
     public GameObject roomLoading;
     public GameObject roomLoading_Slider;
     private float level;
     private float exp;
-    private string nickName;
+    public string nickName;
     private float gold;
     private float crystal;
     private float highest_Trophies;
@@ -109,9 +108,9 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
     private string errorType;
     private string lobbyShop_Name;
     private int isPush = 0;
-    private float fxValue = 1;
-    private float musicValue = 1;
-    private int isVibration = 0;
+    public float fxValue = 1;
+    public float musicValue = 1;
+    public int isVibration = 0;
     private bool isMatching = false;
     public ChatClient chatClient;
     private string channelName = "Global";
@@ -120,8 +119,6 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
     public GameObject chatScroll;
     public TMP_Text chatText;
     PhotonView PV;
-
-    private bool isTest = false;
 
     void Awake()
     {
@@ -141,6 +138,9 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
         #endif
         LoginLoad(loginRememberMe);
         PhotonNetwork.GameVersion = gameVersion;
+        PhotonNetwork.ConnectUsingSettings();
+        titleLoading.SetActive(true);
+        StartCoroutine(TitleLoadDelay());
     }
 
     void Update()
@@ -152,14 +152,6 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
         {
             this.chatClient.Service();
         }
-    }
-
-    public void Title_Start()
-    {
-        PhotonNetwork.ConnectUsingSettings();
-        title.transform.GetChild(2).gameObject.SetActive(false);
-        titleLoading.SetActive(true);
-        StartCoroutine(TitleLoadDelay());
     }
 
     IEnumerator TitleLoadDelay()
@@ -413,12 +405,14 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
     {
         audioMixer.SetFloat("FX", Mathf.Log10(lobbySet_Fx.value) * 20);
         PlayerPrefs.SetFloat("fxValue", lobbySet_Fx.value);
+        fxValue = PlayerPrefs.GetFloat("fxValue");
     }
 
     public void LobbySet_Music()
     {
         audioMixer.SetFloat("Music", Mathf.Log10(lobbySet_Music.value) * 20);
         PlayerPrefs.SetFloat("musicValue", lobbySet_Music.value);
+        musicValue = PlayerPrefs.GetFloat("musicValue");
     }
 
     public void LobbySet_Vibration()
@@ -921,8 +915,8 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
             count++;
             GameObject ranking = Instantiate(rankingPrefab, lobbyRanking_Scroll.transform);
             ranking.transform.GetChild(0).GetComponent<TMP_Text>().text = count.ToString();
-            ranking.transform.GetChild(3).GetComponent<TMP_Text>().text = player.DisplayName;
-            ranking.transform.GetChild(4).GetComponent<TMP_Text>().text = player.StatValue.ToString();
+            ranking.transform.GetChild(2).GetComponent<TMP_Text>().text = player.DisplayName;
+            ranking.transform.GetChild(3).GetComponent<TMP_Text>().text = player.StatValue.ToString();
             if (count == 1)
             {
                 ranking.transform.GetChild(0).GetChild(0).gameObject.SetActive(true);
@@ -983,12 +977,6 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
         }
     }
 
-    public void LobbyStart2()
-    {
-        isTest = true;
-        PhotonNetwork.JoinRandomRoom();
-    }
-
     IEnumerator LobbyMatchingCount()
     {
         float time = 0;
@@ -1023,9 +1011,13 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
 
     void RoomRenewal()
     {
-        if (isTest == true)
+        if (isVibration == 1)
         {
-            isTest = false;
+            isMatching = false;
+            lobby1vs1.transform.GetChild(0).gameObject.SetActive(true);
+            lobby1vs1.transform.GetChild(1).gameObject.SetActive(true);
+            lobby1vs1.transform.GetChild(2).gameObject.SetActive(false);
+            lobby1vs1.transform.GetChild(3).gameObject.SetActive(false);
             roomLoading.SetActive(true);
             if (PhotonNetwork.IsMasterClient)
             {
@@ -1033,10 +1025,11 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
                 StartCoroutine(RoomLoadingDelay());
             }
         }
-        else if (isTest == false)
+        else if (isVibration == 0)
         {
             if (PhotonNetwork.CurrentRoom.PlayerCount == PhotonNetwork.CurrentRoom.MaxPlayers)
             {
+                isMatching = false;
                 lobby1vs1.transform.GetChild(0).gameObject.SetActive(true);
                 lobby1vs1.transform.GetChild(1).gameObject.SetActive(true);
                 lobby1vs1.transform.GetChild(2).gameObject.SetActive(false);

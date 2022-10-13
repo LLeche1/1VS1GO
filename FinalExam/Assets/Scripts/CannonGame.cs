@@ -9,13 +9,15 @@ enum CannonAttackType
     Random,
     Line
 }
+
 public class CannonGame : MonoBehaviourPunCallbacks
 {
     const int rowSize = 16;
     const int colSize = 16;
-    private int randAtkSide = 0; private int randAtkCannon = 0;
-    private int lineAtkSide = 0; private int lineAtkCannon = 0;
-
+    private int randAtkSide = 0;
+    private int randAtkCannon = 0;
+    private int lineAtkSide = 0;
+    private int lineAtkCannon = 0;
     public bool randGenTrigger = true;
     public bool lineGenTrigger = true;
     private const float shootForce = 75f;
@@ -23,7 +25,10 @@ public class CannonGame : MonoBehaviourPunCallbacks
     public GameObject cannonObj;
     public GameObject cannonBallObj;
     private GameObject map;
-    private GameObject leftSideCannons, rightSideCannons, topSideCannons, bottomSideCannons;
+    private GameObject leftSideCannons;
+    private GameObject rightSideCannons;
+    private GameObject topSideCannons;
+    private GameObject bottomSideCannons;
     PhotonView PV;
 
     void Awake()
@@ -35,6 +40,7 @@ public class CannonGame : MonoBehaviourPunCallbacks
         topSideCannons = map.transform.Find("CannonTopSide").gameObject;
         bottomSideCannons = map.transform.Find("CannonBottomSide").gameObject;
     }
+
     void Start()
     {
         BoardGenerate();
@@ -48,8 +54,9 @@ public class CannonGame : MonoBehaviourPunCallbacks
 
     void BoardGenerate()
     {
-        GameObject land = Instantiate(landBlockObj);
+        GameObject land = Instantiate(landBlockObj, map.transform);
     }
+
     void CannonGenerate()
     {
         for (int i = 0; i < rowSize / 2; i++)
@@ -75,12 +82,12 @@ public class CannonGame : MonoBehaviourPunCallbacks
             bottomSideCannon.transform.rotation = Quaternion.Euler(0f, 0f, 0f);
             bottomSideCannon.transform.SetParent(bottomSideCannons.transform);
         }
+
         leftSideCannons.transform.position = new Vector3(-0.5f, 0f, 0f);
         rightSideCannons.transform.position = new Vector3(0.5f, 0f, 1f);
         topSideCannons.transform.position = new Vector3(0f, 0f, 0.5f);
         bottomSideCannons.transform.position = new Vector3(1f, 0f, -0.5f);
     }
-
 
     [PunRPC]
     void CannonBallSpawner()
@@ -104,7 +111,7 @@ public class CannonGame : MonoBehaviourPunCallbacks
         {
             ranI = Random.Range(0, 4);
             ranJ = Random.Range(0, 8);
-            PV.RPC("RandPosSync", RpcTarget.All, ranI, ranJ,CannonAttackType.Random); //randI와 randJ에 랜덤한 값을 넣어준뒤 그 값을 RPC로 모든 디바이스에 동기화 하여준다.
+            PV.RPC("RandPosSync", RpcTarget.All, ranI, ranJ,CannonAttackType.Random); //randI?? randJ?? ?????? ???? ???????? ?? ???? RPC?? ???? ?????????? ?????? ????????.
         }
         yield return new WaitForSeconds(0.5f);
         Transform genPos = null;
@@ -140,7 +147,7 @@ public class CannonGame : MonoBehaviourPunCallbacks
         {
             ranI = Random.Range(0, 4);
             ranJ = Random.Range(0, 2);
-            PV.RPC("RandPosSync", RpcTarget.All, ranI, ranJ, CannonAttackType.Line); //randI와 randJ에 랜덤한 값을 넣어준뒤 그 값을 RPC로 모든 디바이스에 동기화 하여준다.
+            PV.RPC("RandPosSync", RpcTarget.All, ranI, ranJ, CannonAttackType.Line); //randI?? randJ?? ?????? ???? ???????? ?? ???? RPC?? ???? ?????????? ?????? ????????.
         }
         yield return new WaitForSeconds(2.2f);
         Transform genPos = null;
