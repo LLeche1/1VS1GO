@@ -345,6 +345,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
         Debug.LogWarning("가입 실패");
         signUpID.text = null;
         signUpPW.text = null;
+        signUpNickName.text = null;
     }
 
     public override void OnJoinedLobby()
