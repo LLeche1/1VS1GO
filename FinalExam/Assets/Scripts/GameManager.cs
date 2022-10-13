@@ -28,6 +28,7 @@ public class GameManager : MonoBehaviourPunCallbacks
     private bool isGenerate = false;
     private bool isRandom = false;
     private string lastCanvas;
+    public bool isWin = false;
     PhotonView PV;
     LobbyManager lobbyManager;
 
@@ -55,6 +56,7 @@ public class GameManager : MonoBehaviourPunCallbacks
         foreach (GameObject player in players)
         {
             player.transform.GetComponent<PlayerController>().enabled = true;
+            player.transform.parent = GameObject.Find("InGame").transform;
         }
         LimitTime();
         LastCanvas();
@@ -167,10 +169,49 @@ public class GameManager : MonoBehaviourPunCallbacks
         }
     }
 
+    void Statue()
+    {
+        if (limitTime <= 0)
+        {
+            
+        }
+
+        foreach (GameObject player in players)
+        {
+            if (player.transform.position.y < -30)
+            {
+                if(player.name != lobbyManager.nickName)
+                {
+                    Victory();
+                }
+                else if (player.name == lobbyManager.nickName)
+                {
+                    Defeat();
+                }
+            }
+        }
+    }
+
+    void Victory()
+    {
+        isWin = true;
+        lobbyManager.LobbyResult();
+        Reset();
+    }
+
+    void Defeat()
+    {
+        isWin = false;
+        lobbyManager.LobbyResult();
+        Reset();
+    }
+
     public void GiveUp()
     {
-        Reset();
+        isWin = false;
+        lobbyManager.LobbyResult();
         PhotonNetwork.LeaveRoom();
+        Reset();
     }
 
     void Reset()
@@ -179,7 +220,6 @@ public class GameManager : MonoBehaviourPunCallbacks
 
         foreach (var item in child)
         {
-            Debug.Log(item);
             if (item.name != "Cannons")
             {
                 Destroy(item.gameObject);
@@ -196,6 +236,7 @@ public class GameManager : MonoBehaviourPunCallbacks
         isRandom = false;
         runningGame.SetActive(false);
         cannonGame.SetActive(false);
+        isWin = false;
     }
 
     void LastCanvas()
@@ -209,22 +250,6 @@ public class GameManager : MonoBehaviourPunCallbacks
             else
             {
                 lastCanvas = "Pause";
-            }
-        }
-    }
-
-    void Statue()
-    {
-        if(limitTime <= 0)
-        {
-            GiveUp();
-        }
-
-        foreach(GameObject player in players)
-        {
-            if(player.transform.position.y < -30)
-            {
-                GiveUp();
             }
         }
     }

@@ -85,6 +85,12 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
     public TMP_Text lobbyRanking_Count;
     public TMP_Text lobbyRanking_Name;
     public TMP_Text lobbyRanking_Highest_Trophies;
+    public GameObject lobbyResult;
+    public TMP_Text lobbyResult_Text;
+    public TMP_Text lobbyResult_Level;
+    public TMP_Text lobbyResult_Exp;
+    public TMP_Text lobbyResult_Gold;
+    public TMP_Text lobbyResult_Crystal;
     public GameObject error;
     public TMP_Text errorInfo;
     public GameObject errorNetwork;
@@ -92,8 +98,8 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
     public TMP_Text lobby1vs1_Count;
     public GameObject roomLoading;
     public GameObject roomLoading_Slider;
-    private float level;
-    private float exp;
+    public float level;
+    public float exp;
     public string nickName;
     private float gold;
     private float crystal;
@@ -118,6 +124,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
     public GameObject otherChatPrefab;
     public GameObject chatScroll;
     public TMP_Text chatText;
+    public GameManager game_Manager;
     PhotonView PV;
 
     void Awake()
@@ -1070,6 +1077,79 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
         }
     }
 
+    public void LobbyResult()
+    {
+        lobbyResult_Level.text = level.ToString();
+        lobbyResult_Exp.text = exp.ToString() + "/300";
+        if (game_Manager.isWin == true)
+        {
+            lobbyResult.transform.GetChild(1).gameObject.SetActive(true);
+            lobbyResult_Text.text = "Victory";
+            lobbyResult_Gold.text = "1000";
+            lobbyResult_Crystal.text = "10";
+
+            PlayFabClientAPI.UpdatePlayerStatistics(new UpdatePlayerStatisticsRequest
+            {
+                    Statistics = new List<StatisticUpdate>
+                    {
+                        new StatisticUpdate {StatisticName = "Gold", Value = int.Parse((gold + 1000).ToString())},
+                        new StatisticUpdate {StatisticName = "Crystal", Value = int.Parse((crystal + 10).ToString())},
+                    }
+            },
+                    (result) => {
+                        PlayFabClientAPI.GetPlayerStatistics(new GetPlayerStatisticsRequest(),
+                        (result) =>
+                        {
+                            foreach (var eachStat in result.Statistics)
+                            {
+                                if (eachStat.StatisticName == "Gold")
+                                {
+                                    gold = eachStat.Value;
+                                }
+                                if (eachStat.StatisticName == "Crystal")
+                                {
+                                    crystal = eachStat.Value;
+                                }
+                            }
+                        },
+                        (error) => { Debug.Log("값 로딩 실패"); });
+                    },
+                (error) => { Debug.Log("값 저장 실패"); });
+        }
+        else if (game_Manager.isWin == false)
+        {
+            lobbyResult.transform.GetChild(1).gameObject.SetActive(false);
+            lobbyResult_Text.text = "Defeat";
+            lobbyResult_Gold.text = "300";
+            lobbyResult_Crystal.text = "0";
+
+            PlayFabClientAPI.UpdatePlayerStatistics(new UpdatePlayerStatisticsRequest
+            {
+                    Statistics = new List<StatisticUpdate>
+                    {
+                        new StatisticUpdate {StatisticName = "Gold", Value = int.Parse((gold + 300).ToString())},
+                    }
+            },
+                    (result) => {
+                        PlayFabClientAPI.GetPlayerStatistics(new GetPlayerStatisticsRequest(),
+                        (result) =>
+                            {
+                                foreach (var eachStat in result.Statistics)
+                                {
+                                    if (eachStat.StatisticName == "Gold")
+                                    {
+                                        gold = eachStat.Value;
+                                    }
+                                }
+                            },
+                            (error) => { Debug.Log("값 로딩 실패"); });
+                        },
+                    (error) => { Debug.Log("값 저장 실패"); });
+        }
+
+        lobbyResult.SetActive(true);
+    }
+
     public void LoginMemory(Toggle toggle)
     {
         if (toggle.isOn)
@@ -1175,6 +1255,11 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
         {
             lobbyRanking.SetActive(false);
         }
+        else if (lastCanvas == "lobbyResult")
+        {
+            PhotonNetwork.LeaveRoom();
+            lobbyResult.SetActive(false);
+        }
     }
 
     void LastCanvas()
@@ -1244,6 +1329,10 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
             else if (lobbyRanking.activeSelf == true)
             {
                 lastCanvas = "lobbyRanking";
+            }
+            else if (lobbyResult.activeSelf == true)
+            {
+                lastCanvas = "lobbyResult";
             }
             else
             {
