@@ -24,11 +24,11 @@ public class GameManager : MonoBehaviourPunCallbacks
     public GameObject set_Vibration_Yes;
     public GameObject set_Vibration_No;
     public TMP_Text timeText;
-    private float limitTime = 300;
+    private float limitTime = 180;
     private bool isGenerate = false;
     private bool isRandom = false;
     private string lastCanvas;
-    public bool isWin = false;
+    public int isWin = 0;
     PhotonView PV;
     LobbyManager lobbyManager;
 
@@ -173,14 +173,14 @@ public class GameManager : MonoBehaviourPunCallbacks
     {
         if (limitTime <= 0)
         {
-            
+            Draw();
         }
 
         foreach (GameObject player in players)
         {
             if (player.transform.position.y < -30)
             {
-                if(player.name != lobbyManager.nickName)
+                if (player.name != lobbyManager.nickName)
                 {
                     Victory();
                 }
@@ -189,29 +189,48 @@ public class GameManager : MonoBehaviourPunCallbacks
                     Defeat();
                 }
             }
+
+            if (runningGame.activeSelf == true)
+            {
+                if (player.transform.position.z > 180)
+                {
+                    if (player.name != lobbyManager.nickName)
+                    {
+                        Defeat();
+                    }
+                    else if (player.name == lobbyManager.nickName)
+                    {
+                        Victory();
+                    }
+                }
+            }
         }
     }
 
     void Victory()
     {
-        isWin = true;
+        isWin = 1;
         lobbyManager.LobbyResult();
         Reset();
     }
 
     void Defeat()
     {
-        isWin = false;
+        isWin = 0;
+        lobbyManager.LobbyResult();
+        Reset();
+    }
+
+    void Draw()
+    {
+        isWin = 2;
         lobbyManager.LobbyResult();
         Reset();
     }
 
     public void GiveUp()
     {
-        isWin = false;
-        lobbyManager.LobbyResult();
-        PhotonNetwork.LeaveRoom();
-        Reset();
+        Defeat();
     }
 
     void Reset()
@@ -236,7 +255,7 @@ public class GameManager : MonoBehaviourPunCallbacks
         isRandom = false;
         runningGame.SetActive(false);
         cannonGame.SetActive(false);
-        isWin = false;
+        isWin = 0;
     }
 
     void LastCanvas()
