@@ -155,12 +155,16 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
 
     void Update()
     {
-        LastCanvas();
-        LobbyChatEnter();
-        SetData();
         if (this.chatClient != null)
         {
             this.chatClient.Service();
+        }
+
+        if (PhotonNetwork.IsConnected)
+        {
+            LastCanvas();
+            LobbyChatEnter();
+            SetData();
         }
     }
 
@@ -1503,6 +1507,10 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
         lobbyLevel.text = level.ToString();
         lobbyExp.text = exp.ToString() + "/" + maxExp;
         lobbyExp_Slider.GetComponent<Slider>().value = exp / maxExp;
+        if(lobby.activeSelf == true)
+        {
+            StartCoroutine(LobbyExp_Delay());
+        }
         lobbyGold.text = gold.ToString();
         lobbyCrystal.text = crystal.ToString();
         lobbyUserInfo_Level.text = level.ToString();
@@ -1524,6 +1532,18 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
         lobbyInventory_Exp.text = exp.ToString() + "/" + maxExp;
         lobbyRanking_Name.text = nickName;
         lobbyRanking_Highest_Trophies.text = highest_Trophies.ToString();
+    }
+
+    IEnumerator LobbyExp_Delay()
+    {
+        float time = 0;
+        while(time < 0.3f)
+        {
+            yield return new WaitForEndOfFrame();
+            time += Time.deltaTime;
+        }
+        lobbyExp_Slider.GetComponent<Slider>().enabled = true;
+        yield return null;
     }
 
     public void Notification()

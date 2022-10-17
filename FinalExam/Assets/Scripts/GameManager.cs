@@ -250,7 +250,7 @@ public class GameManager : MonoBehaviourPunCallbacks
         lobbyManager.main.SetActive(true);
         gameObject.SetActive(false);
         GameObject.Find("Main Camera").transform.GetComponent<CameraController>().enabled = false;
-        limitTime = 300;
+        limitTime = 180;
         isGenerate = false;
         isRandom = false;
         runningGame.SetActive(false);
