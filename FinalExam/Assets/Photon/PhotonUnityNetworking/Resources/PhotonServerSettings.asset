@@ -52,6 +52,7 @@ MonoBehaviour:
   - Finish
   - LimitTime
   - Statue
+  - GiveUp_Rpc
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

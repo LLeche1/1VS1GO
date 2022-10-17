@@ -1093,10 +1093,12 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
     public void LobbyResult()
     {
         main.SetActive(true);
-        float textExp = exp;
+        float preLevel = level;
+        float preExp = exp;
+        float preMaxExp = maxExp;
         lobbyResult_Level.text = level.ToString();
-        lobbyResult_Exp.text = textExp.ToString() + "/" + maxExp;
-        lobbyResult_Exp_Slider.GetComponent<Slider>().value = textExp / maxExp;
+        lobbyResult_Exp.text = preExp.ToString() + "/" + maxExp;
+        lobbyResult_Exp_Slider.GetComponent<Slider>().value = preExp / maxExp;
 
         if (game_Manager.isWin == 0)
         {
@@ -1116,66 +1118,106 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
 
             PlayFabClientAPI.UpdatePlayerStatistics(new UpdatePlayerStatisticsRequest
             {
+                Statistics = new List<StatisticUpdate>
+                {
+                    new StatisticUpdate {StatisticName = "Gold", Value = int.Parse((gold + 300).ToString())},
+                    new StatisticUpdate {StatisticName = "Highest_Trophies", Value = int.Parse((highest_Trophies - 10).ToString())},
+                    new StatisticUpdate {StatisticName = "Exp", Value = int.Parse((exp + 3).ToString())},
+                    new StatisticUpdate {StatisticName = "Total_Play", Value = int.Parse((total_Play + 1).ToString())}
+                }
+            },
+            (result) =>
+            {
+                PlayFabClientAPI.GetPlayerStatistics(new GetPlayerStatisticsRequest(),
+(result) =>
+{
+    foreach (var eachStat in result.Statistics)
+    {
+        if (eachStat.StatisticName == "Gold")
+        {
+            gold = eachStat.Value;
+        }
+        else if (eachStat.StatisticName == "Crystal")
+        {
+            crystal = eachStat.Value;
+        }
+        else if (eachStat.StatisticName == "Highest_Trophies")
+        {
+            highest_Trophies = eachStat.Value;
+            if (highest_Trophies < 0)
+            {
+                PlayFabClientAPI.UpdatePlayerStatistics(new UpdatePlayerStatisticsRequest
+                {
                     Statistics = new List<StatisticUpdate>
                     {
-                        new StatisticUpdate {StatisticName = "Gold", Value = int.Parse((gold + 300).ToString())},
-                        new StatisticUpdate {StatisticName = "Highest_Trophies", Value = int.Parse((highest_Trophies - 10).ToString())},
-                        new StatisticUpdate {StatisticName = "Exp", Value = int.Parse((exp + 3).ToString())},
-                        new StatisticUpdate {StatisticName = "Total_Play", Value = int.Parse((total_Play + 1).ToString())}
+                                new StatisticUpdate {StatisticName = "Highest_Trophies", Value = 0}
                     }
-            },
-                    (result) => {
-                        PlayFabClientAPI.GetPlayerStatistics(new GetPlayerStatisticsRequest(),
-                        (result) =>
+                },
+                (result) => {
+                    PlayFabClientAPI.GetPlayerStatistics(new GetPlayerStatisticsRequest(),
+                    (result) =>
+                    {
+                        foreach (var eachStat in result.Statistics)
+                        {
+                            if (eachStat.StatisticName == "Highest_Trophies")
                             {
-                                foreach (var eachStat in result.Statistics)
-                                {
-                                    if (eachStat.StatisticName == "Gold")
-                                    {
-                                        gold = eachStat.Value;
-                                    }
-                                    else if (eachStat.StatisticName == "Highest_Trophies")
-                                    {
-                                        highest_Trophies = eachStat.Value;
-                                        if(highest_Trophies < 0)
-                                        {
-                                            PlayFabClientAPI.UpdatePlayerStatistics(new UpdatePlayerStatisticsRequest
-                                            {
-                                                Statistics = new List<StatisticUpdate>
-                                            {
-                                                new StatisticUpdate {StatisticName = "Highest_Trophies", Value = 0}
-                                            }
-                                        },
-                                            (result) => {
-                                            PlayFabClientAPI.GetPlayerStatistics(new GetPlayerStatisticsRequest(),
-                                        (result) =>
-                                        {
-                                        foreach (var eachStat in result.Statistics)
-                                            {
-                                                if (eachStat.StatisticName == "Highest_Trophies")
-                                            {
-                                                    highest_Trophies = eachStat.Value;
-                                                }
-                                            }
-                                        },
-                                            (error) => { Debug.Log("값 로딩 실패"); });
-                                    },
-                                    (error) => { Debug.Log("값 저장 실패"); });
-                                        }
-                                    }
-                                    else if (eachStat.StatisticName == "Exp")
-                                    {
-                                        exp = eachStat.Value;
-                                    }
-                                    else if (eachStat.StatisticName == "Total_Play")
-                                    {
-                                        total_Play = eachStat.Value;
-                                    }
-                                }
-                            },
-                            (error) => { Debug.Log("값 로딩 실패"); });
-                        },
-                    (error) => { Debug.Log("값 저장 실패"); });
+                                highest_Trophies = eachStat.Value;
+                            }
+                        }
+                    },
+                    (error) => { Debug.Log("값 로딩 실패"); });
+                },
+            (error) => { Debug.Log("값 저장 실패"); });
+            }
+        }
+        else if (eachStat.StatisticName == "Exp")
+        {
+            exp = eachStat.Value;
+            if (exp >= maxExp)
+            {
+                PlayFabClientAPI.UpdatePlayerStatistics(new UpdatePlayerStatisticsRequest
+                {
+                    Statistics = new List<StatisticUpdate>
+                    {
+                                new StatisticUpdate {StatisticName = "Level", Value = int.Parse((level + 1).ToString())},
+                                new StatisticUpdate {StatisticName = "Exp", Value = int.Parse((exp - maxExp).ToString())},
+                                new StatisticUpdate {StatisticName = "MaxExp", Value = int.Parse((maxExp * (level + 1)).ToString())}
+                    }
+                },
+                (result) => {
+                    PlayFabClientAPI.GetPlayerStatistics(new GetPlayerStatisticsRequest(),
+                    (result) =>
+                    {
+                        foreach (var eachStat in result.Statistics)
+                        {
+                            if (eachStat.StatisticName == "Level")
+                            {
+                                level = eachStat.Value;
+                            }
+                            else if (eachStat.StatisticName == "Exp")
+                            {
+                                exp = eachStat.Value;
+                            }
+                            else if (eachStat.StatisticName == "MaxExp")
+                            {
+                                maxExp = eachStat.Value;
+                            }
+                        }
+                    },
+                    (error) => { Debug.Log("값 로딩 실패"); });
+                },
+                (error) => { Debug.Log("값 저장 실패"); });
+            }
+        }
+        else if (eachStat.StatisticName == "Total_Play")
+        {
+            total_Play = eachStat.Value;
+        }
+    }
+},
+(error) => { Debug.Log("값 로딩 실패"); });
+            },
+            (error) => { Debug.Log("값 저장 실패"); });
         }
         else if (game_Manager.isWin == 1)
         {
@@ -1188,46 +1230,107 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
             PlayFabClientAPI.UpdatePlayerStatistics(new UpdatePlayerStatisticsRequest
             {
                 Statistics = new List<StatisticUpdate>
-                    {
-                        new StatisticUpdate {StatisticName = "Gold", Value = int.Parse((gold + 1000).ToString())},
-                        new StatisticUpdate {StatisticName = "Crystal", Value = int.Parse((crystal + 10).ToString())},
-                        new StatisticUpdate {StatisticName = "Highest_Trophies", Value = int.Parse((highest_Trophies + 10).ToString())},
-                        new StatisticUpdate {StatisticName = "Exp", Value = int.Parse((exp + 10).ToString())},
-                        new StatisticUpdate {StatisticName = "Total_Play", Value = int.Parse((total_Play + 1).ToString())},
-                        new StatisticUpdate {StatisticName = "1vs1", Value = int.Parse((_1vs1 + 1).ToString())}
-                    }
+                {
+                    new StatisticUpdate {StatisticName = "Gold", Value = int.Parse((gold + 1000).ToString())},
+                    new StatisticUpdate {StatisticName = "Crystal", Value = int.Parse((crystal + 10).ToString())},
+                    new StatisticUpdate {StatisticName = "Highest_Trophies", Value = int.Parse((highest_Trophies + 10).ToString())},
+                    new StatisticUpdate {StatisticName = "Exp", Value = int.Parse((exp + 10).ToString())},
+                    new StatisticUpdate {StatisticName = "Total_Play", Value = int.Parse((total_Play + 1).ToString())},
+                    new StatisticUpdate {StatisticName = "1vs1", Value = int.Parse((_1vs1 + 1).ToString())}
+                }
             },
-                    (result) => {
-                        PlayFabClientAPI.GetPlayerStatistics(new GetPlayerStatisticsRequest(),
-                        (result) =>
+            (result) =>
+            {
+                PlayFabClientAPI.GetPlayerStatistics(new GetPlayerStatisticsRequest(),
+(result) =>
+{
+    foreach (var eachStat in result.Statistics)
+    {
+        if (eachStat.StatisticName == "Gold")
+        {
+            gold = eachStat.Value;
+        }
+        else if (eachStat.StatisticName == "Crystal")
+        {
+            crystal = eachStat.Value;
+        }
+        else if (eachStat.StatisticName == "Highest_Trophies")
+        {
+            highest_Trophies = eachStat.Value;
+            if (highest_Trophies < 0)
+            {
+                PlayFabClientAPI.UpdatePlayerStatistics(new UpdatePlayerStatisticsRequest
+                {
+                    Statistics = new List<StatisticUpdate>
+                    {
+                                new StatisticUpdate {StatisticName = "Highest_Trophies", Value = 0}
+                    }
+                },
+                (result) => {
+                    PlayFabClientAPI.GetPlayerStatistics(new GetPlayerStatisticsRequest(),
+                    (result) =>
+                    {
+                        foreach (var eachStat in result.Statistics)
                         {
-                            foreach (var eachStat in result.Statistics)
+                            if (eachStat.StatisticName == "Highest_Trophies")
                             {
-                                if (eachStat.StatisticName == "Gold")
-                                {
-                                    gold = eachStat.Value;
-                                }
-                                else if (eachStat.StatisticName == "Crystal")
-                                {
-                                    crystal = eachStat.Value;
-                                }
-                                else if (eachStat.StatisticName == "Highest_Trophies")
-                                {
-                                    highest_Trophies = eachStat.Value;
-                                }
-                                else if (eachStat.StatisticName == "Exp")
-                                {
-                                    exp = eachStat.Value;
-                                }
-                                else if (eachStat.StatisticName == "Total_Play")
-                                {
-                                    total_Play = eachStat.Value;
-                                }
+                                highest_Trophies = eachStat.Value;
                             }
-                        },
-                        (error) => { Debug.Log("값 로딩 실패"); });
+                        }
                     },
+                    (error) => { Debug.Log("값 로딩 실패"); });
+                },
+            (error) => { Debug.Log("값 저장 실패"); });
+            }
+        }
+        else if (eachStat.StatisticName == "Exp")
+        {
+            exp = eachStat.Value;
+            if (exp >= maxExp)
+            {
+                PlayFabClientAPI.UpdatePlayerStatistics(new UpdatePlayerStatisticsRequest
+                {
+                    Statistics = new List<StatisticUpdate>
+                    {
+                                new StatisticUpdate {StatisticName = "Level", Value = int.Parse((level + 1).ToString())},
+                                new StatisticUpdate {StatisticName = "Exp", Value = int.Parse((exp - maxExp).ToString())},
+                                new StatisticUpdate {StatisticName = "MaxExp", Value = int.Parse((maxExp * (level + 1)).ToString())}
+                    }
+                },
+                (result) => {
+                    PlayFabClientAPI.GetPlayerStatistics(new GetPlayerStatisticsRequest(),
+                    (result) =>
+                    {
+                        foreach (var eachStat in result.Statistics)
+                        {
+                            if (eachStat.StatisticName == "Level")
+                            {
+                                level = eachStat.Value;
+                            }
+                            else if (eachStat.StatisticName == "Exp")
+                            {
+                                exp = eachStat.Value;
+                            }
+                            else if (eachStat.StatisticName == "MaxExp")
+                            {
+                                maxExp = eachStat.Value;
+                            }
+                        }
+                    },
+                    (error) => { Debug.Log("값 로딩 실패"); });
+                },
                 (error) => { Debug.Log("값 저장 실패"); });
+            }
+        }
+        else if (eachStat.StatisticName == "Total_Play")
+        {
+            total_Play = eachStat.Value;
+        }
+    }
+},
+(error) => { Debug.Log("값 로딩 실패"); });
+            },
+            (error) => { Debug.Log("값 저장 실패"); });
         }
         else if (game_Manager.isWin == 2)
         {
@@ -1240,52 +1343,113 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
             PlayFabClientAPI.UpdatePlayerStatistics(new UpdatePlayerStatisticsRequest
             {
                 Statistics = new List<StatisticUpdate>
-                    {
-                        new StatisticUpdate {StatisticName = "Gold", Value = int.Parse((gold + 500).ToString())},
-                        new StatisticUpdate {StatisticName = "Crystal", Value = int.Parse((crystal + 3).ToString())},
-                        new StatisticUpdate {StatisticName = "Highest_Trophies", Value = int.Parse((highest_Trophies + 3).ToString())},
-                        new StatisticUpdate {StatisticName = "Exp", Value = int.Parse((exp + 5).ToString())},
-                        new StatisticUpdate {StatisticName = "Total_Play", Value = int.Parse((total_Play + 1).ToString())}
-                    }
+                {
+                    new StatisticUpdate {StatisticName = "Gold", Value = int.Parse((gold + 500).ToString())},
+                    new StatisticUpdate {StatisticName = "Crystal", Value = int.Parse((crystal + 3).ToString())},
+                    new StatisticUpdate {StatisticName = "Highest_Trophies", Value = int.Parse((highest_Trophies + 3).ToString())},
+                    new StatisticUpdate {StatisticName = "Exp", Value = int.Parse((exp + 5).ToString())},
+                    new StatisticUpdate {StatisticName = "Total_Play", Value = int.Parse((total_Play + 1).ToString())}
+                }
             },
-                    (result) => {
-                        PlayFabClientAPI.GetPlayerStatistics(new GetPlayerStatisticsRequest(),
-                        (result) =>
+            (result) =>
+            {
+                PlayFabClientAPI.GetPlayerStatistics(new GetPlayerStatisticsRequest(),
+(result) =>
+{
+    foreach (var eachStat in result.Statistics)
+    {
+        if (eachStat.StatisticName == "Gold")
+        {
+            gold = eachStat.Value;
+        }
+        else if (eachStat.StatisticName == "Crystal")
+        {
+            crystal = eachStat.Value;
+        }
+        else if (eachStat.StatisticName == "Highest_Trophies")
+        {
+            highest_Trophies = eachStat.Value;
+            if (highest_Trophies < 0)
+            {
+                PlayFabClientAPI.UpdatePlayerStatistics(new UpdatePlayerStatisticsRequest
+                {
+                    Statistics = new List<StatisticUpdate>
+                    {
+                                new StatisticUpdate {StatisticName = "Highest_Trophies", Value = 0}
+                    }
+                },
+                (result) => {
+                    PlayFabClientAPI.GetPlayerStatistics(new GetPlayerStatisticsRequest(),
+                    (result) =>
+                    {
+                        foreach (var eachStat in result.Statistics)
                         {
-                            foreach (var eachStat in result.Statistics)
+                            if (eachStat.StatisticName == "Highest_Trophies")
                             {
-                                if (eachStat.StatisticName == "Gold")
-                                {
-                                    gold = eachStat.Value;
-                                }
-                                else if (eachStat.StatisticName == "Crystal")
-                                {
-                                    crystal = eachStat.Value;
-                                }
-                                else if (eachStat.StatisticName == "Highest_Trophies")
-                                {
-                                    highest_Trophies = eachStat.Value;
-                                }
-                                else if (eachStat.StatisticName == "Exp")
-                                {
-                                    exp = eachStat.Value;
-                                }
-                                else if (eachStat.StatisticName == "Total_Play")
-                                {
-                                    total_Play = eachStat.Value;
-                                }
+                                highest_Trophies = eachStat.Value;
                             }
-                        },
-                        (error) => { Debug.Log("값 로딩 실패"); });
+                        }
                     },
+                    (error) => { Debug.Log("값 로딩 실패"); });
+                },
+            (error) => { Debug.Log("값 저장 실패"); });
+            }
+        }
+        else if (eachStat.StatisticName == "Exp")
+        {
+            exp = eachStat.Value;
+            if (exp >= maxExp)
+            {
+                PlayFabClientAPI.UpdatePlayerStatistics(new UpdatePlayerStatisticsRequest
+                {
+                    Statistics = new List<StatisticUpdate>
+                    {
+                                new StatisticUpdate {StatisticName = "Level", Value = int.Parse((level + 1).ToString())},
+                                new StatisticUpdate {StatisticName = "Exp", Value = int.Parse((exp - maxExp).ToString())},
+                                new StatisticUpdate {StatisticName = "MaxExp", Value = int.Parse((maxExp * (level + 1)).ToString())}
+                    }
+                },
+                (result) => {
+                    PlayFabClientAPI.GetPlayerStatistics(new GetPlayerStatisticsRequest(),
+                    (result) =>
+                    {
+                        foreach (var eachStat in result.Statistics)
+                        {
+                            if (eachStat.StatisticName == "Level")
+                            {
+                                level = eachStat.Value;
+                            }
+                            else if (eachStat.StatisticName == "Exp")
+                            {
+                                exp = eachStat.Value;
+                            }
+                            else if (eachStat.StatisticName == "MaxExp")
+                            {
+                                maxExp = eachStat.Value;
+                            }
+                        }
+                    },
+                    (error) => { Debug.Log("값 로딩 실패"); });
+                },
                 (error) => { Debug.Log("값 저장 실패"); });
+            }
+        }
+        else if (eachStat.StatisticName == "Total_Play")
+        {
+            total_Play = eachStat.Value;
+        }
+    }
+},
+(error) => { Debug.Log("값 로딩 실패"); });
+            },
+            (error) => { Debug.Log("값 저장 실패"); });
         }
 
         lobbyResult.SetActive(true);
-        StartCoroutine(LobbyResult_Exp(textExp));
+        StartCoroutine(LobbyResult_Exp(preLevel, preExp, preMaxExp));
     }
 
-    IEnumerator LobbyResult_Exp(float textExp)
+    IEnumerator LobbyResult_Exp(float preLevel, float preExp, float preMaxExp)
     {
         float time = 0;
         while (time < 1)
@@ -1294,21 +1458,72 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
             time += Time.deltaTime;
         }
 
-        if(game_Manager.isWin == 0)
+        while (preLevel != level)
         {
-            while(textExp < exp)
+            float delay = 0;
+            preExp++;
+            lobbyResult_Level.text = preLevel.ToString();
+            lobbyResult_Exp.text = preExp.ToString() + "/" + preMaxExp;
+            lobbyResult_Exp_Slider.GetComponent<Slider>().value = preExp / preMaxExp;
+
+            while (delay < 2)
             {
-                float delay = 0;
-                textExp++;
-                lobbyResult_Exp.text = textExp.ToString() + "/" + maxExp;
-                lobbyResult_Exp_Slider.GetComponent<Slider>().value = textExp / maxExp;
-                while (delay < 2)
+                if (game_Manager.isWin == 0)
+                {
+                    yield return new WaitForEndOfFrame();
+                    delay += 3 * Time.deltaTime;
+                }
+                else if (game_Manager.isWin == 1)
+                {
+                    yield return new WaitForEndOfFrame();
+                    delay += 6 * Time.deltaTime;
+                }
+                else if (game_Manager.isWin == 2)
                 {
                     yield return new WaitForEndOfFrame();
                     delay += 3 * Time.deltaTime;
                 }
             }
+
+            if (preExp == preMaxExp)
+            {
+                preExp = 0;
+                preMaxExp = preMaxExp * (preLevel + 1);
+                preLevel++;
+            }
         }
+
+        if (preLevel == level)
+        {
+            while (preExp < exp)
+            {
+                float delay = 0;
+                preExp++;
+                lobbyResult_Level.text = preLevel.ToString();
+                lobbyResult_Exp.text = preExp.ToString() + "/" + preMaxExp;
+                lobbyResult_Exp_Slider.GetComponent<Slider>().value = preExp / preMaxExp;
+
+                while (delay < 2)
+                {
+                    if (game_Manager.isWin == 0)
+                    {
+                        yield return new WaitForEndOfFrame();
+                        delay += 3 * Time.deltaTime;
+                    }
+                    else if (game_Manager.isWin == 1)
+                    {
+                        yield return new WaitForEndOfFrame();
+                        delay += 6 * Time.deltaTime;
+                    }
+                    else if (game_Manager.isWin == 2)
+                    {
+                        yield return new WaitForEndOfFrame();
+                        delay += 3 * Time.deltaTime;
+                    }
+                }
+            }
+        }
+
         lobbyResult_Continue.SetActive(true);
         yield return null;
     }
@@ -1420,10 +1635,10 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
         }
         else if (lastCanvas == "lobbyResult")
         {
-            lobbyResult_Continue.SetActive(false);
+            PhotonNetwork.LeaveRoom();
             inGame.SetActive(false);
             game_Manager.Reset();
-            PhotonNetwork.LeaveRoom();
+            lobbyResult_Continue.SetActive(false);
             lobbyResult.SetActive(false);
         }
     }

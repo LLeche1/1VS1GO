@@ -28,6 +28,7 @@ public class GameManager : MonoBehaviourPunCallbacks
     private bool isGenerate = false;
     private bool isRandom = false;
     private bool isResult = false;
+    private bool isGiveUp = false;
     private string lastCanvas;
     public int isWin = 0;
     PhotonView PV;
@@ -49,6 +50,7 @@ public class GameManager : MonoBehaviourPunCallbacks
 
         if(isGenerate == false)
         {
+            isResult = false;
             Generate();
         }
 
@@ -185,7 +187,6 @@ public class GameManager : MonoBehaviourPunCallbacks
             {
                 isWin = 2;
                 lobbyManager.LobbyResult();
-                Reset();
                 isResult = true;
             }
 
@@ -231,11 +232,34 @@ public class GameManager : MonoBehaviourPunCallbacks
 
     public void GiveUp()
     {
+        isGiveUp = true;
+        PV.RPC("GiveUp_Rpc", RpcTarget.All);
+    }
 
+    [PunRPC]
+    void GiveUp_Rpc()
+    {
+        foreach (GameObject player in players)
+        {
+            if(isGiveUp == true)
+            {
+                isWin = 0;
+                lobbyManager.LobbyResult();
+                isResult = true;
+            }
+            else if (isGiveUp == false)
+            {
+                isWin = 1;
+                lobbyManager.LobbyResult();
+                isResult = true;
+            }
+        }
     }
 
     public void Reset()
     {
+        gameObject.SetActive(false);
+
         var child = cannonGame.transform.GetChild(1).GetComponentsInChildren<Transform>();
 
         foreach (var item in child)
@@ -245,15 +269,15 @@ public class GameManager : MonoBehaviourPunCallbacks
                 Destroy(item.gameObject);
             }
         }
+
         pause.SetActive(false);
         set.SetActive(false);
-        gameObject.SetActive(false);
         GameObject.Find("Main Camera").transform.GetComponent<CameraController>().enabled = false;
         limitTime = 180;
         isWin = 0;
         isGenerate = false;
         isRandom = false;
-        isResult = false;
+        isGiveUp = false;
         runningGame.SetActive(false);
         cannonGame.SetActive(false);
         joystick.GetComponent<JoyStick>().Reset();
