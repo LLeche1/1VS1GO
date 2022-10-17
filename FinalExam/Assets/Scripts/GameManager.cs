@@ -27,6 +27,7 @@ public class GameManager : MonoBehaviourPunCallbacks
     private float limitTime = 180;
     private bool isGenerate = false;
     private bool isRandom = false;
+    private bool isResult = false;
     private string lastCanvas;
     public int isWin = 0;
     PhotonView PV;
@@ -58,9 +59,14 @@ public class GameManager : MonoBehaviourPunCallbacks
             player.transform.GetComponent<PlayerController>().enabled = true;
             player.transform.parent = GameObject.Find("InGame").transform;
         }
-        LimitTime();
+
+        if (PV.IsMine)
+        {
+            PV.RPC("LimitTime", RpcTarget.All);
+        }
+
         LastCanvas();
-        Statue();
+        PV.RPC("Statue", RpcTarget.All);
     }
 
     [PunRPC]
@@ -92,6 +98,7 @@ public class GameManager : MonoBehaviourPunCallbacks
         isGenerate = true;
     }
 
+    [PunRPC]
     void LimitTime()
     {
         if (limitTime > 0)
@@ -169,71 +176,65 @@ public class GameManager : MonoBehaviourPunCallbacks
         }
     }
 
-    void Statue()
+    [PunRPC]
+    void Statue() // 0 = Defeat, 1 = Win, 2 = Draw
     {
-        if (limitTime <= 0)
+        if(isResult == false)
         {
-            Draw();
-        }
-
-        foreach (GameObject player in players)
-        {
-            if (player.transform.position.y < -30)
+            if (limitTime < 0)
             {
-                if (player.name != lobbyManager.nickName)
-                {
-                    Victory();
-                }
-                else if (player.name == lobbyManager.nickName)
-                {
-                    Defeat();
-                }
+                isWin = 2;
+                lobbyManager.LobbyResult();
+                Reset();
+                isResult = true;
             }
 
-            if (runningGame.activeSelf == true)
+            foreach (GameObject player in players)
             {
-                if (player.transform.position.z > 180)
+                if (player.transform.position.y < -30)
                 {
                     if (player.name != lobbyManager.nickName)
                     {
-                        Defeat();
+                        isWin = 1;
+                        lobbyManager.LobbyResult();
+                        isResult = true;
                     }
                     else if (player.name == lobbyManager.nickName)
                     {
-                        Victory();
+                        isWin = 0;
+                        lobbyManager.LobbyResult();
+                        isResult = true;
+                    }
+                }
+
+                if (runningGame.activeSelf == true)
+                {
+                    if (player.transform.position.z >= 180)
+                    {
+                        if (player.name != lobbyManager.nickName)
+                        {
+                            isWin = 0;
+                            lobbyManager.LobbyResult();
+                            isResult = true;
+                        }
+                        else if (player.name == lobbyManager.nickName)
+                        {
+                            isWin = 1;
+                            lobbyManager.LobbyResult();
+                            isResult = true;
+                        }
                     }
                 }
             }
         }
-    }
-
-    void Victory()
-    {
-        isWin = 1;
-        lobbyManager.LobbyResult();
-        Reset();
-    }
-
-    void Defeat()
-    {
-        isWin = 0;
-        lobbyManager.LobbyResult();
-        Reset();
-    }
-
-    void Draw()
-    {
-        isWin = 2;
-        lobbyManager.LobbyResult();
-        Reset();
     }
 
     public void GiveUp()
     {
-        Defeat();
+
     }
 
-    void Reset()
+    public void Reset()
     {
         var child = cannonGame.transform.GetChild(1).GetComponentsInChildren<Transform>();
 
@@ -246,16 +247,16 @@ public class GameManager : MonoBehaviourPunCallbacks
         }
         pause.SetActive(false);
         set.SetActive(false);
-        lobbyManager.inGame.SetActive(false);
-        lobbyManager.main.SetActive(true);
         gameObject.SetActive(false);
         GameObject.Find("Main Camera").transform.GetComponent<CameraController>().enabled = false;
         limitTime = 180;
+        isWin = 0;
         isGenerate = false;
         isRandom = false;
+        isResult = false;
         runningGame.SetActive(false);
         cannonGame.SetActive(false);
-        isWin = 0;
+        joystick.GetComponent<JoyStick>().Reset();
     }
 
     void LastCanvas()

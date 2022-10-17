@@ -93,6 +93,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
     public TMP_Text lobbyResult_Gold;
     public TMP_Text lobbyResult_Crystal;
     public TMP_Text lobbyResult_Trophy;
+    public GameObject lobbyResult_Continue;
     public GameObject error;
     public TMP_Text errorInfo;
     public GameObject errorNetwork;
@@ -1091,6 +1092,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
 
     public void LobbyResult()
     {
+        main.SetActive(true);
         float textExp = exp;
         lobbyResult_Level.text = level.ToString();
         lobbyResult_Exp.text = textExp.ToString() + "/" + maxExp;
@@ -1286,7 +1288,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
     IEnumerator LobbyResult_Exp(float textExp)
     {
         float time = 0;
-        while (time < 2)
+        while (time < 1)
         {
             yield return new WaitForEndOfFrame();
             time += Time.deltaTime;
@@ -1307,6 +1309,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
                 }
             }
         }
+        lobbyResult_Continue.SetActive(true);
         yield return null;
     }
 
@@ -1417,6 +1420,9 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
         }
         else if (lastCanvas == "lobbyResult")
         {
+            lobbyResult_Continue.SetActive(false);
+            inGame.SetActive(false);
+            game_Manager.Reset();
             PhotonNetwork.LeaveRoom();
             lobbyResult.SetActive(false);
         }
@@ -1537,7 +1543,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
     IEnumerator LobbyExp_Delay()
     {
         float time = 0;
-        while(time < 0.3f)
+        while(time < 1f)
         {
             yield return new WaitForEndOfFrame();
             time += Time.deltaTime;

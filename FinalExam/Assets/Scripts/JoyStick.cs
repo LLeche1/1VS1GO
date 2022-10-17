@@ -10,10 +10,18 @@ public class JoyStick : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDrag
     public float leverRange;
     public Vector2 inputDir;
     RectTransform rectTransform;
+    LobbyManager lobbyManager;
 
     void Start()
     {
         rectTransform = GetComponent<RectTransform>();
+        lobbyManager = GameObject.Find("LobbyManager").GetComponent<LobbyManager>();
+    }
+
+    public void Reset()
+    {
+        lever.anchoredPosition = Vector2.zero;
+        inputDir = Vector2.zero;
     }
 
     public void OnBeginDrag(PointerEventData eventData)
@@ -34,7 +42,6 @@ public class JoyStick : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDrag
 
     public void OnEndDrag(PointerEventData eventData)
     {
-        lever.anchoredPosition = Vector2.zero;
-        inputDir = Vector2.zero;
+        Reset();
     }
 }
