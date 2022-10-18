@@ -94,6 +94,10 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
     public TMP_Text lobbyResult_Crystal;
     public TMP_Text lobbyResult_Trophy;
     public GameObject lobbyResult_Continue;
+    public GameObject lobbyLevelUp;
+    public TMP_Text lobbyLevelUp_Level;
+    public TMP_Text lobbyLevelUp_Gold;
+    public TMP_Text lobbyLevelUp_Crystal;
     public GameObject error;
     public TMP_Text errorInfo;
     public GameObject errorNetwork;
@@ -1137,10 +1141,6 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
         {
             gold = eachStat.Value;
         }
-        else if (eachStat.StatisticName == "Crystal")
-        {
-            crystal = eachStat.Value;
-        }
         else if (eachStat.StatisticName == "Highest_Trophies")
         {
             highest_Trophies = eachStat.Value;
@@ -1181,7 +1181,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
                     {
                                 new StatisticUpdate {StatisticName = "Level", Value = int.Parse((level + 1).ToString())},
                                 new StatisticUpdate {StatisticName = "Exp", Value = int.Parse((exp - maxExp).ToString())},
-                                new StatisticUpdate {StatisticName = "MaxExp", Value = int.Parse((maxExp * (level + 1)).ToString())}
+                                new StatisticUpdate {StatisticName = "MaxExp", Value = int.Parse((50 * (level + 1)).ToString())}
                     }
                 },
                 (result) => {
@@ -1294,7 +1294,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
                     {
                                 new StatisticUpdate {StatisticName = "Level", Value = int.Parse((level + 1).ToString())},
                                 new StatisticUpdate {StatisticName = "Exp", Value = int.Parse((exp - maxExp).ToString())},
-                                new StatisticUpdate {StatisticName = "MaxExp", Value = int.Parse((maxExp * (level + 1)).ToString())}
+                                new StatisticUpdate {StatisticName = "MaxExp", Value = int.Parse((50 * (level + 1)).ToString())}
                     }
                 },
                 (result) => {
@@ -1325,6 +1325,10 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
         else if (eachStat.StatisticName == "Total_Play")
         {
             total_Play = eachStat.Value;
+        }
+        else if (eachStat.StatisticName == "1vs1")
+        {
+            _1vs1 = eachStat.Value;
         }
     }
 },
@@ -1406,7 +1410,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
                     {
                                 new StatisticUpdate {StatisticName = "Level", Value = int.Parse((level + 1).ToString())},
                                 new StatisticUpdate {StatisticName = "Exp", Value = int.Parse((exp - maxExp).ToString())},
-                                new StatisticUpdate {StatisticName = "MaxExp", Value = int.Parse((maxExp * (level + 1)).ToString())}
+                                new StatisticUpdate {StatisticName = "MaxExp", Value = int.Parse((50 * (level + 1)).ToString())}
                     }
                 },
                 (result) => {
@@ -1452,6 +1456,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
     IEnumerator LobbyResult_Exp(float preLevel, float preExp, float preMaxExp)
     {
         float time = 0;
+        bool isLevelUp = false;
         while (time < 1)
         {
             yield return new WaitForEndOfFrame();
@@ -1490,6 +1495,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
                 preExp = 0;
                 preMaxExp = preMaxExp * (preLevel + 1);
                 preLevel++;
+                isLevelUp = true;
             }
         }
 
@@ -1524,8 +1530,51 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
             }
         }
 
+        if(isLevelUp == true)
+        {
+            lobbyLevelUp.SetActive(true);
+            LobbyLevelUp();
+            isLevelUp = false;
+        }
+
         lobbyResult_Continue.SetActive(true);
         yield return null;
+    }
+
+    void LobbyLevelUp()
+    {
+        lobbyLevelUp_Level.text = level.ToString();
+        lobbyLevelUp_Gold.text = 5000.ToString();
+        lobbyLevelUp_Crystal.text = 50.ToString();
+
+        PlayFabClientAPI.UpdatePlayerStatistics(new UpdatePlayerStatisticsRequest
+        {
+            Statistics = new List<StatisticUpdate>
+            {
+                new StatisticUpdate {StatisticName = "Gold", Value = int.Parse((gold + 5000).ToString())},
+                new StatisticUpdate {StatisticName = "Crystal", Value = int.Parse((crystal + 50).ToString())}
+            }
+        },
+        (result) =>
+        {
+            PlayFabClientAPI.GetPlayerStatistics(new GetPlayerStatisticsRequest(),
+                (result) =>
+                {
+                    foreach (var eachStat in result.Statistics)
+                    {
+                        if (eachStat.StatisticName == "Gold")
+                        {
+                            gold = eachStat.Value;
+                        }
+                        else if (eachStat.StatisticName == "Crystal")
+                        {
+                            crystal = eachStat.Value;
+                        }
+                    }
+                },
+                (error) => { Debug.Log("값 로딩 실패"); });
+            },
+        (error) => { Debug.Log("값 저장 실패"); });
     }
 
     public void LoginMemory(Toggle toggle)
@@ -1641,6 +1690,10 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
             lobbyResult_Continue.SetActive(false);
             lobbyResult.SetActive(false);
         }
+        else if (lastCanvas == "lobbyLevelUp")
+        {
+            lobbyLevelUp.SetActive(false);
+        }
     }
 
     void LastCanvas()
@@ -1713,7 +1766,14 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
             }
             else if (lobbyResult.activeSelf == true)
             {
-                lastCanvas = "lobbyResult";
+                if (lobbyLevelUp.activeSelf == true)
+                {
+                    lastCanvas = "lobbyLevelUp";
+                }
+                else
+                {
+                    lastCanvas = "lobbyResult";
+                }
             }
             else
             {

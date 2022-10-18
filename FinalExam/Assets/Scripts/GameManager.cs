@@ -92,7 +92,17 @@ public class GameManager : MonoBehaviourPunCallbacks
 
     void Generate()
     {
-        Vector3 position = new Vector3(Random.Range(5f, 10f), 0, 4f);
+        Vector3 position;
+
+        if (PhotonNetwork.IsMasterClient)
+        {
+            position = new Vector3(5, 0, 4);
+        }
+        else
+        {
+            position = new Vector3(10, 0, 4);
+        }
+
         GameObject player = PhotonNetwork.Instantiate("C01", position, Quaternion.identity);
         player.name = lobbyManager.nickName;
         player.transform.parent = GameObject.Find("InGame").transform;
