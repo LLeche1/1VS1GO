@@ -78,7 +78,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8f639d628f7115c4dbca15795293ba49, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  boardBlockObj: {fileID: 1219471545100730, guid: 1b8fbee291cdc1046a281cb2b3b51bf7, type: 3}
+  randGenTrigger: 1
+  lineGenTrigger: 1
+  landBlockObj: {fileID: 3747308084311294944, guid: e4a19ba4c7d56a447a77ac265e6cb87d, type: 3}
   cannonObj: {fileID: 4398281243490794361, guid: 5aa9871a7853f024d95132f3fe88c0ec, type: 3}
   cannonBallObj: {fileID: 300502393607073509, guid: f25864e80efb1134f866520cb865dc7c, type: 3}
 --- !u!114 &6570233519361911805

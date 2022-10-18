@@ -17,6 +17,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
     private float jumpForce = 5.0f;
     private Vector2 inputDir = Vector2.zero;
     private Vector3 moveDir;
+    private Vector2 lookVector;
     private float moveMag;
     private JoyStick joyStick;
     private Button jumpBtn;
@@ -36,7 +37,6 @@ public class PlayerController : MonoBehaviourPunCallbacks
     private bool fallAble = true;
     public Vector2 jumpMoveDir;
     private float jumpMoveMag;
-
     private void Awake()
     {
         material = transform.Find("Bodies").Find("MainBody01").GetComponent<SkinnedMeshRenderer>().sharedMaterial;
@@ -61,8 +61,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
             }
         }
     }
-
-    void Update()
+    private void FixedUpdate()
     {
         if (PV.IsMine)
         {
@@ -79,8 +78,8 @@ public class PlayerController : MonoBehaviourPunCallbacks
     {
         hAxis = Input.GetAxis("Horizontal");
         vAxis = Input.GetAxis("Vertical");
-        jDown = Input.GetButtonDown("Jump");
-        slideKeyDown = Input.GetKeyDown(KeyCode.Q);
+        jDown = Input.GetButton("Jump");
+        slideKeyDown = Input.GetKey(KeyCode.Q);
         this.inputDir = joyStick.inputDir;
 
         if (Mathf.Abs(Input.GetAxisRaw("Horizontal")) == 1.0f || Mathf.Abs(Input.GetAxisRaw("Vertical")) == 1.0f || inputDir != Vector2.zero)
@@ -92,7 +91,26 @@ public class PlayerController : MonoBehaviourPunCallbacks
             isMove = false;
         }
     }
-
+    /*   [SerializeField] private LayerMask layerMask;
+       RaycastHit hit;
+       bool isGrounded()
+       {
+           if (Physics.Raycast(new Vector3(transform.position.x, transform.position.y + 0.5f, transform.position.z), Vector3.down, out hit, 0.56f))
+           {
+               isJump = false;
+               animator.SetBool("isJump", isJump);
+           }
+           if (hit.collider != null)
+           {
+               Debug.DrawLine(new Vector3(transform.position.x, transform.position.y + 0.5f, transform.position.z), new Vector3(transform.position.x, transform.position.y, transform.position.z), Color.red);
+           }
+           else
+           {
+               Debug.DrawLine(new Vector3(transform.position.x, transform.position.y + 0.5f, transform.position.z), new Vector3(transform.position.x, transform.position.y, transform.position.z), Color.green);
+           }
+           return (hit.collider != null);
+           return true;    
+       }*/
     void Move()
     {
         moveDir = new Vector3(hAxis, 0, vAxis);
@@ -119,9 +137,22 @@ public class PlayerController : MonoBehaviourPunCallbacks
             if (isMove)
             {
                 transform.Translate(new Vector3(inputDir.x, 0, inputDir.y) * speed * Time.deltaTime, Space.World);
+                lookVector = new Vector2(inputDir.x, inputDir.y);
                 transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.LookRotation(new Vector3(inputDir.x, 0f, inputDir.y)), 20f * Time.deltaTime);
                 //������ Euler Rotation ���� �˰� ������ LookRotation�� ����ϸ� �ȴ�.
             }
+        }
+
+    }
+
+    void Jump() //Ű���� ����
+    {
+        if (jDown && !isJump)
+        {
+            rb.AddForce(new Vector3(0, jumpForce, 0), ForceMode.Impulse);
+            jumpMoveDir = inputDir;
+            isJump = true;
+            animator.SetBool("isJump", isJump);
         }
         else if (isJump)
         {
@@ -130,23 +161,12 @@ public class PlayerController : MonoBehaviourPunCallbacks
         }
     }
 
-    void Jump() //Ű���� ����
-    {
-        if (jDown && !isJump)
-        {
-            jumpMoveDir = inputDir;
-            rb.AddForce(new Vector3(0, jumpForce, 0), ForceMode.Impulse);
-            isJump = true;
-            animator.SetBool("isJump", isJump);
-        }
-    }
-
     public void ButtonJump() //UI ���� ��ư ����
     {
         if (!isJump)
         {
-            jumpMoveDir = inputDir;
             rb.AddForce(new Vector3(0, jumpForce, 0), ForceMode.Impulse);
+            jumpMoveDir = inputDir;
             isJump = true;
             animator.SetBool("isJump", true);
         }
@@ -156,10 +176,16 @@ public class PlayerController : MonoBehaviourPunCallbacks
         if (slideKeyDown && !isSlide)
         {
             isSlide = true;
+            if (isJump)
+            {
+                isJump = false;
+                animator.SetBool("isJump", isJump);
+            }
             animator.SetBool("isSlide", isSlide);
-            StartCoroutine(SlideCoolTime());
+            //StartCoroutine(SlideCoolTime());
             rb.AddForce(new Vector3(0, jumpForce / 2, 0), ForceMode.Impulse); ;
         }
+
     }
 
     void ButtonSlide()
@@ -168,7 +194,6 @@ public class PlayerController : MonoBehaviourPunCallbacks
         {
             isSlide = true;
             animator.SetBool("isSlide", isSlide);
-            StartCoroutine(SlideCoolTime());
             rb.AddForce(new Vector3(0, jumpForce / 2, 0), ForceMode.Impulse); ;
         }
     }
@@ -197,17 +222,45 @@ public class PlayerController : MonoBehaviourPunCallbacks
         animator.SetBool("isFallDown", isFallDown);
         fallAble = true;
     }
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.transform.tag == "Spike")
+        {
+            Debug.Log("스파이크");
+            if (!isHit)
+            {
+                if (isSlide)
+                {
+                    isSlide = false;
+                    animator.SetBool("isSlide", isSlide);
+                }
+
+                isJump = true;
+                isHit = true;
+                animator.SetBool("isJump", isJump);
+                StartCoroutine(UnHittable());
+                rb.AddForce(new Vector3(0f, 1.5f, 0f), ForceMode.Impulse);
+                jumpMoveDir = new Vector2(-lookVector.x, -lookVector.y);
+            }
+        }
+        if (other.transform.tag == "JumpPad")
+        {
+            isJump = true;
+            jumpMoveDir = inputDir;
+            rb.velocity = Vector3.zero;
+            rb.AddForce(new Vector3(0, 10f, 0), ForceMode.Impulse);
+            animator.SetBool("isJump", true);
+        }
+    }
     private void OnCollisionEnter(Collision collision)
     {
 
         if (collision.transform.tag == "Floor")
         {
             isJump = false;
-            animator.SetBool("isJump", false);
-            if (isHit)
-            {
-
-            }
+            animator.SetBool("isJump", isJump);
+            isSlide = false;
+            animator.SetBool("isSlide", isSlide);
         }
 
         if (collision.transform.tag == "CannonBall")
@@ -222,34 +275,15 @@ public class PlayerController : MonoBehaviourPunCallbacks
             collision.transform.GetComponent<Rigidbody>().velocity = -contatsDir.normalized * 15f;
         }
 
-        if (collision.transform.tag == "Spike")
-        {
-            if (!isHit)
-            {
-                rb.AddForce(new Vector3(0f, 1.5f, 0f), ForceMode.Impulse);
-                jumpMoveDir = new Vector2(0f, -0.5f);
-                isJump = true;
-                isHit = true;
-                animator.SetBool("isJump", isJump);
-                StartCoroutine(UnHittable());
-            }
-        }
-        if (collision.transform.tag == "JumpPad")
-        {
-
-            isJump = true;
-            jumpMoveDir = inputDir;
-            rb.velocity = Vector3.zero;
-            rb.AddForce(new Vector3(0, 10f, 0), ForceMode.Impulse);
-            animator.SetBool("isJump", true);
-
-        }
+        
 
         if (collision.transform.tag == "SpeedPad")
         {
 
         }
     }
+
+
     IEnumerator UnHittable()
     {
         material.SetColor("_Color", Color.red);
