@@ -96,11 +96,11 @@ public class GameManager : MonoBehaviourPunCallbacks
 
         if (PhotonNetwork.IsMasterClient)
         {
-            position = new Vector3(5, 0, 4);
+            position = new Vector3(-5, 0, 0);
         }
         else
         {
-            position = new Vector3(10, 0, 4);
+            position = new Vector3(5, 0, 0);
         }
 
         GameObject player = PhotonNetwork.Instantiate("C01", position, Quaternion.identity);

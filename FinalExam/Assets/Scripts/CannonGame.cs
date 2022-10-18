@@ -12,19 +12,18 @@ enum CannonAttackType
 
 public class CannonGame : MonoBehaviourPunCallbacks
 {
-    const int rowSize = 16;
-    const int colSize = 16;
+    const int rowSize = 32;
+    const int colSize = 32;
     private int randAtkSide = 0;
     private int randAtkCannon = 0;
     private int lineAtkSide = 0;
     private int lineAtkCannon = 0;
     public bool randGenTrigger = true;
     public bool lineGenTrigger = true;
-    private const float shootForce = 75f;
-    public GameObject landBlockObj;
+    private const float shootForce = 150f;
     public GameObject cannonObj;
     public GameObject cannonBallObj;
-    private GameObject map;
+    private GameObject maps;
     private GameObject leftSideCannons;
     private GameObject rightSideCannons;
     private GameObject topSideCannons;
@@ -34,16 +33,15 @@ public class CannonGame : MonoBehaviourPunCallbacks
     void Awake()
     {
         PV = GetComponent<PhotonView>();
-        map = GameObject.Find("Maps");
-        leftSideCannons = map.transform.Find("CannonLeftSide").gameObject;
-        rightSideCannons = map.transform.Find("CannonRightSide").gameObject;
-        topSideCannons = map.transform.Find("CannonTopSide").gameObject;
-        bottomSideCannons = map.transform.Find("CannonBottomSide").gameObject;
+        maps = GameObject.Find("Maps");
+        leftSideCannons = maps.transform.Find("CannonLeftSide").gameObject;
+        rightSideCannons = maps.transform.Find("CannonRightSide").gameObject;
+        topSideCannons = maps.transform.Find("CannonTopSide").gameObject;
+        bottomSideCannons = maps.transform.Find("CannonBottomSide").gameObject;
     }
 
     void Start()
     {
-        BoardGenerate();
         CannonGenerate();
     }
 
@@ -55,41 +53,30 @@ public class CannonGame : MonoBehaviourPunCallbacks
         }
     }
 
-    void BoardGenerate()
-    {
-        GameObject land = Instantiate(landBlockObj, map.transform);
-    }
-
     void CannonGenerate()
     {
-        for (int i = 0; i < rowSize / 2; i++)
+        for (int i = 0; i < (rowSize / 2) - 1; i++)
         {
             GameObject leftSideCannon = Instantiate(cannonObj);
-            leftSideCannon.transform.position = new Vector3(-1f, 0f, 2 * i);
-            leftSideCannon.transform.rotation = Quaternion.Euler(0f, 90f, 0f);
             leftSideCannon.transform.SetParent(leftSideCannons.transform);
-
+            leftSideCannon.transform.position = new Vector3(leftSideCannons.transform.position.x, leftSideCannons.transform.position.y, leftSideCannons.transform.position.z + (2 * i));
+            leftSideCannon.transform.rotation = Quaternion.Euler(0f, 90f, 0f);
 
             GameObject rightSideCannon = Instantiate(cannonObj);
-            rightSideCannon.transform.position = new Vector3(16f, 0f, 2 * i);
+            rightSideCannon.transform.position = new Vector3(rightSideCannons.transform.position.x, rightSideCannons.transform.position.y, rightSideCannons.transform.position.z + (2 * i));
             rightSideCannon.transform.rotation = Quaternion.Euler(0f, 270f, 0f);
             rightSideCannon.transform.SetParent(rightSideCannons.transform);
 
             GameObject topSideCannon = Instantiate(cannonObj);
-            topSideCannon.transform.position = new Vector3(2 * i, 0f, 16f);
+            topSideCannon.transform.position = new Vector3(topSideCannons.transform.position.x + (2 * i), topSideCannons.transform.position.y, topSideCannons.transform.position.z);
             topSideCannon.transform.rotation = Quaternion.Euler(0f, 180f, 0f);
             topSideCannon.transform.SetParent(topSideCannons.transform);
 
             GameObject bottomSideCannon = Instantiate(cannonObj);
-            bottomSideCannon.transform.position = new Vector3(2 * i, 0f, -1f);
+            bottomSideCannon.transform.position = new Vector3(bottomSideCannons.transform.position.x + (2 * i), bottomSideCannons.transform.position.y, bottomSideCannons.transform.position.z);
             bottomSideCannon.transform.rotation = Quaternion.Euler(0f, 0f, 0f);
             bottomSideCannon.transform.SetParent(bottomSideCannons.transform);
         }
-
-        leftSideCannons.transform.position = new Vector3(-0.5f, 0f, 0f);
-        rightSideCannons.transform.position = new Vector3(0.5f, 0f, 1f);
-        topSideCannons.transform.position = new Vector3(0f, 0f, 0.5f);
-        bottomSideCannons.transform.position = new Vector3(1f, 0f, -0.5f);
     }
 
     void CannonBallSpawner()
@@ -141,6 +128,7 @@ public class CannonGame : MonoBehaviourPunCallbacks
                 break;
         }
     }
+
     [PunRPC]
     void CannonBallCreateSysnc(CannonAttackType type)
     {

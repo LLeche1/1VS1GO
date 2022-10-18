@@ -37,7 +37,8 @@ public class PlayerController : MonoBehaviourPunCallbacks
     private bool fallAble = true;
     public Vector2 jumpMoveDir;
     private float jumpMoveMag;
-    private void Awake()
+
+    void Awake()
     {
         material = transform.Find("Bodies").Find("MainBody01").GetComponent<SkinnedMeshRenderer>().sharedMaterial;
         PV = GetComponent<PhotonView>();
@@ -61,7 +62,8 @@ public class PlayerController : MonoBehaviourPunCallbacks
             }
         }
     }
-    private void FixedUpdate()
+
+    void FixedUpdate()
     {
         if (PV.IsMine)
         {
@@ -91,26 +93,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
             isMove = false;
         }
     }
-    /*   [SerializeField] private LayerMask layerMask;
-       RaycastHit hit;
-       bool isGrounded()
-       {
-           if (Physics.Raycast(new Vector3(transform.position.x, transform.position.y + 0.5f, transform.position.z), Vector3.down, out hit, 0.56f))
-           {
-               isJump = false;
-               animator.SetBool("isJump", isJump);
-           }
-           if (hit.collider != null)
-           {
-               Debug.DrawLine(new Vector3(transform.position.x, transform.position.y + 0.5f, transform.position.z), new Vector3(transform.position.x, transform.position.y, transform.position.z), Color.red);
-           }
-           else
-           {
-               Debug.DrawLine(new Vector3(transform.position.x, transform.position.y + 0.5f, transform.position.z), new Vector3(transform.position.x, transform.position.y, transform.position.z), Color.green);
-           }
-           return (hit.collider != null);
-           return true;    
-       }*/
+
     void Move()
     {
         moveDir = new Vector3(hAxis, 0, vAxis);
@@ -171,6 +154,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
             animator.SetBool("isJump", true);
         }
     }
+
     void Slide()
     {
         if (slideKeyDown && !isSlide)
@@ -204,6 +188,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
         isSlide = false;
         animator.SetBool("isSlide", isSlide);
     }
+
     void FallDown()
     {
         if (isFallDown && fallAble)
@@ -222,6 +207,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
         animator.SetBool("isFallDown", isFallDown);
         fallAble = true;
     }
+
     private void OnTriggerEnter(Collider other)
     {
         if (other.transform.tag == "Spike")
@@ -252,6 +238,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
             animator.SetBool("isJump", true);
         }
     }
+
     private void OnCollisionEnter(Collision collision)
     {
 
@@ -282,7 +269,6 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
         }
     }
-
 
     IEnumerator UnHittable()
     {
