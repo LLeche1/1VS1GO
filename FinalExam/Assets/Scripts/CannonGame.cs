@@ -20,7 +20,7 @@ public class CannonGame : MonoBehaviourPunCallbacks
     private int lineAtkCannon = 0;
     public bool randGenTrigger = true;
     public bool lineGenTrigger = true;
-    private const float shootForce = 150f;
+    private const float shootForce = 100f;
     public GameObject cannonObj;
     public GameObject cannonBallObj;
     private GameObject maps;
@@ -95,44 +95,45 @@ public class CannonGame : MonoBehaviourPunCallbacks
 
     IEnumerator RandomCannonAttack()
     {
-        int ranI = Random.Range(0, 4);
-        int ranJ = Random.Range(0, 16);
-        PV.RPC("RandPosSync", RpcTarget.All, ranI, ranJ, CannonAttackType.Random); //randI?? randJ?? ?????? ???? ???????? ?? ???? RPC?? ???? ?????????? ?????? ????????.
-        yield return new WaitForSeconds(0.5f);
+        int randSide = Random.Range(0, 4);
+        int randCannon = Random.Range(0, 15);
+        PV.RPC(nameof(RandPosSync), RpcTarget.All, randSide, randCannon, CannonAttackType.Random); //randI?? randJ?? ?????? ???? ???????? ?? ???? RPC?? ???? ?????????? ?????? ????????.
+        yield return new WaitForSeconds(1f);
+        Debug.Log(randAtkCannon);
         PV.RPC(nameof(CannonBallCreateSysnc), RpcTarget.All, CannonAttackType.Random);
         randGenTrigger = true;
     }
 
     IEnumerator LineCannonAttack()
     {
-        int ranI = Random.Range(0, 4);
-        int ranJ = Random.Range(0, 2);
-        PV.RPC("RandPosSync", RpcTarget.All, ranI, ranJ, CannonAttackType.Line); //randI?? randJ?? ?????? ???? ???????? ?? ???? RPC?? ???? ?????????? ?????? ????????.
+        int randSide = Random.Range(0, 4);
+        int randCannon = Random.Range(0, 2);
+        PV.RPC(nameof(RandPosSync), RpcTarget.All, randSide, randCannon, CannonAttackType.Line); //randI?? randJ?? ?????? ???? ???????? ?? ???? RPC?? ???? ?????????? ?????? ????????.
         yield return new WaitForSeconds(1.5f);
         PV.RPC(nameof(CannonBallCreateSysnc), RpcTarget.All,CannonAttackType.Line);
         lineGenTrigger = true;
     }
 
     [PunRPC]
-    void RandPosSync(int a, int b, CannonAttackType type)
+    void RandPosSync(int sideNum, int cannonNum, CannonAttackType type)
     {
         switch (type)
         {
             case CannonAttackType.Random:
-                randAtkSide = a;
-                randAtkCannon = b;
+                randAtkSide = sideNum;
+                randAtkCannon = cannonNum;
                 break;
             case CannonAttackType.Line:
-                lineAtkSide = a;
-                lineAtkCannon = b;
+                lineAtkSide = sideNum;
+                lineAtkCannon = cannonNum;
                 break;
         }
     }
 
     [PunRPC]
-    void CannonBallCreateSysnc(CannonAttackType type)
+    void CannonBallCreateSysnc(CannonAttackType attackType)
     {
-        switch (type)
+        switch (attackType)
         {
             case CannonAttackType.Random:
                 {
@@ -163,15 +164,20 @@ public class CannonGame : MonoBehaviourPunCallbacks
             case CannonAttackType.Line:
                 {
                     Transform genPos = null;
-                    GameObject[] cannonBalls = new GameObject[4];
-                    for (int k = 0; k < 7; k++)
+                    int creatNum = 0;
+
+                    if (lineAtkCannon == 0) { creatNum = 8; }
+                    else if (lineAtkCannon == 1) { creatNum = 7; }
+
+                    GameObject[] cannonBalls = new GameObject[creatNum];
+                    for (int k = 0; k < creatNum; k++)
                     {
                         cannonBalls[k] = Instantiate(cannonBallObj, transform.Find("Cannons").transform);
                     }
                     switch (lineAtkSide)
                     {
                         case 0:
-                            for (int l = 0; l < 7; l++)
+                            for (int l = 0; l < creatNum; l++)
                             {
                                 genPos = leftSideCannons.transform.GetChild((2 * l) + lineAtkCannon).transform.Find("Cannon").transform;
                                 cannonBalls[l].transform.position = genPos.position;
@@ -179,7 +185,7 @@ public class CannonGame : MonoBehaviourPunCallbacks
                             }
                             break;
                         case 1:
-                            for (int l = 0; l < 7; l++)
+                            for (int l = 0; l < creatNum; l++)
                             {
                                 genPos = rightSideCannons.transform.GetChild((2 * l) + lineAtkCannon).transform.Find("Cannon").transform;
                                 cannonBalls[l].transform.position = genPos.position;
@@ -187,7 +193,7 @@ public class CannonGame : MonoBehaviourPunCallbacks
                             }
                             break;
                         case 2:
-                            for (int l = 0; l < 7; l++)
+                            for (int l = 0; l < creatNum; l++)
                             {
                                 genPos = topSideCannons.transform.GetChild((2 * l) + lineAtkCannon).transform.Find("Cannon").transform;
                                 cannonBalls[l].transform.position = genPos.position;
@@ -195,7 +201,7 @@ public class CannonGame : MonoBehaviourPunCallbacks
                             }
                             break;
                         case 3:
-                            for (int l = 0; l < 7; l++)
+                            for (int l = 0; l < creatNum; l++)
                             {
                                 genPos = bottomSideCannons.transform.GetChild((2 * l) + lineAtkCannon).transform.Find("Cannon").transform;
                                 cannonBalls[l].transform.position = genPos.position;
