@@ -80,13 +80,15 @@ public class GameManager : MonoBehaviourPunCallbacks
         if (random == 0)
         {
             runningGame.SetActive(true);
+            RenderSettings.skybox = Skyboxes[0];
+            RenderSettings.skybox.SetFloat("_Rotation", 0);
         }
         else if (random == 1)
         {
             cannonGame.SetActive(true);
             cannonGame.transform.GetComponent<CannonGame>().randGenTrigger = true;
             cannonGame.transform.GetComponent<CannonGame>().lineGenTrigger = true;
-            RenderSettings.skybox = Skyboxes[0];
+            RenderSettings.skybox = Skyboxes[1];
             RenderSettings.skybox.SetFloat("_Rotation", 0);
         }
         isRandom = true;
