@@ -18,8 +18,44 @@ public class JoyStick : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDrag
         lobbyManager = GameObject.Find("LobbyManager").GetComponent<LobbyManager>();
     }
 
+    void Update()
+    {
+        if(lever.anchoredPosition.x > 0 && lever.anchoredPosition.x < 150 && lever.anchoredPosition.y < 150 && lever.anchoredPosition.y > 0)
+        {
+            transform.GetChild(0).gameObject.SetActive(false);
+            transform.GetChild(1).gameObject.SetActive(true);
+            transform.GetChild(2).gameObject.SetActive(false);
+            transform.GetChild(3).gameObject.SetActive(false);
+        }
+        else if (lever.anchoredPosition.x > 0 && lever.anchoredPosition.x < 150 && lever.anchoredPosition.y < 0 && lever.anchoredPosition.y > -150)
+        {
+            transform.GetChild(0).gameObject.SetActive(false);
+            transform.GetChild(1).gameObject.SetActive(false);
+            transform.GetChild(2).gameObject.SetActive(false);
+            transform.GetChild(3).gameObject.SetActive(true);
+        }
+        else if (lever.anchoredPosition.x > -150 && lever.anchoredPosition.x < 0 && lever.anchoredPosition.y < 0 && lever.anchoredPosition.y > -150)
+        {
+            transform.GetChild(0).gameObject.SetActive(false);
+            transform.GetChild(1).gameObject.SetActive(false);
+            transform.GetChild(2).gameObject.SetActive(true);
+            transform.GetChild(3).gameObject.SetActive(false);
+        }
+        else if (lever.anchoredPosition.x > -150 && lever.anchoredPosition.x < 0 && lever.anchoredPosition.y < 150 && lever.anchoredPosition.y > 0)
+        {
+            transform.GetChild(0).gameObject.SetActive(true);
+            transform.GetChild(1).gameObject.SetActive(false);
+            transform.GetChild(2).gameObject.SetActive(false);
+            transform.GetChild(3).gameObject.SetActive(false);
+        }
+    }
+
     public void Reset()
     {
+        transform.GetChild(0).gameObject.SetActive(false);
+        transform.GetChild(1).gameObject.SetActive(false);
+        transform.GetChild(2).gameObject.SetActive(false);
+        transform.GetChild(3).gameObject.SetActive(false);
         lever.anchoredPosition = Vector2.zero;
         inputDir = Vector2.zero;
     }

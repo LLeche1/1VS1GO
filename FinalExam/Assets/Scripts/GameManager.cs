@@ -12,6 +12,7 @@ using TMPro;
 
 public class GameManager : MonoBehaviourPunCallbacks
 {
+    public Material[] Skyboxes;
     public GameObject runningGame;
     public GameObject cannonGame;
     public GameObject[] players;
@@ -69,6 +70,8 @@ public class GameManager : MonoBehaviourPunCallbacks
 
         LastCanvas();
         PV.RPC("Statue", RpcTarget.All);
+
+        RenderSettings.skybox.SetFloat("_Rotation", Time.time * 2f);
     }
 
     [PunRPC]
@@ -80,12 +83,11 @@ public class GameManager : MonoBehaviourPunCallbacks
         }
         else if (random == 1)
         {
-            if(cannonGame.activeSelf == false)
-            {
-                cannonGame.transform.GetComponent<CannonGame>().randGenTrigger = true;
-                cannonGame.transform.GetComponent<CannonGame>().lineGenTrigger = true;
-            }
             cannonGame.SetActive(true);
+            cannonGame.transform.GetComponent<CannonGame>().randGenTrigger = true;
+            cannonGame.transform.GetComponent<CannonGame>().lineGenTrigger = true;
+            RenderSettings.skybox = Skyboxes[0];
+            RenderSettings.skybox.SetFloat("_Rotation", 0);
         }
         isRandom = true;
     }
