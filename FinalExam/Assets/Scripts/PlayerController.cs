@@ -7,6 +7,7 @@ using UnityEngine.UI;
 
 public class PlayerController : MonoBehaviourPunCallbacks
 {
+    public string team = null;
     private float hAxis;
     private float vAxis;
     public bool jDown = false;

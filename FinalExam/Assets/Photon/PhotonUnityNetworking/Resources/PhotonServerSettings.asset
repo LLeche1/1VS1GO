@@ -55,6 +55,7 @@ MonoBehaviour:
   - GiveUp_Rpc
   - CannonBallCreateSysnc
   - PlateRandomActive
+  - DiamondSpawner
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

@@ -15,6 +15,7 @@ public class GameManager : MonoBehaviourPunCallbacks
     public Material[] Skyboxes;
     public GameObject runningGame;
     public GameObject cannonGame;
+    public GameObject diamond;
     public GameObject[] players;
     public GameObject joystick;
     public GameObject pause;
@@ -25,12 +26,16 @@ public class GameManager : MonoBehaviourPunCallbacks
     public GameObject set_Vibration_Yes;
     public GameObject set_Vibration_No;
     public TMP_Text timeText;
+    public TMP_Text teamBlueScoreText;
+    public TMP_Text teamRedScoreText;
     private float limitTime = 180;
     private bool isGenerate = false;
     private bool isRandom = false;
     private bool isResult = false;
     private bool isGiveUp = false;
     private string lastCanvas;
+    public int blueScore = 0;
+    public int redScore = 0;
     public int isWin = 0;
     PhotonView PV;
     LobbyManager lobbyManager;
@@ -72,6 +77,9 @@ public class GameManager : MonoBehaviourPunCallbacks
         PV.RPC("Statue", RpcTarget.All);
 
         RenderSettings.skybox.SetFloat("_Rotation", Time.time * 2f);
+
+        Debug.Log("blue " + blueScore);
+        Debug.Log("red " + redScore);
     }
 
     [PunRPC]
@@ -97,18 +105,22 @@ public class GameManager : MonoBehaviourPunCallbacks
     void Generate()
     {
         Vector3 position;
+        string team;
 
         if (PhotonNetwork.IsMasterClient)
         {
             position = new Vector3(4, 0, 0);
+            team = "Blue";
         }
         else
         {
             position = new Vector3(10, 0, 0);
+            team = "Red";
         }
 
         GameObject player = PhotonNetwork.Instantiate("C01", position, Quaternion.identity);
         player.name = lobbyManager.nickName;
+        player.transform.GetComponent<PlayerController>().team = team;
         player.transform.parent = GameObject.Find("InGame").transform;
         GameObject.Find("Main Camera").transform.GetComponent<CameraController>().enabled = true;
         isGenerate = true;
@@ -288,6 +300,8 @@ public class GameManager : MonoBehaviourPunCallbacks
         set.SetActive(false);
         GameObject.Find("Main Camera").transform.GetComponent<CameraController>().enabled = false;
         limitTime = 180;
+        blueScore = 0;
+        redScore = 0;
         isWin = 0;
         isGenerate = false;
         isRandom = false;

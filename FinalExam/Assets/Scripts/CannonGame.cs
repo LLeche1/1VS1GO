@@ -20,6 +20,7 @@ public class CannonGame : MonoBehaviourPunCallbacks
     private int lineAtkCannon = 0;
     public bool randGenTrigger = true;
     public bool lineGenTrigger = true;
+    public bool isDiamond = false;
     private const float shootForce = 100f;
     public GameObject cannonObj;
     public GameObject cannonBallObj;
@@ -29,10 +30,12 @@ public class CannonGame : MonoBehaviourPunCallbacks
     private GameObject topSideCannons;
     private GameObject bottomSideCannons;
     PhotonView PV;
+    GameManager gameManager;
 
     void Awake()
     {
         PV = GetComponent<PhotonView>();
+        gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
         maps = GameObject.Find("Maps");
         leftSideCannons = maps.transform.Find("CannonLeftSide").gameObject;
         rightSideCannons = maps.transform.Find("CannonRightSide").gameObject;
@@ -50,6 +53,7 @@ public class CannonGame : MonoBehaviourPunCallbacks
         if (PhotonNetwork.IsMasterClient)
         {
             CannonBallSpawner();
+            DiamondSpawner();
         }
     }
 
@@ -77,6 +81,32 @@ public class CannonGame : MonoBehaviourPunCallbacks
             bottomSideCannon.transform.rotation = Quaternion.Euler(0f, 0f, 0f);
             bottomSideCannon.transform.SetParent(bottomSideCannons.transform);
         }
+    }
+
+    [PunRPC]
+    void DiamondSpawner()
+    {
+        if (isDiamond == false)
+        {
+            isDiamond = true;
+            float randX = Random.Range(-12f, 14f);
+            float randZ = Random.Range(-12f, 14f);
+            GameObject diamond = Instantiate(gameManager.diamond);
+            diamond.transform.position = new Vector3(randX, 1, randZ);
+            StartCoroutine("DiamondDelay");
+        }
+    }
+
+    IEnumerator DiamondDelay()
+    {
+        float time = 0;
+        while (time < 100)
+        {
+            yield return new WaitForEndOfFrame();
+            time += 10.0f * Time.deltaTime;
+        }
+        isDiamond = false;
+        yield return null;
     }
 
     void CannonBallSpawner()
