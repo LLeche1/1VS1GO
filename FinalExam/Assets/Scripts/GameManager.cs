@@ -15,7 +15,6 @@ public class GameManager : MonoBehaviourPunCallbacks
     public Material[] Skyboxes;
     public GameObject runningGame;
     public GameObject cannonGame;
-    public GameObject diamond;
     public GameObject[] players;
     public GameObject joystick;
     public GameObject pause;
@@ -26,9 +25,9 @@ public class GameManager : MonoBehaviourPunCallbacks
     public GameObject set_Vibration_Yes;
     public GameObject set_Vibration_No;
     public TMP_Text timeText;
-    public TMP_Text teamBlueScoreText;
-    public TMP_Text teamRedScoreText;
-    private float limitTime = 180;
+    public TMP_Text myScoreText;
+    public TMP_Text otherScoreText;
+    private float limitTime = 60;
     private bool isGenerate = false;
     private bool isRandom = false;
     private bool isResult = false;
@@ -74,12 +73,10 @@ public class GameManager : MonoBehaviourPunCallbacks
         }
 
         LastCanvas();
+        Score();
         PV.RPC("Statue", RpcTarget.All);
 
         RenderSettings.skybox.SetFloat("_Rotation", Time.time * 2f);
-
-        Debug.Log("blue " + blueScore);
-        Debug.Log("red " + redScore);
     }
 
     [PunRPC]
@@ -114,11 +111,11 @@ public class GameManager : MonoBehaviourPunCallbacks
         }
         else
         {
-            position = new Vector3(10, 0, 0);
+            position = new Vector3(-4, 0, 0);
             team = "Red";
         }
 
-        GameObject player = PhotonNetwork.Instantiate("C01", position, Quaternion.identity);
+        GameObject player = PhotonNetwork.Instantiate("Player", position, Quaternion.identity);
         player.name = lobbyManager.nickName;
         player.transform.GetComponent<PlayerController>().team = team;
         player.transform.parent = GameObject.Find("InGame").transform;
@@ -133,6 +130,26 @@ public class GameManager : MonoBehaviourPunCallbacks
         {
             limitTime -= Time.deltaTime;
             timeText.text = TimeSpan.FromSeconds(limitTime).ToString(@"m\:ss");
+        }
+    }
+
+    void Score()
+    {
+        foreach(GameObject player in players)
+        {
+            if(player.name == lobbyManager.nickName)
+            {
+                if(player.GetComponent<PlayerController>().team == "Blue")
+                {
+                    myScoreText.text = blueScore.ToString();
+                    otherScoreText.text = redScore.ToString();
+                }
+                else if(player.GetComponent<PlayerController>().team == "Red")
+                {
+                    myScoreText.text = redScore.ToString();
+                    otherScoreText.text = blueScore.ToString();
+                }
+            }
         }
     }
 
@@ -209,13 +226,6 @@ public class GameManager : MonoBehaviourPunCallbacks
     {
         if(isResult == false)
         {
-            if (limitTime < 0)
-            {
-                isWin = 2;
-                lobbyManager.LobbyResult();
-                isResult = true;
-            }
-
             foreach (GameObject player in players)
             {
                 if (player.transform.position.y < -30)
@@ -249,6 +259,58 @@ public class GameManager : MonoBehaviourPunCallbacks
                             isWin = 1;
                             lobbyManager.LobbyResult();
                             isResult = true;
+                        }
+                    }
+
+                    if(limitTime < 0)
+                    {
+                            isWin = 2;
+                            lobbyManager.LobbyResult();
+                            isResult = true;
+                    }
+                }
+                else if(cannonGame.activeSelf == true)
+                {
+                    if(limitTime < 0)
+                    {
+                        if(player.name == lobbyManager.nickName)
+                        {
+                            if(player.GetComponent<PlayerController>().team == "Blue")
+                            {
+                                if(blueScore > redScore){
+                                    isWin = 1;
+                                    lobbyManager.LobbyResult();
+                                    isResult = true;
+                                }
+                                else if(blueScore < redScore){
+                                    isWin = 0;
+                                    lobbyManager.LobbyResult();
+                                    isResult = true;
+                                }
+                                else if(blueScore == redScore){
+                                    isWin = 2;
+                                    lobbyManager.LobbyResult();
+                                    isResult = true;
+                                }
+                            }
+                            else if(player.GetComponent<PlayerController>().team == "Red")
+                            {
+                                if(redScore > blueScore){
+                                    isWin = 1;
+                                    lobbyManager.LobbyResult();
+                                    isResult = true;
+                                }
+                                else if(redScore < blueScore){
+                                    isWin = 0;
+                                    lobbyManager.LobbyResult();
+                                    isResult = true;
+                                }
+                                else if(redScore == blueScore){
+                                    isWin = 2;
+                                    lobbyManager.LobbyResult();
+                                    isResult = true;
+                                }
+                            }
                         }
                     }
                 }
@@ -299,7 +361,7 @@ public class GameManager : MonoBehaviourPunCallbacks
         pause.SetActive(false);
         set.SetActive(false);
         GameObject.Find("Main Camera").transform.GetComponent<CameraController>().enabled = false;
-        limitTime = 180;
+        limitTime = 60;
         blueScore = 0;
         redScore = 0;
         isWin = 0;

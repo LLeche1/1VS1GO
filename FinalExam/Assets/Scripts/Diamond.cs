@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using Photon.Pun;
+using Photon.Realtime;
+using UnityEngine;
 using System.Collections;
 
 public class Diamond : MonoBehaviour
@@ -6,15 +8,30 @@ public class Diamond : MonoBehaviour
     [SerializeField]
     private float speed = 100;
     GameManager gameManager;
+    PhotonView PV;
 
     void Awake()
     {
         gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
+        PV = GetComponent<PhotonView>();
     }
 
     void Update ()
     {
         transform.Rotate(Vector3.forward * speed * Time.deltaTime);
+    }
+
+    [PunRPC]
+    void Score(string team)
+    {
+        if(team == "Blue")
+        {
+            gameManager.blueScore++;
+        }
+        else if (team == "Red")
+        {
+            gameManager.redScore++;
+        }
     }
 
     private void OnTriggerEnter(Collider other)
@@ -27,15 +44,15 @@ public class Diamond : MonoBehaviour
                 {
                     if (player.transform.GetComponent<PlayerController>().team == "Blue")
                     {
-                        gameManager.blueScore++;
+                        PV.RPC("Score", RpcTarget.All, "Blue");
                     }
                     else if (player.transform.GetComponent<PlayerController>().team == "Red")
                     {
-                        gameManager.redScore++;
+                        PV.RPC("Score", RpcTarget.All, "Red");
                     }
                 }
             }
-            Destroy(gameObject);
+            PhotonNetwork.Destroy(gameObject);
         }
     }
 }

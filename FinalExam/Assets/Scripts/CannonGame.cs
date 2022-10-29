@@ -53,7 +53,7 @@ public class CannonGame : MonoBehaviourPunCallbacks
         if (PhotonNetwork.IsMasterClient)
         {
             CannonBallSpawner();
-            DiamondSpawner();
+            PV.RPC("DiamondSpawner", RpcTarget.All);
         }
     }
 
@@ -91,7 +91,7 @@ public class CannonGame : MonoBehaviourPunCallbacks
             isDiamond = true;
             float randX = Random.Range(-12f, 14f);
             float randZ = Random.Range(-12f, 14f);
-            GameObject diamond = Instantiate(gameManager.diamond);
+            GameObject diamond = PhotonNetwork.Instantiate("Diamond", new Vector3(randX, 1, randZ), Quaternion.Euler(-90, 0, 0));
             diamond.transform.position = new Vector3(randX, 1, randZ);
             StartCoroutine("DiamondDelay");
         }
