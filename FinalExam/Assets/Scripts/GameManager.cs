@@ -370,6 +370,7 @@ public class GameManager : MonoBehaviourPunCallbacks
         isGiveUp = false;
         runningGame.SetActive(false);
         cannonGame.SetActive(false);
+        cannonGame.GetComponent<CannonGame>().isDiamond = false;
         joystick.GetComponent<JoyStick>().Reset();
     }
 
