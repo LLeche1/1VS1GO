@@ -28,9 +28,8 @@ public class PlayerController : MonoBehaviourPunCallbacks
     Transform tr;
     Animator animator;
     Rigidbody rb;
-    CameraController cameraController;
     Material material;
-
+    GameManager gameManager;
     public bool jumpKeyDown = false;
     private bool slideKeyDown = false;
     private bool isSlide = false;
@@ -46,13 +45,16 @@ public class PlayerController : MonoBehaviourPunCallbacks
         tr = GetComponent<Transform>();
         rb = GetComponent<Rigidbody>();
         animator = GetComponent<Animator>();
-        cameraController = GameObject.Find("Main Camera").GetComponent<CameraController>();
+        gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
+    }
 
-        if (PV.IsMine)
+    void FixedUpdate()
+    {
+        if (PV.IsMine && gameManager.isStart == true)
         {
-            joyStick = GameObject.Find("JoyStick").GetComponent<JoyStick>();
-            jumpBtn = GameObject.Find("Button_Jump").GetComponent<Button>();
-            slideBtn = GameObject.Find("Button_Slider").GetComponent<Button>();
+            joyStick = GameObject.Find("UI").transform.Find("JoyStick").GetComponent<JoyStick>();
+            jumpBtn = GameObject.Find("UI").transform.Find("Button_Jump").GetComponent<Button>();
+            slideBtn = GameObject.Find("UI").transform.Find("Button_Slide").GetComponent<Button>();
             if (jumpBtn != null)
             {
                 jumpBtn.onClick.AddListener(ButtonJump);
@@ -61,19 +63,11 @@ public class PlayerController : MonoBehaviourPunCallbacks
             {
                 slideBtn.onClick.AddListener(ButtonSlide);
             }
-        }
-    }
-
-    void FixedUpdate()
-    {
-        if (PV.IsMine)
-        {
             GetInput();
             JoyStickMove();
             Jump();
             Slide();
             FallDown();
-            cameraController.player = gameObject;
         }
     }
 

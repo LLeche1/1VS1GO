@@ -13,8 +13,11 @@ using TMPro;
 public class GameManager : MonoBehaviourPunCallbacks
 {
     public Material[] Skyboxes;
+    public GameObject cameraObject;
     public GameObject runningGame;
     public GameObject cannonGame;
+    public GameObject ui;
+    public GameObject fade;
     public GameObject[] players;
     public GameObject joystick;
     public GameObject pause;
@@ -30,6 +33,8 @@ public class GameManager : MonoBehaviourPunCallbacks
     private float limitTime = 60;
     private bool isGenerate = false;
     private bool isRandom = false;
+    public bool isStart = false;
+    private bool isFade = false;
     private bool isResult = false;
     private bool isGiveUp = false;
     private string lastCanvas;
@@ -65,18 +70,33 @@ public class GameManager : MonoBehaviourPunCallbacks
         {
             player.transform.GetComponent<PlayerController>().enabled = true;
             player.transform.parent = GameObject.Find("InGame").transform;
+            if(player.name == lobbyManager.nickName)
+            {
+                cameraObject.GetComponent<CameraController>().player = player;
+            }
         }
 
-        if (PV.IsMine)
+        if(isStart == false)
         {
-            PV.RPC("LimitTime", RpcTarget.All);
+            if(isFade == false)
+            {
+                isFade = true;
+                StartCoroutine(Fade());
+            }
+        }
+        else if(isStart == true)
+        {
+            Score();
+            PV.RPC("Statue", RpcTarget.All);
         }
 
-        LastCanvas();
-        Score();
-        PV.RPC("Statue", RpcTarget.All);
-
+        if (PhotonNetwork.IsMasterClient)
+        {
+           PV.RPC("LimitTime", RpcTarget.All);
+        }
+        
         RenderSettings.skybox.SetFloat("_Rotation", Time.time * 2f);
+        LastCanvas();
     }
 
     [PunRPC]
@@ -119,8 +139,35 @@ public class GameManager : MonoBehaviourPunCallbacks
         player.name = lobbyManager.nickName;
         player.transform.GetComponent<PlayerController>().team = team;
         player.transform.parent = GameObject.Find("InGame").transform;
-        GameObject.Find("Main Camera").transform.GetComponent<CameraController>().enabled = true;
+        cameraObject.transform.GetComponent<CameraController>().enabled = true;
         isGenerate = true;
+    }
+
+    IEnumerator Fade()
+    {
+        ui.SetActive(false);
+        fade.SetActive(true);
+        cameraObject.transform.position = cameraObject.GetComponent<CameraController>().player.transform.position - (Vector3.forward * 10) + (Vector3.up * 17);
+        float count = 1;
+        while (count > 0)
+        {
+            count -= 0.3f * Time.deltaTime;
+            yield return new WaitForSeconds(0.01f);
+            fade.transform.GetComponent<Image>().color = new Color(0, 0, 0, count);
+            if(cameraObject.transform.position.y > 7.3f)
+            {
+                cameraObject.transform.position = new Vector3(cameraObject.transform.position.x, cameraObject.transform.position.y - (Time.deltaTime * 3.1f), cameraObject.transform.position.z);
+            }
+            else if(cameraObject.transform.position.y < 7.3f)
+            {
+                cameraObject.transform.position = new Vector3(cameraObject.transform.position.x, 7.3f, cameraObject.transform.position.z);
+            }
+        }
+        ui.SetActive(true);
+        fade.SetActive(false);
+        isFade = false;
+        isStart = true;
+        yield return null;
     }
 
     [PunRPC]
@@ -128,7 +175,10 @@ public class GameManager : MonoBehaviourPunCallbacks
     {
         if (limitTime > 0)
         {
-            limitTime -= Time.deltaTime;
+            if(isStart == true)
+            {
+                limitTime -= Time.deltaTime;
+            }
             timeText.text = TimeSpan.FromSeconds(limitTime).ToString(@"m\:ss");
         }
     }
@@ -360,12 +410,13 @@ public class GameManager : MonoBehaviourPunCallbacks
 
         pause.SetActive(false);
         set.SetActive(false);
-        GameObject.Find("Main Camera").transform.GetComponent<CameraController>().enabled = false;
+        cameraObject.transform.GetComponent<CameraController>().enabled = false;
         limitTime = 60;
         blueScore = 0;
         redScore = 0;
         isWin = 0;
         isGenerate = false;
+        isStart = false;
         isRandom = false;
         isGiveUp = false;
         runningGame.SetActive(false);

@@ -50,7 +50,7 @@ public class CannonGame : MonoBehaviourPunCallbacks
 
     void Update()
     {
-        if (PhotonNetwork.IsMasterClient)
+        if (PhotonNetwork.IsMasterClient && gameManager.isStart == true)
         {
             CannonBallSpawner();
             PV.RPC("DiamondSpawner", RpcTarget.All);

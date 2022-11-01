@@ -5,8 +5,8 @@ using UnityEngine;
 public class CameraController : MonoBehaviour
 {
     public GameObject player;
-    public float distance = 5;
-    public float height = 7;
+    public float distance;
+    public float height;
     GameManager gameManager;
     Vector3 cameraPos;
 
@@ -17,19 +17,25 @@ public class CameraController : MonoBehaviour
 
     void Update()
     {
-        if (player.transform.localScale != Vector3.zero)
+        if(gameManager.isStart == true)
         {
-            cameraPos = player.transform.position - (Vector3.forward * distance) + (Vector3.up * height);
-        }
-        else
-        {
-            foreach (var player in gameManager.players)
+            if (player.transform.localScale != Vector3.zero)
             {
-                if (player.GetComponent<PlayerController>().isDead != true)
-                    cameraPos = player.transform.position - (Vector3.forward * distance) + (Vector3.up * height);
+                cameraPos = player.transform.position - (Vector3.forward * distance) + (Vector3.up * height);
             }
+            else
+            {
+                foreach (var player in gameManager.players)
+                {
+                    if (player.GetComponent<PlayerController>().isDead != true)
+                    {
+                        cameraPos = player.transform.position - (Vector3.forward * distance) + (Vector3.up * height);
+                    }  
+                }
+            }
+
+            gameObject.transform.position = cameraPos;
         }
 
-        gameObject.transform.position = cameraPos;
     }
 }

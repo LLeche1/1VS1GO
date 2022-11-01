@@ -337,7 +337,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
             {
                 new StatisticUpdate {StatisticName = "Level", Value = 1},
                 new StatisticUpdate {StatisticName = "Exp", Value = 0},
-                new StatisticUpdate {StatisticName = "MaxExp", Value = 50},
+                new StatisticUpdate {StatisticName = "MaxExp", Value = 10},
                 new StatisticUpdate {StatisticName = "Gold", Value = 0},
                 new StatisticUpdate {StatisticName = "Crystal", Value = 0},
                 new StatisticUpdate {StatisticName = "Highest_Trophies", Value = 0},
@@ -1181,7 +1181,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
                     {
                                 new StatisticUpdate {StatisticName = "Level", Value = int.Parse((level + 1).ToString())},
                                 new StatisticUpdate {StatisticName = "Exp", Value = int.Parse((exp - maxExp).ToString())},
-                                new StatisticUpdate {StatisticName = "MaxExp", Value = int.Parse((50 * (level + 1)).ToString())}
+                                new StatisticUpdate {StatisticName = "MaxExp", Value = int.Parse((10 + (level * 10)).ToString())}
                     }
                 },
                 (result) => {
@@ -1294,7 +1294,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
                     {
                                 new StatisticUpdate {StatisticName = "Level", Value = int.Parse((level + 1).ToString())},
                                 new StatisticUpdate {StatisticName = "Exp", Value = int.Parse((exp - maxExp).ToString())},
-                                new StatisticUpdate {StatisticName = "MaxExp", Value = int.Parse((50 * (level + 1)).ToString())}
+                                new StatisticUpdate {StatisticName = "MaxExp", Value = int.Parse((10 + (level * 10)).ToString())}
                     }
                 },
                 (result) => {
@@ -1410,7 +1410,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
                     {
                                 new StatisticUpdate {StatisticName = "Level", Value = int.Parse((level + 1).ToString())},
                                 new StatisticUpdate {StatisticName = "Exp", Value = int.Parse((exp - maxExp).ToString())},
-                                new StatisticUpdate {StatisticName = "MaxExp", Value = int.Parse((50 * (level + 1)).ToString())}
+                                new StatisticUpdate {StatisticName = "MaxExp", Value = int.Parse((10 + (level * 10)).ToString())}
                     }
                 },
                 (result) => {
@@ -1466,31 +1466,43 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
         while (preLevel != level)
         {
             float delay = 0;
-            preExp++;
+            if(game_Manager.isWin == 0)
+            {
+                preExp += Time.deltaTime;
+            }
+            else if(game_Manager.isWin == 1)
+            {
+                preExp += 2.5f * Time.deltaTime;
+            }
+            else if(game_Manager.isWin == 2)
+            {
+                preExp += 1.5f * Time.deltaTime;
+            }
             lobbyResult_Level.text = preLevel.ToString();
-            lobbyResult_Exp.text = preExp.ToString() + "/" + preMaxExp;
+            lobbyResult_Exp.text = preExp.ToString("0") + "/" + preMaxExp;
             lobbyResult_Exp_Slider.GetComponent<Slider>().value = preExp / preMaxExp;
 
-            while (delay < 2)
+            while (delay < 0.001f)
             {
+                Debug.Log(delay);
                 if (game_Manager.isWin == 0)
                 {
                     yield return new WaitForEndOfFrame();
-                    delay += 3 * Time.deltaTime;
+                    delay += Time.deltaTime;
                 }
                 else if (game_Manager.isWin == 1)
                 {
                     yield return new WaitForEndOfFrame();
-                    delay += 6 * Time.deltaTime;
+                    delay += Time.deltaTime;
                 }
                 else if (game_Manager.isWin == 2)
                 {
                     yield return new WaitForEndOfFrame();
-                    delay += 3 * Time.deltaTime;
+                    delay += Time.deltaTime;
                 }
             }
 
-            if (preExp == preMaxExp)
+            if (preExp >= preMaxExp)
             {
                 preExp = 0;
                 preMaxExp = preMaxExp * (preLevel + 1);
@@ -1504,27 +1516,38 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
             while (preExp < exp)
             {
                 float delay = 0;
-                preExp++;
+                if(game_Manager.isWin == 0)
+                {
+                    preExp += Time.deltaTime;
+                }
+                else if(game_Manager.isWin == 1)
+                {
+                    preExp += 2.5f * Time.deltaTime;
+                }
+                else if(game_Manager.isWin == 2)
+                {
+                    preExp += 1.5f * Time.deltaTime;
+                }
                 lobbyResult_Level.text = preLevel.ToString();
-                lobbyResult_Exp.text = preExp.ToString() + "/" + preMaxExp;
+                lobbyResult_Exp.text = preExp.ToString("0") + "/" + preMaxExp;
                 lobbyResult_Exp_Slider.GetComponent<Slider>().value = preExp / preMaxExp;
 
-                while (delay < 2)
+                while (delay < 0.001f)
                 {
                     if (game_Manager.isWin == 0)
                     {
                         yield return new WaitForEndOfFrame();
-                        delay += 3 * Time.deltaTime;
+                        delay += Time.deltaTime;
                     }
                     else if (game_Manager.isWin == 1)
                     {
                         yield return new WaitForEndOfFrame();
-                        delay += 6 * Time.deltaTime;
+                        delay += Time.deltaTime;
                     }
                     else if (game_Manager.isWin == 2)
                     {
                         yield return new WaitForEndOfFrame();
-                        delay += 3 * Time.deltaTime;
+                        delay += Time.deltaTime;
                     }
                 }
             }
