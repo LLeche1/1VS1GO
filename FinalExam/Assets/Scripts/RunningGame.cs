@@ -27,22 +27,30 @@ public class RunningGame : MonoBehaviourPunCallbacks
     PhotonView PV;
 
 
-
-    void Start()
+    private void Awake()
     {
         TrackList = new List<GameObject>();
         gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
         maps = transform.Find("Maps").gameObject;
         PV = GetComponent<PhotonView>();
-        FirstEndTrackSet();
-        StartCoroutine(ChariotSpawn());
+    }
+    void Start()
+    {
+        if (PhotonNetwork.IsMasterClient)
+        {
+            FirstEndTrackSet();
+            StartCoroutine(ChariotSpawn());
+        }
     }
 
     void Update()
     {
-        TrackGenerate();
-        ChariotAcceleration();
-        RemovePastTrack();
+        if (PhotonNetwork.IsMasterClient)
+        {
+            TrackGenerate();
+            ChariotAcceleration();
+            RemovePastTrack();
+        }        
     }
 
     void TrackGenerate()
@@ -93,7 +101,7 @@ public class RunningGame : MonoBehaviourPunCallbacks
     [PunRPC]
     void ChariotCreateSync()
     {
-        GameObject obj = Instantiate(chariot, this.transform);
+        GameObject obj = Instantiate(chariot, maps.transform);
         obj.transform.position = new Vector3(-4f, 0f, 0f);
         obj.transform.localScale = new Vector3(4f, 2.5f, 2.5f);
         chariotObj = obj;
