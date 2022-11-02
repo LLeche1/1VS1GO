@@ -41,6 +41,7 @@ public class GameManager : MonoBehaviourPunCallbacks
     public int blueScore = 0;
     public int redScore = 0;
     public int isWin = 0;
+    private int random = 0;
     PhotonView PV;
     LobbyManager lobbyManager;
 
@@ -54,8 +55,8 @@ public class GameManager : MonoBehaviourPunCallbacks
     {
         if(PhotonNetwork.IsMasterClient && isRandom == false)
         {
-            int random = Random.Range(0, 2);
-            PV.RPC("RandomMap", RpcTarget.All, random);
+            random = Random.Range(0, 2);
+            PV.RPC("RandomMap", RpcTarget.All);
         }
 
         if(isGenerate == false)
@@ -100,7 +101,7 @@ public class GameManager : MonoBehaviourPunCallbacks
     }
 
     [PunRPC]
-    void RandomMap(int random)
+    void RandomMap()
     {
         if (random == 0)
         {
@@ -398,11 +399,24 @@ public class GameManager : MonoBehaviourPunCallbacks
     {
         gameObject.SetActive(false);
 
-        var child = cannonGame.transform.GetChild(1).GetComponentsInChildren<Transform>();
+        var child = transform.GetComponents<Transform>();
+
+        if(random == 0)
+        {
+            child = runningGame.transform.GetChild(0).GetComponentsInChildren<Transform>();
+        }
+        else if(random == 1)
+        {
+            child = cannonGame.transform.GetChild(1).GetComponentsInChildren<Transform>();
+        }
 
         foreach (var item in child)
         {
-            if (item.name != "Cannons")
+            if (random == 0 && item.name != "Maps")
+            {
+                Destroy(item.gameObject);
+            }
+            else if (random == 1 && item.name != "Cannons")
             {
                 Destroy(item.gameObject);
             }
