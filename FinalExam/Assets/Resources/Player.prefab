@@ -6818,7 +6818,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4840870414910055077}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 7, y: 0.93440783, z: 1.0000002}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -6830,6 +6830,7 @@ Transform:
   - {fileID: 2458987754235344042}
   - {fileID: 8249999755009831819}
   - {fileID: 585369530720160558}
+  - {fileID: 1472578217020291778}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -6876,7 +6877,7 @@ CapsuleCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4840870414910055077}
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 13400000, guid: bf946a837e71d8349b9fae21459a5dfa, type: 2}
   m_IsTrigger: 0
   m_Enabled: 1
   m_Radius: 0.45
@@ -6896,6 +6897,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   team: 
+  isGrounded: 0
   jDown: 0
   isJump: 0
   isDead: 0
@@ -7458,6 +7460,37 @@ SkinnedMeshRenderer:
     m_Center: {x: 0, y: -0.16649666, z: 1.1731676}
     m_Extent: {x: 0.3446773, y: 0.26048052, z: 0.20372072}
   m_DirtyAABB: 0
+--- !u!1 &5200665177940545025
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1472578217020291778}
+  m_Layer: 0
+  m_Name: GroundCheck
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1472578217020291778
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5200665177940545025}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: -0.05, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5216832282158512159}
+  m_RootOrder: 8
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &5276954069366639738
 GameObject:
   m_ObjectHideFlags: 0

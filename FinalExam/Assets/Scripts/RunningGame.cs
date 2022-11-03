@@ -11,6 +11,8 @@ public class RunningGame : MonoBehaviourPunCallbacks
     GameObject frontLineBoard;
     Vector3 preBoardPos;
     List<GameObject> TrackList;
+    public bool isFirstTrackCreated = false;
+    public bool isChariotSpawnerOn = false;
 
     public GameObject chariot;
     private GameObject chariotObj;
@@ -24,6 +26,7 @@ public class RunningGame : MonoBehaviourPunCallbacks
     public GameObject firstTrack;
     public GameObject endTrack;
     public GameObject runningTrack;
+
     PhotonView PV;
 
 
@@ -34,26 +37,31 @@ public class RunningGame : MonoBehaviourPunCallbacks
         maps = transform.Find("Maps").gameObject;
         PV = GetComponent<PhotonView>();
     }
-    void Start()
-    {
-        if (PhotonNetwork.IsMasterClient)
-        {
-            FirstEndTrackSet();
-            StartCoroutine(ChariotSpawn());
-        }
-    }
-
     void Update()
     {
         if (PhotonNetwork.IsMasterClient)
         {
-            TrackGenerate();
-            ChariotAcceleration();
-            RemovePastTrack();
+            if (gameManager.isStart == true)
+            {
+                //ChariotSpawner();
+                ChariotAcceleration();
+                RemovePastTrack();
+            }
+            FirstTrackSet();
+            TrackGenerator();
         }        
     }
 
-    void TrackGenerate()
+    private void ChariotSpawner()
+    {
+        if(isChariotSpawnerOn == false)
+        {
+            isChariotSpawnerOn = true;
+            StartCoroutine(ChariotSpawn());
+        }
+    }
+
+    void TrackGenerator()
     {
         foreach (var player in gameManager.players)
         {
@@ -66,13 +74,25 @@ public class RunningGame : MonoBehaviourPunCallbacks
         }
     }
 
-    void FirstEndTrackSet()
+    void FirstTrackSet()
+    {
+        if(isFirstTrackCreated == false)
+        {
+            isFirstTrackCreated = true;
+            PV.RPC(nameof(FirstTrackCreateSync), RpcTarget.All);
+        }
+    }
+
+    [PunRPC]
+    void FirstTrackCreateSync()
     {
         GameObject fT = Instantiate(firstTrack);
         TrackList.Add(fT);
         fT.transform.position = Vector3.zero;
         fT.transform.parent = maps.transform;
+        preBoardPos = Vector3.zero;
     }
+
     [PunRPC]
     void RunningTrackCreateSync(Vector3 initPos, int randNum)
     {
@@ -81,12 +101,6 @@ public class RunningGame : MonoBehaviourPunCallbacks
         obj.transform.position = initPos;
         obj.transform.Find("ObstaclePattern").GetChild(randNum).gameObject.SetActive(true);
     }
-    
-    void RunningTrackRandPattern()
-    {
-
-    }
-
     IEnumerator ChariotSpawn()
     {
         float timer = 0;
