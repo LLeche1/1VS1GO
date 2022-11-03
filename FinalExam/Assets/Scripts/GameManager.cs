@@ -16,6 +16,7 @@ public class GameManager : MonoBehaviourPunCallbacks
     public GameObject cameraObject;
     public GameObject runningGame;
     public GameObject cannonGame;
+    public GameObject speedGame;
     public GameObject ui;
     public GameObject fade;
     public GameObject[] players;
@@ -30,7 +31,7 @@ public class GameManager : MonoBehaviourPunCallbacks
     public TMP_Text timeText;
     public TMP_Text myScoreText;
     public TMP_Text otherScoreText;
-    private float limitTime = 60;
+    private float limitTime;
     private bool isGenerate = false;
     private bool isRandom = false;
     public bool isStart = false;
@@ -55,7 +56,7 @@ public class GameManager : MonoBehaviourPunCallbacks
     {
         if(PhotonNetwork.IsMasterClient && isRandom == false)
         {
-            random = Random.Range(0, 2);
+            random = Random.Range(2, 3);
             PV.RPC("RandomMap", RpcTarget.All);
         }
 
@@ -108,6 +109,7 @@ public class GameManager : MonoBehaviourPunCallbacks
             runningGame.SetActive(true);
             RenderSettings.skybox = Skyboxes[0];
             RenderSettings.skybox.SetFloat("_Rotation", 0);
+            limitTime = 180;
         }
         else if (random == 1)
         {
@@ -116,24 +118,48 @@ public class GameManager : MonoBehaviourPunCallbacks
             cannonGame.transform.GetComponent<CannonGame>().lineGenTrigger = true;
             RenderSettings.skybox = Skyboxes[1];
             RenderSettings.skybox.SetFloat("_Rotation", 0);
+            limitTime = 60;
+        }
+        else if (random == 2)
+        {
+            speedGame.SetActive(true);
+            RenderSettings.skybox = Skyboxes[2];
+            RenderSettings.skybox.SetFloat("_Rotation", 0);
+            limitTime = 30;
         }
         isRandom = true;
     }
 
     void Generate()
     {
-        Vector3 position;
-        string team;
+        Vector3 position = Vector3.zero;
+        string team = null;
 
-        if (PhotonNetwork.IsMasterClient)
+        if(random == 0 || random == 1)
         {
-            position = new Vector3(4, 0, 0);
-            team = "Blue";
+            if (PhotonNetwork.IsMasterClient)
+            {
+                position = new Vector3(4, 0, 0);
+                team = "Blue";
+            }
+            else
+            {
+                position = new Vector3(-4, 0, 0);
+                team = "Red";
+            }
         }
-        else
+        else if(random == 2)
         {
-            position = new Vector3(-4, 0, 0);
-            team = "Red";
+            if (PhotonNetwork.IsMasterClient)
+            {
+                position = new Vector3(4, 0, -75);
+                team = "Blue";
+            }
+            else
+            {
+                position = new Vector3(-4, 0, -75);
+                team = "Red";
+            }
         }
 
         GameObject player = PhotonNetwork.Instantiate("Player", position, Quaternion.identity);
@@ -164,7 +190,22 @@ public class GameManager : MonoBehaviourPunCallbacks
                 cameraObject.transform.position = new Vector3(cameraObject.transform.position.x, 7.3f, cameraObject.transform.position.z);
             }
         }
-        ui.SetActive(true);
+        if(random == 0 || random == 1)
+        {
+            ui.SetActive(true);
+            ui.transform.Find("Button_Jump").gameObject.SetActive(true);
+            ui.transform.Find("Button_Slide").gameObject.SetActive(true);
+            ui.transform.Find("JoyStick").gameObject.SetActive(true);
+            ui.transform.Find("Button_Run").gameObject.SetActive(false);
+        }
+        else if(random == 2)
+        {
+            ui.SetActive(true);
+            ui.transform.Find("Button_Jump").gameObject.SetActive(false);
+            ui.transform.Find("Button_Slide").gameObject.SetActive(false);
+            ui.transform.Find("JoyStick").gameObject.SetActive(false);
+            ui.transform.Find("Button_Run").gameObject.SetActive(true);
+        }
         fade.SetActive(false);
         isFade = false;
         isStart = true;
@@ -404,10 +445,17 @@ public class GameManager : MonoBehaviourPunCallbacks
         if(random == 0)
         {
             child = runningGame.transform.GetChild(0).GetComponentsInChildren<Transform>();
+            runningGame.SetActive(false);
         }
         else if(random == 1)
         {
             child = cannonGame.transform.GetChild(1).GetComponentsInChildren<Transform>();
+            cannonGame.SetActive(false);
+            cannonGame.GetComponent<CannonGame>().isDiamond = false;
+        }
+        else if(random == 2)
+        {
+            speedGame.SetActive(false);
         }
 
         foreach (var item in child)
@@ -425,7 +473,6 @@ public class GameManager : MonoBehaviourPunCallbacks
         pause.SetActive(false);
         set.SetActive(false);
         cameraObject.transform.GetComponent<CameraController>().enabled = false;
-        limitTime = 60;
         blueScore = 0;
         redScore = 0;
         isWin = 0;
@@ -433,9 +480,6 @@ public class GameManager : MonoBehaviourPunCallbacks
         isStart = false;
         isRandom = false;
         isGiveUp = false;
-        runningGame.SetActive(false);
-        cannonGame.SetActive(false);
-        cannonGame.GetComponent<CannonGame>().isDiamond = false;
         joystick.GetComponent<JoyStick>().Reset();
     }
 

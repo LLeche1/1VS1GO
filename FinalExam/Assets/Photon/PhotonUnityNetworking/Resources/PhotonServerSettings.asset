@@ -34,13 +34,14 @@ MonoBehaviour:
   RunInBackground: 1
   StartInOfflineMode: 0
   RpcList:
-  - BoardSetting
   - CannonBallCreateSysnc
+  - ChariotCreateSync
   - ClickRpc
   - DestroyRpc
   - DestroySpaceship
   - DiamondSpawner
   - Fire
+  - FirstTrackCreateSync
   - GiveUp_Rpc
   - LimitTime
   - PlateRandomActive
@@ -48,13 +49,9 @@ MonoBehaviour:
   - RandPosSync
   - RespawnSpaceship
   - RoomLoadingCountRpc
+  - RunningTrackCreateSync
   - Score
   - Statue
-  - TrackNumSync
-  - RunningTrackCreate
-  - ChariotCreateSync
-  - RunningTrackCreateSync
-  - FirstTrackCreateSync
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

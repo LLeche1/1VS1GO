@@ -24,6 +24,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
     private JoyStick joyStick;
     private Button jumpBtn;
     private Button slideBtn;
+    private Button runBtn;
     public bool isDead = false;
     PhotonView PV;
     Transform tr;
@@ -58,6 +59,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
             joyStick = GameObject.Find("UI").transform.Find("JoyStick").GetComponent<JoyStick>();
             jumpBtn = GameObject.Find("UI").transform.Find("Button_Jump").GetComponent<Button>();
             slideBtn = GameObject.Find("UI").transform.Find("Button_Slide").GetComponent<Button>();
+            runBtn = GameObject.Find("UI").transform.Find("Button_Run").GetComponent<Button>();
             if (jumpBtn != null)
             {
                 jumpBtn.onClick.AddListener(ButtonJump);
@@ -65,6 +67,10 @@ public class PlayerController : MonoBehaviourPunCallbacks
             if (slideBtn != null)
             {
                 slideBtn.onClick.AddListener(ButtonSlide);
+            }
+            if (runBtn != null)
+            {
+                runBtn.onClick.AddListener(ButtonRun);
             }
             GetInput();
             JoyStickMove();
@@ -126,11 +132,12 @@ public class PlayerController : MonoBehaviourPunCallbacks
         }
 
     }
+
     void GroundCheck()
     {
-        Debug.Log("Ground");
         isGrounded = Physics.CheckSphere(groundCheck.transform.position, .1f);
     }
+
     void Jump() //Ű���� ����
     {
         if (jDown && !isJump && isGrounded)
@@ -201,6 +208,16 @@ public class PlayerController : MonoBehaviourPunCallbacks
         yield return new WaitForSeconds(1.167f);
         isSlide = false;
         animator.SetBool("isSlide", isSlide);
+    }
+
+    void ButtonRun()
+    {
+        if (!isSlide)
+        {
+            isSlide = true;
+            animator.SetBool("isSlide", isSlide);
+            rb.AddForce(new Vector3(0, jumpForce / 2, 0), ForceMode.Impulse); ;
+        }
     }
 
     void FallDown()
