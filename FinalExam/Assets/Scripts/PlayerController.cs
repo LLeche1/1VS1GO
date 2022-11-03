@@ -89,7 +89,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
         slideKeyDown = Input.GetKey(KeyCode.Q);
         this.inputDir = joyStick.inputDir;
 
-        if (Mathf.Abs(Input.GetAxisRaw("Horizontal")) == 1.0f || Mathf.Abs(Input.GetAxisRaw("Vertical")) == 1.0f || inputDir != Vector2.zero)
+        if (inputDir != Vector2.zero)
         {
             isMove = true;
         }
@@ -126,11 +126,13 @@ public class PlayerController : MonoBehaviourPunCallbacks
             {
                 transform.Translate(new Vector3(inputDir.x, 0, inputDir.y) * speed * Time.deltaTime, Space.World);
                 lookVector = new Vector2(inputDir.x, inputDir.y);
-                transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.LookRotation(new Vector3(lookVector.x, 0f, lookVector.y)), 20f * Time.deltaTime);
-                //������ Euler Rotation ���� �˰� ������ LookRotation�� ����ϸ� �ȴ�.
             }
         }
-
+        if (isMove)
+        {
+            lookVector = new Vector2(inputDir.x, inputDir.y);
+        }
+        transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.LookRotation(new Vector3(lookVector.x, 0f, lookVector.y)), 15f * Time.deltaTime);
     }
 
     void GroundCheck()
@@ -179,7 +181,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
                 animator.SetBool("isJump", false);
             }
             animator.SetBool("isSlide", isSlide);
-            jumpMoveDir = inputDir;
+            jumpMoveDir = lookVector;
             //StartCoroutine(SlideCoolTime());
 
             rb.velocity = Vector3.zero;
@@ -187,8 +189,8 @@ public class PlayerController : MonoBehaviourPunCallbacks
         }
         else if (isSlide)
         {
-            rb.AddForce(new Vector3(lookVector.x, 0f, lookVector.y).normalized * 8, ForceMode.Impulse);
-            transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.LookRotation(new Vector3(lookVector.x, 0f, lookVector.y)), 20f * Time.deltaTime);
+            rb.AddForce(new Vector3(jumpMoveDir.x, 0f, jumpMoveDir.y).normalized * 8, ForceMode.Impulse);
+            //transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.LookRotation(new Vector3(lookVector.x, 0f, lookVector.y)), 20f * Time.deltaTime);
         }
 
     }
@@ -273,7 +275,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
     private void OnCollisionEnter(Collision collision)
     {
-        if(collision.transform.tag == "RunningGameObstacle")
+        if (collision.transform.tag == "RunningGameObstacle")
         {
             speed = 5.0f;
         }

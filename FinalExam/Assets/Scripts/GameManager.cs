@@ -446,6 +446,8 @@ public class GameManager : MonoBehaviourPunCallbacks
         {
             child = runningGame.transform.GetChild(0).GetComponentsInChildren<Transform>();
             runningGame.SetActive(false);
+            runningGame.GetComponent<RunningGame>().isChariotSpawnerOn = false;
+            runningGame.GetComponent<RunningGame>().isFirstTrackCreated = false;
         }
         else if(random == 1)
         {
