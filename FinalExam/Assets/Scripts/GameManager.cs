@@ -42,7 +42,7 @@ public class GameManager : MonoBehaviourPunCallbacks
     public int blueScore = 0;
     public int redScore = 0;
     public int isWin = 0;
-    private int random = 0;
+    public int random = 0;
     PhotonView PV;
     LobbyManager lobbyManager;
 
@@ -56,7 +56,7 @@ public class GameManager : MonoBehaviourPunCallbacks
     {
         if(PhotonNetwork.IsMasterClient && isRandom == false)
         {
-            random = Random.Range(2, 3);
+            random = Random.Range(0, 3);
             PV.RPC("RandomMap", RpcTarget.All);
         }
 
@@ -404,6 +404,17 @@ public class GameManager : MonoBehaviourPunCallbacks
                                 }
                             }
                         }
+                    }
+                }
+                else if(speedGame.activeSelf == true)
+                {
+                    if(limitTime < 0)
+                    {
+    
+                    }
+                    else if(limitTime > 0)
+                    {
+
                     }
                 }
             }

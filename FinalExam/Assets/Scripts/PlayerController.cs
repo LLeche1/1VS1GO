@@ -214,12 +214,8 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
     void ButtonRun()
     {
-        if (!isSlide)
-        {
-            isSlide = true;
-            animator.SetBool("isSlide", isSlide);
-            rb.AddForce(new Vector3(0, jumpForce / 2, 0), ForceMode.Impulse); ;
-        }
+        tr.Translate(Vector3.forward * 3 * Time.deltaTime, Space.World);
+        animator.SetBool("isRun", true);
     }
 
     void FallDown()
