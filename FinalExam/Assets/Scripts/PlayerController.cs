@@ -15,6 +15,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
     public bool isJump = false;
     private bool isMove = false;
     private bool isHit = false;
+    private int boostStack = 0;
     private float speed = 5.0f;
     private float jumpForce = 5.0f;
     private Vector2 inputDir = Vector2.zero;
@@ -78,6 +79,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
             Jump();
             Slide();
             FallDown();
+            BoostEffect();
         }
     }
 
@@ -154,6 +156,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
         else if (isJump && !isSlide)
         {
             rb.AddForce(new Vector3(jumpMoveDir.x * 5, 0, jumpMoveDir.y * 5), ForceMode.Impulse);
+            transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.LookRotation(new Vector3(jumpMoveDir.x, 0f, jumpMoveDir.y)), 18f * Time.deltaTime);
             //transform.Translate(new Vector3(jumpMoveDir.x, 0, jumpMoveDir.y) * speed * Time.deltaTime, Space.World);
             //transform.LookAt(transform.position + new Vector3(jumpMoveDir.x, 0, jumpMoveDir.y));
         }
@@ -190,7 +193,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
         else if (isSlide)
         {
             rb.AddForce(new Vector3(jumpMoveDir.x, 0f, jumpMoveDir.y).normalized * 8, ForceMode.Impulse);
-            //transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.LookRotation(new Vector3(lookVector.x, 0f, lookVector.y)), 20f * Time.deltaTime);
+            transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.LookRotation(new Vector3(jumpMoveDir.x, 0f, jumpMoveDir.y)), 18f * Time.deltaTime);
         }
 
     }
@@ -237,6 +240,17 @@ public class PlayerController : MonoBehaviourPunCallbacks
         fallAble = true;
     }
 
+    void BoostEffect()
+    {
+        if(boostStack > 2)
+        {
+            transform.Find("BoostEffect").gameObject.SetActive(true);
+        }
+        else
+        {
+            transform.Find("BoostEffect").gameObject.SetActive(false);
+        }
+    }
     private void OnTriggerEnter(Collider other)
     {
         if (other.transform.tag == "Spike")
@@ -252,6 +266,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
                 isJump = true;
                 isHit = true;
+                boostStack = 0;
                 speed = 5.0f;
                 animator.SetBool("isJump", isJump);
                 StartCoroutine(UnHittable());
@@ -273,6 +288,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
     {
         if (collision.transform.tag == "RunningGameObstacle")
         {
+            boostStack = 0;
             speed = 5.0f;
         }
         if (collision.transform.tag == "Floor")
@@ -299,8 +315,8 @@ public class PlayerController : MonoBehaviourPunCallbacks
         {
             if (isMove)
             {
-                Debug.Log("hit");
-                speed *= 1.3f;
+                boostStack++;
+                speed += 1f;
             }
         }
     }
