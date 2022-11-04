@@ -408,13 +408,27 @@ public class GameManager : MonoBehaviourPunCallbacks
                 }
                 else if(speedGame.activeSelf == true)
                 {
+                    if (player.transform.position.z >= 70)
+                    {
+                        if (player.name != lobbyManager.nickName)
+                        {
+                            isWin = 0;
+                            lobbyManager.LobbyResult();
+                            isResult = true;
+                        }
+                        else if (player.name == lobbyManager.nickName)
+                        {
+                            isWin = 1;
+                            lobbyManager.LobbyResult();
+                            isResult = true;
+                        }
+                    }
+
                     if(limitTime < 0)
                     {
-    
-                    }
-                    else if(limitTime > 0)
-                    {
-
+                        isWin = 2;
+                        lobbyManager.LobbyResult();
+                        isResult = true;
                     }
                 }
             }

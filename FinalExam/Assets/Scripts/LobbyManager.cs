@@ -7,12 +7,16 @@ using Photon.Chat;
 using AuthenticationValues = Photon.Chat.AuthenticationValues;
 using PlayFab;
 using PlayFab.ClientModels;
+using PlayFab.Json;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using UnityEngine.Audio;
-using TMPro;
 using UnityEngine.SceneManagement;
+using UnityEngine.AddressableAssets;
+using UnityEngine.ResourceManagement.AsyncOperations;
+using TMPro;
 using System;
 #if UNITY_IOS
 using NotificationServices = UnityEngine.iOS.NotificationServices;
@@ -26,6 +30,10 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
     public GameObject main;
     public GameObject inGame;
     public GameObject title;
+    public GameObject update;
+    public TMP_Text updateSize;
+    private AsyncOperationHandle updateHandle;
+    public GameObject updateLoading;
     public GameObject titleLoading;
     public GameObject login;
     public TMP_InputField loginID;
@@ -117,7 +125,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
     private float _2vs2;
     private float total_Play;
     private float mvp;
-    private string gameVersion = "1";
+    private string version = null;
     private string lastCanvas;
     private string errorType;
     private string lobbyShop_Name;
@@ -151,11 +159,42 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
         NotificationServices.CancelAllLocalNotifications();
         NotificationServices.RegisterForNotifications(NotificationType.Alert | NotificationType.Badge | NotificationType.Sound);
         #endif
+        PhotonNetwork.GameVersion = 1.ToString();
+        Debug.Log(PhotonNetwork.GameVersion);
         LoginLoad(loginRememberMe);
-        PhotonNetwork.GameVersion = gameVersion;
         PhotonNetwork.ConnectUsingSettings();
-        titleLoading.SetActive(true);
-        StartCoroutine(TitleLoadDelay());
+
+        Addressables.GetDownloadSizeAsync("default").Completed +=
+            (AsyncOperationHandle<long> SizeHandle) =>
+            {
+                float size1 = 0;
+                string size2 = null;
+                if(SizeHandle.Result >= 1024)
+                {
+                    if(SizeHandle.Result >= 1048576)
+                    {
+                        size1 = SizeHandle.Result / 1048576;
+                        size2 = size1.ToString();
+                        updateSize.text = "Size : " + size2 + " MB";
+                    }
+                    else
+                    {
+                        size1 = SizeHandle.Result / 1024;
+                        size2 = size1.ToString();
+                        updateSize.text = "Size : " + size2 + " KB";
+                    }
+                }
+                Addressables.Release(SizeHandle);
+                if(SizeHandle.Result == 0)
+                {
+                    titleLoading.SetActive(true);
+                    StartCoroutine(TitleLoadDelay());
+                }
+                else 
+                {
+                    update.SetActive(true);
+                }
+            };
     }
 
     void Update()
@@ -171,6 +210,35 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
             LobbyChatEnter();
             SetData();
         }
+    }
+    
+    public void UpdateHandle()
+    {
+        update.transform.Find("Popup").transform.Find("Button_Update").gameObject.SetActive(false);
+        update.transform.Find("Popup").transform.Find("Slider_Loading").gameObject.SetActive(true);
+        
+        updateHandle = Addressables.DownloadDependenciesAsync("default");
+        StartCoroutine(UpdateProgress());
+        updateHandle.Completed +=
+            (AsyncOperationHandle Handle) =>
+            {
+                Debug.Log("다운로드 완료!");
+                Addressables.Release(Handle);
+                SceneManager.LoadScene("Main");
+            };
+    }
+
+    IEnumerator UpdateProgress()
+    {
+        float percent = 0;
+        while(percent < 100)
+        {
+            yield return new WaitForEndOfFrame();
+            percent = updateHandle.PercentComplete * 100;
+            updateLoading.transform.GetChild(1).GetComponent<TMP_Text>().text = percent.ToString("0") + "%";
+            updateLoading.GetComponent<Slider>().value = percent * 0.01f;
+        }
+        yield return null;
     }
 
     IEnumerator TitleLoadDelay()
