@@ -113,6 +113,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
     public TMP_Text lobby1vs1_Count;
     public GameObject roomLoading;
     public GameObject roomLoading_Slider;
+    private string gameVersion = "1";
     public float level;
     public float exp;
     public float maxExp;
@@ -159,11 +160,11 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
         NotificationServices.CancelAllLocalNotifications();
         NotificationServices.RegisterForNotifications(NotificationType.Alert | NotificationType.Badge | NotificationType.Sound);
         #endif
-        PhotonNetwork.GameVersion = 1.ToString();
-        Debug.Log(PhotonNetwork.GameVersion);
+        PhotonNetwork.GameVersion = gameVersion;
         LoginLoad(loginRememberMe);
         PhotonNetwork.ConnectUsingSettings();
-
+        titleLoading.SetActive(true);
+        StartCoroutine(TitleLoadDelay());
         Addressables.GetDownloadSizeAsync("default").Completed +=
             (AsyncOperationHandle<long> SizeHandle) =>
             {
