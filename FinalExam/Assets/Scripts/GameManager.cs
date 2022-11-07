@@ -56,9 +56,8 @@ public class GameManager : MonoBehaviourPunCallbacks
     {
         if(PhotonNetwork.IsMasterClient && isRandom == false)
         {
-            random = 1;
+            random = Random.Range(0,3);
             PV.RPC("RandomMap", RpcTarget.All);
-            Debug.Log("방장");
         }
 
         if(isGenerate == false)
