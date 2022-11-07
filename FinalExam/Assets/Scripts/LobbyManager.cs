@@ -14,8 +14,8 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using UnityEngine.Audio;
 using UnityEngine.SceneManagement;
-using UnityEngine.AddressableAssets;
-using UnityEngine.ResourceManagement.AsyncOperations;
+//using UnityEngine.AddressableAssets;
+//using UnityEngine.ResourceManagement.AsyncOperations;
 using TMPro;
 using System;
 #if UNITY_IOS
@@ -32,7 +32,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
     public GameObject title;
     public GameObject update;
     public TMP_Text updateSize;
-    private AsyncOperationHandle updateHandle;
+    //private AsyncOperationHandle updateHandle;
     public GameObject updateLoading;
     public GameObject titleLoading;
     public GameObject login;
@@ -164,7 +164,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
         PhotonNetwork.ConnectUsingSettings();
         titleLoading.SetActive(true);
         StartCoroutine(TitleLoadDelay());
-        Addressables.GetDownloadSizeAsync("default").Completed +=
+        /*Addressables.GetDownloadSizeAsync("default").Completed +=
             (AsyncOperationHandle<long> SizeHandle) =>
             {
                 float size1 = 0;
@@ -194,7 +194,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
                 {
                     update.SetActive(true);
                 }
-            };
+            };*/
     }
 
     void Update()
@@ -212,7 +212,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
         }
     }
     
-    public void UpdateHandle()
+    /*public void UpdateHandle()
     {
         update.transform.Find("Popup").transform.Find("Button_Update").gameObject.SetActive(false);
         update.transform.Find("Popup").transform.Find("Slider_Loading").gameObject.SetActive(true);
@@ -239,7 +239,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
             updateLoading.GetComponent<Slider>().value = percent * 0.01f;
         }
         yield return null;
-    }
+    }*/
 
     IEnumerator TitleLoadDelay()
     {
