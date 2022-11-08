@@ -6,7 +6,7 @@ using Photon.Realtime;
 
 public class SpeedGame : MonoBehaviourPunCallbacks
 {
-    public float speed;
+    public float speed = 0;
     GameManager gameManager;
 
     void Awake()
@@ -16,6 +16,20 @@ public class SpeedGame : MonoBehaviourPunCallbacks
 
     void Update()
     {
-       speed -= time.deltaTime;
+        if(gameManager.isStart == true)
+        {
+            if(speed > 0)
+            {
+                speed -= Time.deltaTime * 5;
+            }
+            else if(speed <= 0)
+            {
+                speed = 0;
+            }
+        }
+        else if(gameManager.isStart == false)
+        {
+            speed = 0;
+        }
     }
 }

@@ -1553,7 +1553,6 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
 
             while (delay < 0.001f)
             {
-                Debug.Log(delay);
                 if (game_Manager.isWin == 0)
                 {
                     yield return new WaitForEndOfFrame();

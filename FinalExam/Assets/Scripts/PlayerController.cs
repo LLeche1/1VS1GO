@@ -33,6 +33,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
     Rigidbody rb;
     Material material;
     GameManager gameManager;
+    SpeedGame speedGame;
     public bool jumpKeyDown = false;
     private bool slideKeyDown = false;
     private bool isSlide = false;
@@ -42,6 +43,8 @@ public class PlayerController : MonoBehaviourPunCallbacks
     private float jumpMoveMag;
 
     private GameObject groundCheck;
+    private bool isSpeedGame = false;
+    private bool isRunBtn = false;
     void Awake()
     {
         material = transform.Find("Bodies").Find("MainBody01").GetComponent<SkinnedMeshRenderer>().sharedMaterial;
@@ -80,6 +83,19 @@ public class PlayerController : MonoBehaviourPunCallbacks
             Slide();
             FallDown();
             BoostEffect();
+
+            if(isSpeedGame == true)
+            {
+                if(isRunBtn == true)
+                {
+                    speedGame = GameObject.Find("SpeedGame").GetComponent<SpeedGame>();
+                    speedGame.speed++; 
+                }
+
+                tr.Translate(new Vector3(0, 0, speedGame.speed * 0.01f));
+                animator.SetBool("isRun", true);
+                isRunBtn = false;
+            }
         }
     }
 
@@ -217,8 +233,8 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
     void ButtonRun()
     {
-        tr.Translate(Vector3.forward * Time.deltaTime, Space.World);
-        animator.SetBool("isRun", true);
+        isSpeedGame = true;
+        isRunBtn = true;
     }
 
     void FallDown()
