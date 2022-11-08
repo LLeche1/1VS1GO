@@ -92,7 +92,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
                     speedGame.speed++; 
                 }
 
-                tr.Translate(new Vector3(0, 0, speedGame.speed * 0.01f));
+                tr.Translate(new Vector3(0, 0, speedGame.speed * 0.1f));
                 animator.SetBool("isRun", true);
                 isRunBtn = false;
             }

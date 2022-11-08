@@ -149,12 +149,12 @@ public class GameManager : MonoBehaviourPunCallbacks
         {
             if (PhotonNetwork.IsMasterClient)
             {
-                position = new Vector3(4, 0, -75);
+                position = new Vector3(4, 0, -485);
                 team = "Blue";
             }
             else
             {
-                position = new Vector3(-4, 0, -75);
+                position = new Vector3(-4, 0, -485);
                 team = "Red";
             }
         }
@@ -439,7 +439,7 @@ public class GameManager : MonoBehaviourPunCallbacks
                 }
                 else if(speedGame.activeSelf == true)
                 {
-                    if (player.transform.position.z >= 70)
+                    if (player.transform.position.z >= 450)
                     {
                         if (player.name != lobbyManager.nickName)
                         {
