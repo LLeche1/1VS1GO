@@ -10,6 +10,7 @@ TagManager:
   - SpeedPad
   - CannonBall
   - RunningGameObstacle
+  - Chariot
   layers:
   - Default
   - TransparentFX

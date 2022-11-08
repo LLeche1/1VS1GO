@@ -43,7 +43,7 @@ public class RunningGame : MonoBehaviourPunCallbacks
             TrackGenerator();
             if (gameManager.isStart == true)
             {
-                //ChariotSpawner();
+                ChariotSpawner();
                 ChariotAcceleration();
                 RemovePastTrack();
             }
@@ -137,10 +137,10 @@ public class RunningGame : MonoBehaviourPunCallbacks
         {
             foreach (var track in TrackList)
             {
-                if (chariotObj.transform.position.z > track.transform.position.z + 20)
+                if (chariotObj.transform.position.z > track.transform.position.z + 100)
                 {
                     TrackList.Remove(track);
-                    Destroy(track.gameObject);
+                    Destroy(track.gameObject);  
                 }
             }
         }

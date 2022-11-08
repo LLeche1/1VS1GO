@@ -6901,7 +6901,6 @@ MonoBehaviour:
   isGrounded: 0
   jDown: 0
   isJump: 0
-  ball: {fileID: 300502393607073509, guid: f25864e80efb1134f866520cb865dc7c, type: 3}
   isDead: 0
   jumpKeyDown: 0
   isFallDown: 0

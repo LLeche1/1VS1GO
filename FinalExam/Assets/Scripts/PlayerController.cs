@@ -35,7 +35,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
     Animator animator;
     Rigidbody rb;
     Material material;
-    Color color;
+    SkinnedMeshRenderer skinnedMeshRenderer;
     GameManager gameManager;
     SpeedGame speedGame;
     public bool jumpKeyDown = false;
@@ -51,7 +51,10 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
     void Awake()
     {
-        color = Color.white;
+        skinnedMeshRenderer = transform.Find("Bodies").Find("MainBody01").GetComponent<SkinnedMeshRenderer>();
+        skinnedMeshRenderer.material = Instantiate(skinnedMeshRenderer.material);
+        material = skinnedMeshRenderer.material;
+        material.color = Color.white;
         material = transform.Find("Bodies").Find("MainBody01").GetComponent<SkinnedMeshRenderer>().sharedMaterial;
         PV = GetComponent<PhotonView>();
         tr = GetComponent<Transform>();
@@ -98,7 +101,6 @@ public class PlayerController : MonoBehaviourPunCallbacks
             Slide();
             FallDown();
             BoostEffect();
-            SetMaterialColor();
 
             if (isSpeedGame == true)
             {
@@ -163,11 +165,6 @@ public class PlayerController : MonoBehaviourPunCallbacks
                 transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.LookRotation(new Vector3(inputDir.x, 0f, inputDir.y)), 15f * Time.deltaTime);
             }
         }
-        if (isMove)
-        {
-            lookVector = new Vector2(inputDir.x, inputDir.y);
-        }
-        transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.LookRotation(new Vector3(lookVector.x, 0f, lookVector.y)), 15f * Time.deltaTime);
     }
 
     void GroundCheck()
@@ -225,7 +222,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
         }
         else if (isSlide)
         {
-            rb.AddForce(new Vector3(jumpMoveDir.x, 0f, jumpMoveDir.z).normalized * 8, ForceMode.Impulse);
+            rb.AddForce(new Vector3(jumpMoveDir.x, 0f, jumpMoveDir.z).normalized * (speed + 3f), ForceMode.Impulse);
             transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.LookRotation(new Vector3(inputDir.x, 0f, inputDir.y)), 2.5f * Time.deltaTime);
         }
 
@@ -255,9 +252,15 @@ public class PlayerController : MonoBehaviourPunCallbacks
             isAttack = true;
             GameObject ball = PhotonNetwork.Instantiate("ball", gameObject.transform.position + transform.forward, Quaternion.identity);
             ball.transform.parent = GameObject.Find("InGame").transform.Find("CannonGame").transform.Find("Cannons").transform;
-            ball.GetComponent<Rigidbody>().AddForce(transform.forward * 100, ForceMode.Impulse);
+            PV.RPC(nameof(BallRPC), RpcTarget.All, ball);
             StartCoroutine(BallDelay());
         }
+    }
+
+    [PunRPC]
+    void BallRPC(GameObject ball)
+    {
+        ball.GetComponent<Rigidbody>().AddForce(transform.forward * 100, ForceMode.Impulse);
     }
 
     IEnumerator BallDelay()
@@ -310,11 +313,6 @@ public class PlayerController : MonoBehaviourPunCallbacks
             transform.Find("BoostEffect").gameObject.SetActive(false);
         }
     }
-    private void SetMaterialColor()
-    {
-        material.color = color;
-    }
-
     private void OnTriggerEnter(Collider other)
     {
         if (other.transform.tag == "Spike")
@@ -368,7 +366,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
             Vector3 contatsDir = collision.contacts[0].normal;
             rb.velocity = Vector3.zero;
             rb.AddForce(new Vector3(0f, 3f, 0f), ForceMode.Impulse);
-            jumpMoveDir = new Vector2(contatsDir.x, contatsDir.z).normalized * 1.5f;
+            jumpMoveDir = new Vector3(contatsDir.x, 0f, contatsDir.z).normalized * 1.5f; 
             isJump = true;
             animator.SetBool("isJump", isJump);
 
@@ -383,20 +381,26 @@ public class PlayerController : MonoBehaviourPunCallbacks
                 speed += 1f;
             }
         }
+
+        if (collision.transform.tag == "Chariot")
+        {
+            animator.SetBool("isJump", true);
+            rb.AddForce(new Vector3(1, 1, 1).normalized * 100f, ForceMode.Impulse);
+        }
     }
 
     IEnumerator UnHittable()
     {
-        material.SetColor("_Color", Color.red);
+        material.color = Color.red;
         yield return new WaitForSeconds(0.5f);
         for (int i = 0; i < 5; i++)
         {
-            material.SetColor("_Color", Color.white);
+            material.color = Color.white;
             yield return new WaitForSeconds(0.25f);
-            material.SetColor("_Color", Color.grey);
+            material.color = Color.grey;
             yield return new WaitForSeconds(0.25f);
         }
-        material.SetColor("_Color", Color.white);
+        material.color = Color.white;
         isHit = false;
     }
 }
