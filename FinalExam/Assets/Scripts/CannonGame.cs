@@ -53,7 +53,7 @@ public class CannonGame : MonoBehaviourPunCallbacks
         if (PhotonNetwork.IsMasterClient && gameManager.isStart == true)
         {
             CannonBallSpawner();
-            PV.RPC("DiamondSpawner", RpcTarget.All);
+            DiamondSpawner();
         }
     }
 
@@ -83,7 +83,6 @@ public class CannonGame : MonoBehaviourPunCallbacks
         }
     }
 
-    [PunRPC]
     void DiamondSpawner()
     {
         if (isDiamond == false)

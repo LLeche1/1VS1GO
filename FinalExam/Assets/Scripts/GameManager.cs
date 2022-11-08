@@ -57,12 +57,24 @@ public class GameManager : MonoBehaviourPunCallbacks
     {
         if(PhotonNetwork.IsMasterClient && isRandom == false)
         {
-            random = Random.Range(3,4);
+            random = Random.Range(2,3);
             PV.RPC("RandomMap", RpcTarget.All, random);
         }
 
         if(isStart == true)
         {
+            players = GameObject.FindGameObjectsWithTag("Player");
+
+            foreach (GameObject player1 in players)
+            {
+                player1.transform.GetComponent<PlayerController>().enabled = true;
+                player1.transform.parent = GameObject.Find("InGame").transform;
+                if(player1.name == lobbyManager.nickName)
+                {
+                    cameraObject.GetComponent<CameraController>().player = player1;
+                }
+            }
+
             Score();
             PV.RPC("Statue", RpcTarget.All);
             if(PhotonNetwork.IsMasterClient)
@@ -179,18 +191,28 @@ public class GameManager : MonoBehaviourPunCallbacks
             }
         }
         
-        if(random == 1 || random == 2)
+        if(random == 1)
         {
+            ui.transform.Find("JoyStick").gameObject.SetActive(true);
             ui.transform.Find("Button_Jump").gameObject.SetActive(true);
             ui.transform.Find("Button_Slide").gameObject.SetActive(true);
+            ui.transform.Find("Button_Attack").gameObject.SetActive(false);
+            ui.transform.Find("Button_Run").gameObject.SetActive(false);
+        }
+        else if(random == 2)
+        {
             ui.transform.Find("JoyStick").gameObject.SetActive(true);
+            ui.transform.Find("Button_Jump").gameObject.SetActive(true);
+            ui.transform.Find("Button_Slide").gameObject.SetActive(true);
+            ui.transform.Find("Button_Attack").gameObject.SetActive(true);
             ui.transform.Find("Button_Run").gameObject.SetActive(false);
         }
         else if(random == 3)
         {
+            ui.transform.Find("JoyStick").gameObject.SetActive(false);
             ui.transform.Find("Button_Jump").gameObject.SetActive(false);
             ui.transform.Find("Button_Slide").gameObject.SetActive(false);
-            ui.transform.Find("JoyStick").gameObject.SetActive(false);
+            ui.transform.Find("Button_Attack").gameObject.SetActive(false);
             ui.transform.Find("Button_Run").gameObject.SetActive(true);
         }
 
@@ -218,17 +240,6 @@ public class GameManager : MonoBehaviourPunCallbacks
             if(blueReady == true && redReady == true)
             {
                 check = true;
-            }
-            players = GameObject.FindGameObjectsWithTag("Player");
-
-            foreach (GameObject player1 in players)
-            {
-                player1.transform.GetComponent<PlayerController>().enabled = true;
-                player1.transform.parent = GameObject.Find("InGame").transform;
-                if(player1.name == lobbyManager.nickName)
-                {
-                    cameraObject.GetComponent<CameraController>().player = player1;
-                }
             }
         }
 
@@ -352,7 +363,7 @@ public class GameManager : MonoBehaviourPunCallbacks
         {
             foreach (GameObject player in players)
             {
-                if (player.transform.position.y < -30)
+                if (player.transform.position.y < -10)
                 {
                     if (player.name != lobbyManager.nickName)
                     {

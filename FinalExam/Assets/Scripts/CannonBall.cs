@@ -10,7 +10,7 @@ public class CannonBall : MonoBehaviour
     }
     void OutLandDestroy()
     {
-        if(transform.position.y < -30f)
+        if(transform.position.y < -1f)
         {
             Destroy(gameObject);
         }
