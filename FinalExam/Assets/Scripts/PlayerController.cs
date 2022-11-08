@@ -32,6 +32,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
     Animator animator;
     Rigidbody rb;
     Material material;
+    Color color;
     GameManager gameManager;
     SpeedGame speedGame;
     public bool jumpKeyDown = false;
@@ -47,6 +48,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
     private bool isRunBtn = false;
     void Awake()
     {
+        color = Color.white;
         material = transform.Find("Bodies").Find("MainBody01").GetComponent<SkinnedMeshRenderer>().sharedMaterial;
         PV = GetComponent<PhotonView>();
         tr = GetComponent<Transform>();
@@ -83,8 +85,8 @@ public class PlayerController : MonoBehaviourPunCallbacks
             Slide();
             FallDown();
             BoostEffect();
-
-            if(isSpeedGame == true)
+            SetMaterialColor();
+            if (isSpeedGame == true)
             {
                 if(isRunBtn == true)
                 {
@@ -115,6 +117,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
         {
             isMove = false;
         }
+        lookVector = transform.forward;
     }
 
     void Move()
@@ -267,6 +270,11 @@ public class PlayerController : MonoBehaviourPunCallbacks
             transform.Find("BoostEffect").gameObject.SetActive(false);
         }
     }
+    private void SetMaterialColor()
+    {
+        material.color = color;
+    }
+
     private void OnTriggerEnter(Collider other)
     {
         if (other.transform.tag == "Spike")
@@ -293,7 +301,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
         if (other.transform.tag == "JumpPad")
         {
             isJump = true;
-            jumpMoveDir = inputDir;
+            jumpMoveDir = lookVector;
             rb.velocity = Vector3.zero;
             rb.AddForce(new Vector3(0, 10f, 0), ForceMode.Impulse);
             animator.SetBool("isJump", true);
