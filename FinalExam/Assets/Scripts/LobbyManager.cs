@@ -161,6 +161,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
         #endif
         LoginLoad(loginRememberMe);
         PhotonNetwork.GameVersion = gameVersion;
+        PhotonNetwork.KeepAliveInBackground = 100;
         PhotonNetwork.ConnectUsingSettings();
         titleLoading.SetActive(true);
         StartCoroutine(TitleLoadDelay());

@@ -57,7 +57,7 @@ public class GameManager : MonoBehaviourPunCallbacks
     {
         if(PhotonNetwork.IsMasterClient && isRandom == false)
         {
-            random = Random.Range(1,4);
+            random = Random.Range(3,4);
             PV.RPC("RandomMap", RpcTarget.All, random);
         }
 
@@ -222,6 +222,11 @@ public class GameManager : MonoBehaviourPunCallbacks
         }
 
         bool check = false;
+
+        if(lobbyManager.isVibration == 1)
+        {
+            check = true;
+        }
 
         while(check == false)
         {
@@ -528,6 +533,8 @@ public class GameManager : MonoBehaviourPunCallbacks
         isStart = false;
         isRandom = false;
         isGiveUp = false;
+        redReady = false;
+        blueReady = false;
         joystick.GetComponent<JoyStick>().Reset();
     }
 

@@ -217,7 +217,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
     void ButtonRun()
     {
-        tr.Translate(Vector3.forward * 3 * Time.deltaTime, Space.World);
+        tr.Translate(Vector3.forward * Time.deltaTime, Space.World);
         animator.SetBool("isRun", true);
     }
 

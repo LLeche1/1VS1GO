@@ -52,7 +52,11 @@ public class CannonDiamond : MonoBehaviour
                     }
                 }
             }
-            //PhotonNetwork.Destroy(gameObject);
+
+            if(PV.IsMine)
+            {
+                PhotonNetwork.Destroy(gameObject);
+            }
         }
     }
 }
