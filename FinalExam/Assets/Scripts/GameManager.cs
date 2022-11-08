@@ -32,10 +32,8 @@ public class GameManager : MonoBehaviourPunCallbacks
     public TMP_Text myScoreText;
     public TMP_Text otherScoreText;
     private float limitTime;
-    private bool isGenerate = false;
     private bool isRandom = false;
     public bool isStart = false;
-    private bool isFade = false;
     private bool isResult = false;
     private bool isGiveUp = false;
     private string lastCanvas;
@@ -45,6 +43,9 @@ public class GameManager : MonoBehaviourPunCallbacks
     public int random = 0;
     PhotonView PV;
     LobbyManager lobbyManager;
+
+    public bool redReady = false;
+    public bool blueReady = false;
 
     void Awake()
     {
@@ -60,12 +61,6 @@ public class GameManager : MonoBehaviourPunCallbacks
             PV.RPC("RandomMap", RpcTarget.All, random);
         }
 
-        if(isGenerate == false)
-        {
-            isResult = false;
-            Generate();
-        }
-
         players = GameObject.FindGameObjectsWithTag("Player");
 
         foreach (GameObject player in players)
@@ -78,15 +73,7 @@ public class GameManager : MonoBehaviourPunCallbacks
             }
         }
 
-        if(isStart == false)
-        {
-            if(isFade == false)
-            {
-                isFade = true;
-                StartCoroutine(Fade());
-            }
-        }
-        else if(isStart == true)
+        if(isStart == true)
         {
             Score();
             PV.RPC("Statue", RpcTarget.All);
@@ -112,7 +99,7 @@ public class GameManager : MonoBehaviourPunCallbacks
     void RandomMap(int rand)
     {
         random = rand;
-        Debug.Log(random);
+
         if (random == 1)
         {
             runningGame.SetActive(true);
@@ -137,6 +124,7 @@ public class GameManager : MonoBehaviourPunCallbacks
             limitTime = 30;
         }
         isRandom = true;
+        Generate();
     }
 
     void Generate()
@@ -176,15 +164,22 @@ public class GameManager : MonoBehaviourPunCallbacks
         player.transform.GetComponent<PlayerController>().team = team;
         player.transform.parent = GameObject.Find("InGame").transform;
         cameraObject.transform.GetComponent<CameraController>().enabled = true;
-        isGenerate = true;
+
+        StartCoroutine(Fade());
     }
 
     IEnumerator Fade()
     {
         ui.SetActive(false);
         fade.SetActive(true);
+
+        GameObject player = GameObject.Find(lobbyManager.nickName);
+        player.transform.GetComponent<PlayerController>().enabled = true;
+        cameraObject.GetComponent<CameraController>().player = player;
+
         cameraObject.transform.position = cameraObject.GetComponent<CameraController>().player.transform.position - (Vector3.forward * 10) + (Vector3.up * 17);
         float count = 1;
+
         while (count > 0)
         {
             count -= 0.3f * Time.deltaTime;
@@ -199,9 +194,9 @@ public class GameManager : MonoBehaviourPunCallbacks
                 cameraObject.transform.position = new Vector3(cameraObject.transform.position.x, 7.3f, cameraObject.transform.position.z);
             }
         }
+        
         if(random == 1 || random == 2)
         {
-            ui.SetActive(true);
             ui.transform.Find("Button_Jump").gameObject.SetActive(true);
             ui.transform.Find("Button_Slide").gameObject.SetActive(true);
             ui.transform.Find("JoyStick").gameObject.SetActive(true);
@@ -209,16 +204,39 @@ public class GameManager : MonoBehaviourPunCallbacks
         }
         else if(random == 3)
         {
-            ui.SetActive(true);
             ui.transform.Find("Button_Jump").gameObject.SetActive(false);
             ui.transform.Find("Button_Slide").gameObject.SetActive(false);
             ui.transform.Find("JoyStick").gameObject.SetActive(false);
             ui.transform.Find("Button_Run").gameObject.SetActive(true);
         }
+
         fade.SetActive(false);
-        isFade = false;
-        isStart = true;
+
+        if(player.transform.GetComponent<PlayerController>().team == "Red")
+        {
+            redReady = true;
+            PV.RPC("ReadyCheck", RpcTarget.All, player, redReady);
+        }
+        else if(player.transform.GetComponent<PlayerController>().team == "Blue")
+        {
+            blueReady = true;
+            PV.RPC("ReadyCheck", RpcTarget.All, player, blueReady);
+        }
+
         yield return null;
+    }
+
+    [PunRPC]
+    void ReadyCheck(GameObject player, bool ready)
+    {
+        if(player.transform.GetComponent<PlayerController>().team == "Red")
+        {
+            redReady = ready;
+        }
+        else if(player.transform.GetComponent<PlayerController>().team == "Blue")
+        {
+            blueReady = ready;
+        }
     }
 
     [PunRPC]
@@ -329,14 +347,13 @@ public class GameManager : MonoBehaviourPunCallbacks
                     {
                         isWin = 1;
                         lobbyManager.LobbyResult();
-                        isResult = true;
                     }
                     else if (player.name == lobbyManager.nickName)
                     {
                         isWin = 0;
                         lobbyManager.LobbyResult();
-                        isResult = true;
                     }
+                    isResult = true;
                 }
 
                 if (runningGame.activeSelf == true)
@@ -347,14 +364,13 @@ public class GameManager : MonoBehaviourPunCallbacks
                         {
                             isWin = 0;
                             lobbyManager.LobbyResult();
-                            isResult = true;
                         }
                         else if (player.name == lobbyManager.nickName)
                         {
                             isWin = 1;
                             lobbyManager.LobbyResult();
-                            isResult = true;
                         }
+                        isResult = true;
                     }
 
                     if(limitTime < 0)
@@ -372,40 +388,36 @@ public class GameManager : MonoBehaviourPunCallbacks
                         {
                             if(player.GetComponent<PlayerController>().team == "Blue")
                             {
-                                if(blueScore > redScore){
+                                if(blueScore > redScore)
+                                {
                                     isWin = 1;
-                                    lobbyManager.LobbyResult();
-                                    isResult = true;
                                 }
-                                else if(blueScore < redScore){
+                                else if(blueScore < redScore)
+                                {
                                     isWin = 0;
-                                    lobbyManager.LobbyResult();
-                                    isResult = true;
                                 }
-                                else if(blueScore == redScore){
+                                else if(blueScore == redScore)
+                                {
                                     isWin = 2;
-                                    lobbyManager.LobbyResult();
-                                    isResult = true;
                                 }
                             }
                             else if(player.GetComponent<PlayerController>().team == "Red")
                             {
-                                if(redScore > blueScore){
+                                if(redScore > blueScore)
+                                {
                                     isWin = 1;
-                                    lobbyManager.LobbyResult();
-                                    isResult = true;
                                 }
-                                else if(redScore < blueScore){
+                                else if(redScore < blueScore)
+                                {
                                     isWin = 0;
-                                    lobbyManager.LobbyResult();
-                                    isResult = true;
                                 }
-                                else if(redScore == blueScore){
+                                else if(redScore == blueScore)
+                                {
                                     isWin = 2;
-                                    lobbyManager.LobbyResult();
-                                    isResult = true;
                                 }
                             }
+                            lobbyManager.LobbyResult();
+                            isResult = true;
                         }
                     }
                 }
@@ -416,15 +428,13 @@ public class GameManager : MonoBehaviourPunCallbacks
                         if (player.name != lobbyManager.nickName)
                         {
                             isWin = 0;
-                            lobbyManager.LobbyResult();
-                            isResult = true;
                         }
                         else if (player.name == lobbyManager.nickName)
                         {
                             isWin = 1;
-                            lobbyManager.LobbyResult();
-                            isResult = true;
                         }
+                        lobbyManager.LobbyResult();
+                        isResult = true;
                     }
 
                     if(limitTime < 0)
@@ -452,15 +462,13 @@ public class GameManager : MonoBehaviourPunCallbacks
             if(isGiveUp == true)
             {
                 isWin = 0;
-                lobbyManager.LobbyResult();
-                isResult = true;
             }
             else if (isGiveUp == false)
             {
                 isWin = 1;
-                lobbyManager.LobbyResult();
-                isResult = true;
             }
+            lobbyManager.LobbyResult();
+            isResult = true;
         }
     }
 
@@ -506,7 +514,6 @@ public class GameManager : MonoBehaviourPunCallbacks
         blueScore = 0;
         redScore = 0;
         isWin = 0;
-        isGenerate = false;
         isStart = false;
         isRandom = false;
         isGiveUp = false;
