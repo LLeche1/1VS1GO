@@ -3,7 +3,7 @@ using Photon.Realtime;
 using UnityEngine;
 using System.Collections;
 
-public class Diamond : MonoBehaviour
+public class CannonDiamond : MonoBehaviour
 {
     [SerializeField]
     private float speed = 100;

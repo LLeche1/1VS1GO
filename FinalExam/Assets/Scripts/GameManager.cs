@@ -212,30 +212,33 @@ public class GameManager : MonoBehaviourPunCallbacks
 
         fade.SetActive(false);
 
-        if(player.transform.GetComponent<PlayerController>().team == "Red")
-        {
-            redReady = true;
-            PV.RPC("ReadyCheck", RpcTarget.All, player, redReady);
-        }
-        else if(player.transform.GetComponent<PlayerController>().team == "Blue")
-        {
-            blueReady = true;
-            PV.RPC("ReadyCheck", RpcTarget.All, player, blueReady);
-        }
+        StartCoroutine(ReadyCoroutine(player));
 
         yield return null;
     }
 
-    [PunRPC]
-    void ReadyCheck(GameObject player, bool ready)
+    IEnumerator ReadyCoroutine(GameObject player)
     {
-        if(player.transform.GetComponent<PlayerController>().team == "Red")
+        while(blueReady != true || redReady != true)
         {
-            redReady = ready;
+            yield return new WaitForSeconds(0.01f);
+            PV.RPC("ReadyCheck", RpcTarget.All, player);
         }
-        else if(player.transform.GetComponent<PlayerController>().team == "Blue")
+        isStart = true;
+        ui.SetActive(true);
+        yield return null;
+    }
+
+    [PunRPC]
+    void ReadyCheck(GameObject player)
+    {
+        if(player.transform.GetComponent<PlayerController>().team == "Blue")
         {
-            blueReady = ready;
+            blueReady = true;
+        }
+        else if(player.transform.GetComponent<PlayerController>().team == "Red")
+        {
+            redReady = true;
         }
     }
 
