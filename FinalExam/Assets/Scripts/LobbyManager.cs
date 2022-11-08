@@ -142,6 +142,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
     public TMP_Text chatText;
     public GameManager game_Manager;
     PhotonView PV;
+    AudioSource audioSource;
 
     void Awake()
     {
@@ -150,6 +151,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
         PlayFabSettings.TitleId = "9BF08";
         PhotonNetwork.AutomaticallySyncScene = true;
         PV = GetComponent<PhotonView>();
+        audioSource = GetComponent<AudioSource>();
     }
 
     void Start()
@@ -438,6 +440,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
         lobby.SetActive(true);
         title.SetActive(false);
         login.SetActive(false);
+        audioSource.Play();
     }
 
     public void LoginSignUp()

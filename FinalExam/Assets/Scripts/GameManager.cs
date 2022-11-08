@@ -61,33 +61,17 @@ public class GameManager : MonoBehaviourPunCallbacks
             PV.RPC("RandomMap", RpcTarget.All, random);
         }
 
-        players = GameObject.FindGameObjectsWithTag("Player");
-
-        foreach (GameObject player in players)
-        {
-            player.transform.GetComponent<PlayerController>().enabled = true;
-            player.transform.parent = GameObject.Find("InGame").transform;
-            if(player.name == lobbyManager.nickName)
-            {
-                cameraObject.GetComponent<CameraController>().player = player;
-            }
-        }
-
         if(isStart == true)
         {
             Score();
             PV.RPC("Statue", RpcTarget.All);
-        }
-
-        if (PhotonNetwork.IsMasterClient)
-        {
-            if(isStart == true)
+            if(PhotonNetwork.IsMasterClient)
             {
                 limitTime -= Time.deltaTime;
-            }
-            if (limitTime > 0)
-            {
-                PV.RPC("LimitTime", RpcTarget.All, limitTime);
+                if (limitTime > 0)
+                {
+                    PV.RPC("LimitTime", RpcTarget.All, limitTime);
+                }
             }
         }
         
@@ -234,6 +218,17 @@ public class GameManager : MonoBehaviourPunCallbacks
             if(blueReady == true && redReady == true)
             {
                 check = true;
+            }
+            players = GameObject.FindGameObjectsWithTag("Player");
+
+            foreach (GameObject player1 in players)
+            {
+                player1.transform.GetComponent<PlayerController>().enabled = true;
+                player1.transform.parent = GameObject.Find("InGame").transform;
+                if(player1.name == lobbyManager.nickName)
+                {
+                    cameraObject.GetComponent<CameraController>().player = player1;
+                }
             }
         }
 
@@ -389,7 +384,7 @@ public class GameManager : MonoBehaviourPunCallbacks
                         isResult = true;
                     }
 
-                    if(limitTime < 0)
+                    if(limitTime <= 0)
                     {
                             isWin = 2;
                             lobbyManager.LobbyResult();
@@ -398,7 +393,7 @@ public class GameManager : MonoBehaviourPunCallbacks
                 }
                 else if(cannonGame.activeSelf == true)
                 {
-                    if(limitTime < 0)
+                    if(limitTime <= 0)
                     {
                         if(player.name == lobbyManager.nickName)
                         {
@@ -453,7 +448,7 @@ public class GameManager : MonoBehaviourPunCallbacks
                         isResult = true;
                     }
 
-                    if(limitTime < 0)
+                    if(limitTime <= 0)
                     {
                         isWin = 2;
                         lobbyManager.LobbyResult();
