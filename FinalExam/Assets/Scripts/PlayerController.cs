@@ -48,6 +48,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
     private GameObject groundCheck;
 
     private bool isAttack = false;
+    public GameObject ball;
 
     void Awake()
     {
@@ -250,17 +251,17 @@ public class PlayerController : MonoBehaviourPunCallbacks
         if(isAttack == false)
         {
             isAttack = true;
-            GameObject ball = PhotonNetwork.Instantiate("ball", gameObject.transform.position + transform.forward, Quaternion.identity);
-            ball.transform.parent = GameObject.Find("InGame").transform.Find("CannonGame").transform.Find("Cannons").transform;
-            PV.RPC(nameof(BallRPC), RpcTarget.All, ball);
+            PV.RPC("AttackRPC", RpcTarget.All);
             StartCoroutine(BallDelay());
         }
     }
 
     [PunRPC]
-    void BallRPC(GameObject ball)
+    void AttackRPC()
     {
-        ball.GetComponent<Rigidbody>().AddForce(transform.forward * 100, ForceMode.Impulse);
+        GameObject ballObject = Instantiate(ball, gameObject.transform.position + transform.forward, Quaternion.identity);
+        ballObject.transform.parent = GameObject.Find("InGame").transform.Find("CannonGame").transform.Find("Cannons").transform;
+        ballObject.GetComponent<Rigidbody>().AddForce(transform.forward * 100, ForceMode.Impulse);
     }
 
     IEnumerator BallDelay()
