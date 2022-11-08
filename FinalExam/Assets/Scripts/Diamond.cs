@@ -52,7 +52,7 @@ public class Diamond : MonoBehaviour
                     }
                 }
             }
-            PhotonNetwork.Destroy(gameObject);
+            //PhotonNetwork.Destroy(gameObject);
         }
     }
 }

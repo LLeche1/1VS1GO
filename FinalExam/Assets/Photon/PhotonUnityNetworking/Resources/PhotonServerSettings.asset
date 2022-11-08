@@ -19,7 +19,7 @@ MonoBehaviour:
     AppIdVoice: 
     AppVersion: 
     UseNameServer: 1
-    FixedRegion: 
+    FixedRegion: kr
     Server: 
     Port: 0
     ProxyServer: 
@@ -28,12 +28,13 @@ MonoBehaviour:
     AuthMode: 0
     EnableLobbyStatistics: 0
     NetworkLogging: 1
-  DevRegion: 
+  DevRegion: kr
   PunLogging: 0
   EnableSupportLogger: 0
   RunInBackground: 1
   StartInOfflineMode: 0
   RpcList:
+  - RandomMap
   - CannonBallCreateSysnc
   - ChariotCreateSync
   - ClickRpc
@@ -45,7 +46,6 @@ MonoBehaviour:
   - GiveUp_Rpc
   - LimitTime
   - PlateRandomActive
-  - RandomMap
   - RandPosSync
   - RespawnSpaceship
   - RoomLoadingCountRpc

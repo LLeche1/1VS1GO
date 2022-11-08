@@ -56,8 +56,8 @@ public class GameManager : MonoBehaviourPunCallbacks
     {
         if(PhotonNetwork.IsMasterClient && isRandom == false)
         {
-            random = Random.Range(0,3);
-            PV.RPC("RandomMap", RpcTarget.All);
+            random = Random.Range(1,4);
+            PV.RPC("RandomMap", RpcTarget.All, random);
         }
 
         if(isGenerate == false)
@@ -94,7 +94,14 @@ public class GameManager : MonoBehaviourPunCallbacks
 
         if (PhotonNetwork.IsMasterClient)
         {
-           PV.RPC("LimitTime", RpcTarget.All);
+            if(isStart == true)
+            {
+                limitTime -= Time.deltaTime;
+            }
+            if (limitTime > 0)
+            {
+                PV.RPC("LimitTime", RpcTarget.All, limitTime);
+            }
         }
         
         RenderSettings.skybox.SetFloat("_Rotation", Time.time * 2f);
@@ -102,16 +109,18 @@ public class GameManager : MonoBehaviourPunCallbacks
     }
 
     [PunRPC]
-    void RandomMap()
+    void RandomMap(int rand)
     {
-        if (random == 0)
+        random = rand;
+        Debug.Log(random);
+        if (random == 1)
         {
             runningGame.SetActive(true);
             RenderSettings.skybox = Skyboxes[0];
             RenderSettings.skybox.SetFloat("_Rotation", 0);
             limitTime = 180;
         }
-        else if (random == 1)
+        else if (random == 2)
         {
             cannonGame.SetActive(true);
             cannonGame.transform.GetComponent<CannonGame>().randGenTrigger = true;
@@ -120,7 +129,7 @@ public class GameManager : MonoBehaviourPunCallbacks
             RenderSettings.skybox.SetFloat("_Rotation", 0);
             limitTime = 60;
         }
-        else if (random == 2)
+        else if (random == 3)
         {
             speedGame.SetActive(true);
             RenderSettings.skybox = Skyboxes[2];
@@ -135,7 +144,7 @@ public class GameManager : MonoBehaviourPunCallbacks
         Vector3 position = Vector3.zero;
         string team = null;
 
-        if(random == 0 || random == 1)
+        if(random == 1 || random == 2)
         {
             if (PhotonNetwork.IsMasterClient)
             {
@@ -148,7 +157,7 @@ public class GameManager : MonoBehaviourPunCallbacks
                 team = "Red";
             }
         }
-        else if(random == 2)
+        else if(random == 3)
         {
             if (PhotonNetwork.IsMasterClient)
             {
@@ -190,7 +199,7 @@ public class GameManager : MonoBehaviourPunCallbacks
                 cameraObject.transform.position = new Vector3(cameraObject.transform.position.x, 7.3f, cameraObject.transform.position.z);
             }
         }
-        if(random == 0 || random == 1)
+        if(random == 1 || random == 2)
         {
             ui.SetActive(true);
             ui.transform.Find("Button_Jump").gameObject.SetActive(true);
@@ -198,7 +207,7 @@ public class GameManager : MonoBehaviourPunCallbacks
             ui.transform.Find("JoyStick").gameObject.SetActive(true);
             ui.transform.Find("Button_Run").gameObject.SetActive(false);
         }
-        else if(random == 2)
+        else if(random == 3)
         {
             ui.SetActive(true);
             ui.transform.Find("Button_Jump").gameObject.SetActive(false);
@@ -213,16 +222,10 @@ public class GameManager : MonoBehaviourPunCallbacks
     }
 
     [PunRPC]
-    void LimitTime()
+    void LimitTime(float limit)
     {
-        if (limitTime > 0)
-        {
-            if(isStart == true)
-            {
-                limitTime -= Time.deltaTime;
-            }
-            timeText.text = TimeSpan.FromSeconds(limitTime).ToString(@"m\:ss");
-        }
+        limitTime = limit;
+        timeText.text = TimeSpan.FromSeconds(limitTime).ToString(@"m\:ss");
     }
 
     void Score()
@@ -467,31 +470,31 @@ public class GameManager : MonoBehaviourPunCallbacks
 
         var child = transform.GetComponents<Transform>();
 
-        if(random == 0)
+        if(random == 1)
         {
             child = runningGame.transform.GetChild(0).GetComponentsInChildren<Transform>();
             runningGame.SetActive(false);
             runningGame.GetComponent<RunningGame>().isChariotSpawnerOn = false;
             runningGame.GetComponent<RunningGame>().isFirstTrackCreated = false;
         }
-        else if(random == 1)
+        else if(random == 2)
         {
             child = cannonGame.transform.GetChild(1).GetComponentsInChildren<Transform>();
             cannonGame.SetActive(false);
             cannonGame.GetComponent<CannonGame>().isDiamond = false;
         }
-        else if(random == 2)
+        else if(random == 3)
         {
             speedGame.SetActive(false);
         }
 
         foreach (var item in child)
         {
-            if (random == 0 && item.name != "Maps")
+            if (random == 1 && item.name != "Maps")
             {
                 Destroy(item.gameObject);
             }
-            else if (random == 1 && item.name != "Cannons")
+            else if (random == 2 && item.name != "Cannons")
             {
                 Destroy(item.gameObject);
             }
