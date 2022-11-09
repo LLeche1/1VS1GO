@@ -267,11 +267,12 @@ public class PlayerController : MonoBehaviourPunCallbacks
     IEnumerator BallDelay()
     {
         float time = 0;
-
+        attackBtn.transform.GetChild(0).transform.GetComponent<Image>().fillAmount = 0;
         while (time < 5)
         {
             yield return new WaitForEndOfFrame();
             time += Time.deltaTime;
+            attackBtn.transform.GetChild(0).transform.GetComponent<Image>().fillAmount = time * 0.2f;
         }
 
         isAttack = false;

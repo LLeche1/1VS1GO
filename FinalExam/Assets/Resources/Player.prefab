@@ -6905,7 +6905,7 @@ MonoBehaviour:
   jumpKeyDown: 0
   isFallDown: 0
   jumpMoveDir: {x: 0, y: 0, z: 0}
-  ball: {fileID: 300502393607073509, guid: f25864e80efb1134f866520cb865dc7c, type: 3}
+  ball: {fileID: 300502393607073509, guid: f47a41b5cc8d4465583445ce991374e1, type: 3}
 --- !u!114 &2454238730925186208
 MonoBehaviour:
   m_ObjectHideFlags: 0
