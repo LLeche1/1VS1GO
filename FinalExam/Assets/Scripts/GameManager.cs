@@ -57,7 +57,7 @@ public class GameManager : MonoBehaviourPunCallbacks
     {
         if (PhotonNetwork.IsMasterClient && isRandom == false)
         {
-            random = Random.Range(1, 2);
+            random = /*Random.Range(2, 3);*/1;
             PV.RPC("RandomMap", RpcTarget.All, random);
         }
         players = GameObject.FindGameObjectsWithTag("Player");
@@ -119,7 +119,7 @@ public class GameManager : MonoBehaviourPunCallbacks
         isRandom = true;
         Generate();
     }
-
+    DefaultPool pool = PhotonNetwork.PrefabPool as DefaultPool;
     void Generate()
     {
         Vector3 position = Vector3.zero;

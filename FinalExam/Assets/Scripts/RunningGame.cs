@@ -50,7 +50,6 @@ public class RunningGame : MonoBehaviourPunCallbacks
         }        
     }
 
-
     void FirstTrackSet()
     {
         if (isFirstTrackCreated == false)
@@ -100,7 +99,6 @@ public class RunningGame : MonoBehaviourPunCallbacks
         }
     }
 
-
     IEnumerator ChariotSpawn()
     {
         float timer = 0;
@@ -109,29 +107,33 @@ public class RunningGame : MonoBehaviourPunCallbacks
             yield return new WaitForEndOfFrame();
             timer += Time.deltaTime;
         }
-        PV.RPC(nameof(ChariotCreateSync), RpcTarget.All);
+        ChariotInstantiate();
+        //PV.RPC(nameof(ChariotCreateSync), RpcTarget.All);
         yield return null;
     }
-    [PunRPC]
+
+    /*[PunRPC]
     void ChariotCreateSync()
     {
         GameObject obj = Instantiate(chariot, maps.transform);
         obj.transform.position = new Vector3(-4f, 0f, 0f);
         obj.transform.localScale = new Vector3(5.5f, 2.5f, 3f);
         chariotObj = obj;
+    }*/
+    void ChariotInstantiate()
+    {
+        GameObject obj = PhotonNetwork.Instantiate("Chariot", new Vector3(-4f, 0f, 0f), Quaternion.identity);
+        obj.transform.localScale = new Vector3(5.5f, 2.5f, 3f);
+        chariotObj = obj;
     }
-    
     void ChariotAcceleration()
     {
         if(chariotObj != null)
         {
-            chariotObj.transform.Translate(Vector3.forward * chariotSpeed * Time.deltaTime);
-            chariotSpeed *= 1.0005f;
-            /*chariotObj.GetComponent<Rigidbody>().AddForce(Vector3.forward * chariotSpeed,ForceMode.Acceleration);
-            chariotSpeed *= 1.0001f;*/
+            chariotObj.GetComponent<Rigidbody>().AddForce(Vector3.forward * chariotSpeed, ForceMode.Acceleration);
+            chariotSpeed *= 1.0001f;
         }
     }
-
     void RemovePastTrack()
     {
         if (chariotObj != null)
@@ -140,10 +142,15 @@ public class RunningGame : MonoBehaviourPunCallbacks
             {
                 if (chariotObj.transform.position.z > track.transform.position.z + 40)
                 {
-                    TrackList.Remove(track);
-                    Destroy(track.gameObject);  
+                    PV.RPC(nameof(RemoveTrackSync), RpcTarget.All, track);
                 }
             }
         }
+    }
+    [PunRPC]
+    void RemoveTrackSync(GameObject track)
+    {
+        TrackList.Remove(track);
+        Destroy(track.gameObject);
     }
 }

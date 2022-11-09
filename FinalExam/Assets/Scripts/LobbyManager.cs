@@ -153,11 +153,11 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
 
     void Start()
     {
-        #if UNITY_IOS
+#if UNITY_IOS
         NotificationServices.ClearLocalNotifications();
         NotificationServices.CancelAllLocalNotifications();
         NotificationServices.RegisterForNotifications(NotificationType.Alert | NotificationType.Badge | NotificationType.Sound);
-        #endif
+#endif
         LoginLoad(loginRememberMe);
         PhotonNetwork.GameVersion = gameVersion;
         PhotonNetwork.KeepAliveInBackground = 100;
