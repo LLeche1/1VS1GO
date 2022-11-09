@@ -34,7 +34,7 @@ public class GameManager : MonoBehaviourPunCallbacks
     private float limitTime;
     private bool isRandom = false;
     public bool isStart = false;
-    private bool isResult = false;
+    public bool isResult = false;
     private bool isGiveUp = false;
     private string lastCanvas;
     public int blueScore = 0;
@@ -57,7 +57,7 @@ public class GameManager : MonoBehaviourPunCallbacks
     {
         if (PhotonNetwork.IsMasterClient && isRandom == false)
         {
-            random = /*Random.Range(2,3);*/1;
+            random = Random.Range(1,4);
             PV.RPC("RandomMap", RpcTarget.All, random);
         }
         players = GameObject.FindGameObjectsWithTag("Player");
@@ -93,7 +93,9 @@ public class GameManager : MonoBehaviourPunCallbacks
     [PunRPC]
     void RandomMap(int rand)
     {
+        isResult = false;
         random = rand;
+        Debug.Log(random);
 
         if (random == 1)
         {
@@ -127,7 +129,20 @@ public class GameManager : MonoBehaviourPunCallbacks
         Vector3 position = Vector3.zero;
         string team = null;
 
-        if (random == 1 || random == 2)
+        if (random == 1)
+        {
+            if (PhotonNetwork.IsMasterClient)
+            {
+                position = new Vector3(-8, 0, 10);
+                team = "Blue";
+            }
+            else
+            {
+                position = new Vector3(0, 0, 10);
+                team = "Red";
+            }
+        }
+        else if (random == 2)
         {
             if (PhotonNetwork.IsMasterClient)
             {

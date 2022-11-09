@@ -437,6 +437,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
 
     public override void OnJoinedLobby()
     {
+        SetData();
         lobby.SetActive(true);
         title.SetActive(false);
         login.SetActive(false);
