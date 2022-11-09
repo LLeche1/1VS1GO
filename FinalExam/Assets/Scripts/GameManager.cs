@@ -57,7 +57,7 @@ public class GameManager : MonoBehaviourPunCallbacks
     {
         if (PhotonNetwork.IsMasterClient && isRandom == false)
         {
-            random = Random.Range(2,3);
+            random = Random.Range(2, 3);
             PV.RPC("RandomMap", RpcTarget.All, random);
         }
         players = GameObject.FindGameObjectsWithTag("Player");

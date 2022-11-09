@@ -17,7 +17,7 @@ public class RunningGame : MonoBehaviourPunCallbacks
     public GameObject chariot;
     private GameObject chariotObj;
     float chariotSpeed = 1f;
-    const int chariotGenTime = 5;
+    const int chariotGenTime = 15;
 
     const int rTrackPatternCount = 10;
     private int[] randNumArray;
@@ -117,7 +117,7 @@ public class RunningGame : MonoBehaviourPunCallbacks
     {
         GameObject obj = Instantiate(chariot, maps.transform);
         obj.transform.position = new Vector3(-4f, 0f, 0f);
-        obj.transform.localScale = new Vector3(4f, 2.5f, 2.5f);
+        obj.transform.localScale = new Vector3(5.5f, 2.5f, 3f);
         chariotObj = obj;
     }
     
@@ -125,10 +125,10 @@ public class RunningGame : MonoBehaviourPunCallbacks
     {
         if(chariotObj != null)
         {
-            /*chariotObj.transform.Translate(Vector3.forward * chariotSpeed * Time.deltaTime);
-            chariotSpeed *= 1.001f;*/
-            chariotObj.GetComponent<Rigidbody>().AddForce(Vector3.forward * chariotSpeed,ForceMode.Acceleration);
-            chariotSpeed *= 1.001f;
+            chariotObj.transform.Translate(Vector3.forward * chariotSpeed * Time.deltaTime);
+            chariotSpeed *= 1.0005f;
+            /*chariotObj.GetComponent<Rigidbody>().AddForce(Vector3.forward * chariotSpeed,ForceMode.Acceleration);
+            chariotSpeed *= 1.0001f;*/
         }
     }
 
@@ -138,7 +138,7 @@ public class RunningGame : MonoBehaviourPunCallbacks
         {
             foreach (var track in TrackList)
             {
-                if (chariotObj.transform.position.z > track.transform.position.z + 100)
+                if (chariotObj.transform.position.z > track.transform.position.z + 40)
                 {
                     TrackList.Remove(track);
                     Destroy(track.gameObject);  

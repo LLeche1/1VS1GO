@@ -387,7 +387,13 @@ public class PlayerController : MonoBehaviourPunCallbacks
         if (collision.transform.tag == "Chariot")
         {
             animator.SetBool("isJump", true);
-            rb.AddForce(new Vector3(1, 1, 1).normalized * 100f, ForceMode.Impulse);
+            isJump = true;
+            isSlide = true;
+            rb.velocity = Vector3.zero;
+            Vector3 RandDir = new Vector3((Random.Range(0, 2) == 0) ? Random.Range(-3f, -1f) : Random.Range(3f, 1f), 0f, 2f);
+            jumpMoveDir = RandDir;
+            rb.AddForce(new Vector3(0, 2f, 0), ForceMode.Impulse);
+            animator.SetBool("isJump", isJump);
         }
     }
 
