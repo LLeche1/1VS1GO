@@ -17,7 +17,7 @@ public class RunningGame : MonoBehaviourPunCallbacks
     public GameObject chariot;
     private GameObject chariotObj;
     float chariotSpeed = 1f;
-    const int chariotGenTime = 15;
+    const int chariotGenTime = 5;
 
     const int rTrackPatternCount = 10;
     private int[] randNumArray;
@@ -38,7 +38,6 @@ public class RunningGame : MonoBehaviourPunCallbacks
     {
         if (PhotonNetwork.IsMasterClient)
         {
-            
             FirstTrackSet();
             TrackGenerator();
             if (gameManager.isStart == true)
