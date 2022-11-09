@@ -57,7 +57,7 @@ public class GameManager : MonoBehaviourPunCallbacks
     {
         if (PhotonNetwork.IsMasterClient && isRandom == false)
         {
-            random = Random.Range(2, 3);
+            random = Random.Range(1, 2);
             PV.RPC("RandomMap", RpcTarget.All, random);
         }
         players = GameObject.FindGameObjectsWithTag("Player");
@@ -99,7 +99,6 @@ public class GameManager : MonoBehaviourPunCallbacks
             runningGame.SetActive(true);
             RenderSettings.skybox = Skyboxes[0];
             RenderSettings.skybox.SetFloat("_Rotation", 0);
-            limitTime = 180;
         }
         else if (random == 2)
         {
@@ -276,13 +275,23 @@ public class GameManager : MonoBehaviourPunCallbacks
     void LimitTime(float limit)
     {
         limitTime = limit;
-        if(limitTime > 0)
+        if(random == 1)
         {
-            timeText.text = TimeSpan.FromSeconds(limitTime).ToString(@"m\:ss");
+            timeText.text = "∞";
+            timeText.fontSize = 100;
         }
-        else if(limitTime <= 0)
+        else
         {
-            timeText.text = TimeSpan.FromSeconds(0).ToString(@"m\:ss");
+            if(limitTime > 0)
+            {
+                timeText.text = TimeSpan.FromSeconds(limitTime).ToString(@"m\:ss");
+                timeText.fontSize = 50;
+            }
+            else if(limitTime <= 0)
+            {
+                timeText.text = TimeSpan.FromSeconds(0).ToString(@"m\:ss");
+                timeText.fontSize = 50;
+            }
         }
     }
 
@@ -410,13 +419,6 @@ public class GameManager : MonoBehaviourPunCallbacks
                             isWin = 1;
                             lobbyManager.LobbyResult();
                         }
-                        isResult = true;
-                    }
-
-                    if (limitTime <= 0)
-                    {
-                        isWin = 2;
-                        lobbyManager.LobbyResult();
                         isResult = true;
                     }
                 }
