@@ -79,10 +79,7 @@ public class GameManager : MonoBehaviourPunCallbacks
             if (PhotonNetwork.IsMasterClient)
             {
                 limitTime -= Time.deltaTime;
-                if (limitTime > 0)
-                {
-                    PV.RPC("LimitTime", RpcTarget.All, limitTime);
-                }
+                PV.RPC("LimitTime", RpcTarget.All, limitTime);
             }
         }
 
@@ -279,7 +276,14 @@ public class GameManager : MonoBehaviourPunCallbacks
     void LimitTime(float limit)
     {
         limitTime = limit;
-        timeText.text = TimeSpan.FromSeconds(limitTime).ToString(@"m\:ss");
+        if(limitTime > 0)
+        {
+            timeText.text = TimeSpan.FromSeconds(limitTime).ToString(@"m\:ss");
+        }
+        else if(limitTime <= 0)
+        {
+            timeText.text = TimeSpan.FromSeconds(0).ToString(@"m\:ss");
+        }
     }
 
     void Score()
@@ -394,7 +398,7 @@ public class GameManager : MonoBehaviourPunCallbacks
 
                 if (runningGame.activeSelf == true)
                 {
-                    if (player.transform.position.z >= 180)
+                    if (player.transform.position.z >= 10000)
                     {
                         if (player.name != lobbyManager.nickName)
                         {
