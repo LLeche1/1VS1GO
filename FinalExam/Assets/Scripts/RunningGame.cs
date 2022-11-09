@@ -125,7 +125,9 @@ public class RunningGame : MonoBehaviourPunCallbacks
     {
         if(chariotObj != null)
         {
-            chariotObj.transform.Translate(Vector3.forward * chariotSpeed * Time.deltaTime);
+            /*chariotObj.transform.Translate(Vector3.forward * chariotSpeed * Time.deltaTime);
+            chariotSpeed *= 1.001f;*/
+            chariotObj.GetComponent<Rigidbody>().AddForce(Vector3.forward * chariotSpeed,ForceMode.Acceleration);
             chariotSpeed *= 1.001f;
         }
     }
