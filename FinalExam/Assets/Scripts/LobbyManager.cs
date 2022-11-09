@@ -84,9 +84,6 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
     public GameObject lobbyInventory;
     public TMP_Text lobbyInventory_Gold;
     public TMP_Text lobbyInventory_Crystal;
-    public TMP_Text lobbyInventory_Name;
-    public TMP_Text lobbyInventory_Level;
-    public TMP_Text lobbyInventory_Exp;
     public GameObject lobbyRanking;
     public GameObject lobbyRanking_Scroll;
     public GameObject rankingPrefab;
@@ -1903,9 +1900,6 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
         lobbyShop_Crystal.text = crystal.ToString();
         lobbyInventory_Gold.text = gold.ToString();
         lobbyInventory_Crystal.text = crystal.ToString();
-        lobbyInventory_Name.text = nickName;
-        lobbyInventory_Level.text = level.ToString();
-        lobbyInventory_Exp.text = exp.ToString() + "/" + maxExp;
         lobbyRanking_Name.text = nickName;
         lobbyRanking_Highest_Trophies.text = highest_Trophies.ToString();
     }
