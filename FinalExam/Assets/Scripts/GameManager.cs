@@ -119,7 +119,6 @@ public class GameManager : MonoBehaviourPunCallbacks
         isRandom = true;
         Generate();
     }
-    DefaultPool pool = PhotonNetwork.PrefabPool as DefaultPool;
     void Generate()
     {
         Vector3 position = Vector3.zero;
