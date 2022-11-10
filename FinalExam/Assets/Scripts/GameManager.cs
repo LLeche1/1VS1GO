@@ -32,10 +32,12 @@ public class GameManager : MonoBehaviourPunCallbacks
     public TMP_Text myScoreText;
     public TMP_Text otherScoreText;
     private float limitTime;
-    private bool isRandom = false;
+    public bool isRandom = false;
     public bool isStart = false;
     public bool isResult = false;
     private bool isGiveUp = false;
+    public bool redReady = false;
+    public bool blueReady = false;
     private string lastCanvas;
     public int blueScore = 0;
     public int redScore = 0;
@@ -44,8 +46,9 @@ public class GameManager : MonoBehaviourPunCallbacks
     PhotonView PV;
     LobbyManager lobbyManager;
 
-    public bool redReady = false;
-    public bool blueReady = false;
+    private string team = null;
+    public int blueRound = 0;
+    public int redRound = 0;
 
     void Awake()
     {
@@ -57,18 +60,20 @@ public class GameManager : MonoBehaviourPunCallbacks
     {
         if (PhotonNetwork.IsMasterClient && isRandom == false)
         {
-            random = /*Random.Range(2, 3);*/1;
+            random = Random.Range(1,4);
             PV.RPC("RandomMap", RpcTarget.All, random);
         }
+
         players = GameObject.FindGameObjectsWithTag("Player");
 
-        foreach (GameObject player1 in players)
+        foreach (GameObject player in players)
         {
-            player1.transform.GetComponent<PlayerController>().enabled = true;
-            player1.transform.parent = GameObject.Find("InGame").transform;
-            if (player1.name == lobbyManager.nickName)
+            player.transform.GetComponent<PlayerController>().enabled = true;
+            player.transform.parent = GameObject.Find("InGame").transform;
+            if (player.name == lobbyManager.nickName)
             {
-                cameraObject.GetComponent<CameraController>().player = player1;
+                team = player.transform.GetComponent<PlayerController>().team;
+                cameraObject.GetComponent<CameraController>().player = player;
             }
         }
 
@@ -90,9 +95,7 @@ public class GameManager : MonoBehaviourPunCallbacks
     [PunRPC]
     void RandomMap(int rand)
     {
-        isResult = false;
         random = rand;
-        Debug.Log(random);
 
         if (random == 1)
         {
@@ -119,6 +122,7 @@ public class GameManager : MonoBehaviourPunCallbacks
         isRandom = true;
         Generate();
     }
+
     void Generate()
     {
         Vector3 position = Vector3.zero;
@@ -189,7 +193,7 @@ public class GameManager : MonoBehaviourPunCallbacks
         {
             count -= 0.3f * Time.deltaTime;
             yield return new WaitForSeconds(0.01f);
-            fade.transform.GetComponent<Image>().color = new Color(0, 0, 0, count);
+            //fade.transform.GetComponent<Image>().color = new Color(0, 0, 0, count);
             if (cameraObject.transform.position.y > 7.3f)
             {
                 cameraObject.transform.position = new Vector3(cameraObject.transform.position.x, cameraObject.transform.position.y - (Time.deltaTime * 3.1f), cameraObject.transform.position.z);
@@ -253,6 +257,8 @@ public class GameManager : MonoBehaviourPunCallbacks
         }
 
         isStart = true;
+        blueReady = false;
+        redReady = false;
         ui.SetActive(true);
 
         yield return null;
@@ -314,6 +320,273 @@ public class GameManager : MonoBehaviourPunCallbacks
         }
     }
 
+    [PunRPC]
+    void Statue()
+    {
+        if(isResult == false)
+        {
+            foreach (GameObject player in players)
+            {
+                if (player.transform.position.y < -10)
+                {
+                    if (player.GetComponent<PlayerController>().team == "Blue")
+                    {
+                        PV.RPC("RedRound", RpcTarget.All);
+                    }
+                    else if (player.GetComponent<PlayerController>().team == "Red")
+                    {
+                        PV.RPC("BlueRound", RpcTarget.All);
+                    }                    
+                    
+                    RoundCheck();
+                }
+
+                if (cannonGame.activeSelf == true)
+                {
+                    if (limitTime <= 0)
+                    {
+                        if (player.name == lobbyManager.nickName)
+                        {
+                            if (player.GetComponent<PlayerController>().team == "Blue")
+                            {
+                                if (blueScore > redScore)
+                                {
+                                    PV.RPC("BlueRound", RpcTarget.All);
+                                }
+                                else if (blueScore < redScore)
+                                {
+                                    PV.RPC("RedRound", RpcTarget.All);
+                                }
+                                else if (blueScore == redScore)
+                                {
+                                    PV.RPC("BlueRound", RpcTarget.All);
+                                    PV.RPC("RedRound", RpcTarget.All);
+                                }
+                            }
+                            else if (player.GetComponent<PlayerController>().team == "Red")
+                            {
+                                if (redScore > blueScore)
+                                {
+                                    PV.RPC("RedRound", RpcTarget.All);
+                                }
+                                else if (redScore < blueScore)
+                                {
+                                    PV.RPC("BlueRound", RpcTarget.All);
+                                }
+                                else if (redScore == blueScore)
+                                {
+                                    PV.RPC("BlueRound", RpcTarget.All);
+                                    PV.RPC("RedRound", RpcTarget.All);
+                                }
+                            }
+
+                            RoundCheck();
+                        }
+                    }
+                }
+                else if (speedGame.activeSelf == true)
+                {
+                    if (player.transform.position.z >= 450)
+                    {
+                        if (player.GetComponent<PlayerController>().team == "Blue")
+                        {
+                            PV.RPC("BlueRound", RpcTarget.All);
+                        }
+                        else if (player.GetComponent<PlayerController>().team == "Red")
+                        {
+                            PV.RPC("RedRound", RpcTarget.All);
+                        }
+
+                        RoundCheck();
+                    }
+
+                    if (limitTime <= 0)
+                    {
+                        if(team == "Blue")
+                        {
+                            PV.RPC("BlueRound", RpcTarget.All);
+                        }
+                        else if(team == "Red")
+                        {
+                            PV.RPC("RedRound", RpcTarget.All);
+                        }
+
+                        RoundCheck();
+                    }
+                }
+            }
+        }
+    }
+
+    [PunRPC]
+    void BlueRound()
+    {
+        blueRound++;
+    }
+
+    [PunRPC]
+    void RedRound()
+    {
+        redRound++;
+    }
+
+    void RoundCheck()
+    {
+        isResult = true;
+
+        if(team == "Blue")
+        {
+            PV.RPC("BlueReady", RpcTarget.All);
+        }
+        else if(team == "Red")
+        {
+            PV.RPC("RedReady", RpcTarget.All);
+        }
+
+        if(blueRound < 3 && redRound < 3)
+        {
+            if(PhotonNetwork.IsMasterClient)
+            {
+                StartCoroutine(RoundReady());
+            }
+        }
+        else
+        {
+            StartCoroutine(RoundFinish());
+        }
+    }
+
+    IEnumerator RoundReady()
+    {
+        bool check = false;
+
+        if (lobbyManager.isVibration == 1)
+        {
+            check = true;
+        }
+
+        while (check == false)
+        {
+            yield return new WaitForSeconds(0.1f);
+            if (blueReady == true && redReady == true)
+            {
+                check = true;
+            }
+        }
+
+        PV.RPC("RoundReadyRpc", RpcTarget.All);
+    }
+
+    [PunRPC]
+    void RoundReadyRpc()
+    {
+        isRandom = false;
+        isResult = false;
+        Reset();
+    }
+
+    IEnumerator RoundFinish()
+    {
+        bool check = false;
+
+        if (lobbyManager.isVibration == 1)
+        {
+            check = true;
+        }
+
+        while (check == false)
+        {
+            yield return new WaitForSeconds(0.1f);
+            if (blueReady == true && redReady == true)
+            {
+                check = true;
+            }
+        }
+
+        if(blueRound == 3)
+        {
+            if(team == "Blue")
+            {
+                isWin = 1;
+            }
+            else if(team == "Red")
+            {
+                isWin = 0;
+            }
+        }
+        else if(redRound == 3)
+        {                
+            if(team == "Blue")
+            {
+                isWin = 0;
+            }
+            else if(team == "Red")                
+            {
+               isWin = 1;
+            }
+        }
+
+        lobbyManager.LobbyResult();
+        Reset();
+        gameObject.SetActive(false);            
+        isResult = false;
+        isRandom = false;
+        blueRound = 0;            
+        redRound = 0;
+    }
+
+    public void Reset()
+    {
+        var child = transform.GetComponents<Transform>();
+
+        if (random == 1)
+        {
+            child = runningGame.transform.GetChild(0).GetComponentsInChildren<Transform>();
+            runningGame.SetActive(false);
+            runningGame.GetComponent<RunningGame>().isChariotSpawnerOn = false;
+            runningGame.GetComponent<RunningGame>().isFirstTrackCreated = false;
+        }
+        else if (random == 2)
+        {
+            child = cannonGame.transform.GetChild(1).GetComponentsInChildren<Transform>();
+            cannonGame.SetActive(false);
+            cannonGame.GetComponent<CannonGame>().isDiamond = false;
+        }
+        else if (random == 3)
+        {
+            speedGame.SetActive(false);
+        }
+
+        foreach (var item in child)
+        {
+            if (random == 1 && item.name != "Maps")
+            {
+                Destroy(item.gameObject);
+            }
+            else if (random == 2 && item.name != "Cannons")
+            {
+                Destroy(item.gameObject);
+            }
+        }
+
+        foreach (GameObject player in players)
+        {
+            Destroy(player);
+        }
+
+        pause.SetActive(false);
+        set.SetActive(false);
+        cameraObject.transform.GetComponent<CameraController>().enabled = false;
+        blueScore = 0;
+        redScore = 0;
+        isWin = 0;
+        isStart = false;
+        isGiveUp = false;
+        redReady = false;
+        blueReady = false;
+        joystick.GetComponent<JoyStick>().Reset();
+    }
+
     public void Pause()
     {
         pause.SetActive(true);
@@ -370,125 +643,6 @@ public class GameManager : MonoBehaviourPunCallbacks
         }
     }
 
-    public void Back()
-    {
-        if (lastCanvas == "Pause")
-        {
-            pause.SetActive(false);
-        }
-        else if (lastCanvas == "Set")
-        {
-            set.SetActive(false);
-        }
-    }
-
-    [PunRPC]
-    void Statue() // 0 = Defeat, 1 = Win, 2 = Draw
-    {
-        if (isResult == false)
-        {
-            foreach (GameObject player in players)
-            {
-                if (player.transform.position.y < -10)
-                {
-                    if (player.name != lobbyManager.nickName)
-                    {
-                        isWin = 1;
-                        lobbyManager.LobbyResult();
-                    }
-                    else if (player.name == lobbyManager.nickName)
-                    {
-                        isWin = 0;
-                        lobbyManager.LobbyResult();
-                    }
-                    isResult = true;
-                }
-
-                if (runningGame.activeSelf == true)
-                {
-                    if (player.transform.position.z >= 10000)
-                    {
-                        if (player.name != lobbyManager.nickName)
-                        {
-                            isWin = 0;
-                            lobbyManager.LobbyResult();
-                        }
-                        else if (player.name == lobbyManager.nickName)
-                        {
-                            isWin = 1;
-                            lobbyManager.LobbyResult();
-                        }
-                        isResult = true;
-                    }
-                }
-                else if (cannonGame.activeSelf == true)
-                {
-                    if (limitTime <= 0)
-                    {
-                        if (player.name == lobbyManager.nickName)
-                        {
-                            if (player.GetComponent<PlayerController>().team == "Blue")
-                            {
-                                if (blueScore > redScore)
-                                {
-                                    isWin = 1;
-                                }
-                                else if (blueScore < redScore)
-                                {
-                                    isWin = 0;
-                                }
-                                else if (blueScore == redScore)
-                                {
-                                    isWin = 2;
-                                }
-                            }
-                            else if (player.GetComponent<PlayerController>().team == "Red")
-                            {
-                                if (redScore > blueScore)
-                                {
-                                    isWin = 1;
-                                }
-                                else if (redScore < blueScore)
-                                {
-                                    isWin = 0;
-                                }
-                                else if (redScore == blueScore)
-                                {
-                                    isWin = 2;
-                                }
-                            }
-                            lobbyManager.LobbyResult();
-                            isResult = true;
-                        }
-                    }
-                }
-                else if (speedGame.activeSelf == true)
-                {
-                    if (player.transform.position.z >= 450)
-                    {
-                        if (player.name != lobbyManager.nickName)
-                        {
-                            isWin = 0;
-                        }
-                        else if (player.name == lobbyManager.nickName)
-                        {
-                            isWin = 1;
-                        }
-                        lobbyManager.LobbyResult();
-                        isResult = true;
-                    }
-
-                    if (limitTime <= 0)
-                    {
-                        isWin = 2;
-                        lobbyManager.LobbyResult();
-                        isResult = true;
-                    }
-                }
-            }
-        }
-    }
-
     public void GiveUp()
     {
         isGiveUp = true;
@@ -508,59 +662,27 @@ public class GameManager : MonoBehaviourPunCallbacks
             {
                 isWin = 1;
             }
+
             lobbyManager.LobbyResult();
-            isResult = true;
+            Reset();
+            gameObject.SetActive(false);
+            isResult = false;
+            isRandom = false;
+            blueRound = 0;
+            redRound = 0;
         }
     }
 
-    public void Reset()
+    public void Back()
     {
-        gameObject.SetActive(false);
-
-        var child = transform.GetComponents<Transform>();
-
-        if (random == 1)
+        if (lastCanvas == "Pause")
         {
-            child = runningGame.transform.GetChild(0).GetComponentsInChildren<Transform>();
-            runningGame.SetActive(false);
-            runningGame.GetComponent<RunningGame>().isChariotSpawnerOn = false;
-            runningGame.GetComponent<RunningGame>().isFirstTrackCreated = false;
+            pause.SetActive(false);
         }
-        else if (random == 2)
+        else if (lastCanvas == "Set")
         {
-            child = cannonGame.transform.GetChild(1).GetComponentsInChildren<Transform>();
-            cannonGame.SetActive(false);
-            cannonGame.GetComponent<CannonGame>().isDiamond = false;
+            set.SetActive(false);
         }
-        else if (random == 3)
-        {
-            speedGame.SetActive(false);
-        }
-
-        foreach (var item in child)
-        {
-            if (random == 1 && item.name != "Maps")
-            {
-                Destroy(item.gameObject);
-            }
-            else if (random == 2 && item.name != "Cannons")
-            {
-                Destroy(item.gameObject);
-            }
-        }
-
-        pause.SetActive(false);
-        set.SetActive(false);
-        cameraObject.transform.GetComponent<CameraController>().enabled = false;
-        blueScore = 0;
-        redScore = 0;
-        isWin = 0;
-        isStart = false;
-        isRandom = false;
-        isGiveUp = false;
-        redReady = false;
-        blueReady = false;
-        joystick.GetComponent<JoyStick>().Reset();
     }
 
     void LastCanvas()
