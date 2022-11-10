@@ -338,6 +338,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
                 jumpMoveDir = -lookVector;
             }
         }
+
         if (other.transform.tag == "JumpPad")
         {
             isJump = true;
@@ -345,6 +346,15 @@ public class PlayerController : MonoBehaviourPunCallbacks
             rb.velocity = Vector3.zero;
             rb.AddForce(new Vector3(0, 10f, 0), ForceMode.Impulse);
             animator.SetBool("isJump", true);
+        }
+
+        if (other.transform.tag == "SpeedPad")
+        {
+            if (isMove)
+            {
+                boostStack++;
+                speed += 1f;
+            }
         }
     }
 
@@ -373,15 +383,6 @@ public class PlayerController : MonoBehaviourPunCallbacks
             animator.SetBool("isJump", isJump);
 
             collision.transform.GetComponent<Rigidbody>().velocity = -contatsDir.normalized * 15f;
-        }
-
-        if (collision.transform.tag == "SpeedPad")
-        {
-            if (isMove)
-            {
-                boostStack++;
-                speed += 1f;
-            }
         }
 
         if (collision.transform.tag == "Chariot")

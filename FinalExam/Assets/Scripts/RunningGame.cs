@@ -13,6 +13,7 @@ public class RunningGame : MonoBehaviourPunCallbacks
     List<GameObject> TrackList;
     public bool isFirstTrackCreated = false;
     public bool isChariotSpawnerOn = false;
+    public bool isRemoverOn = false;
 
     public GameObject chariot;
     private GameObject chariotObj;
@@ -25,7 +26,6 @@ public class RunningGame : MonoBehaviourPunCallbacks
     public GameObject runningTrack;
 
     PhotonView PV;
-
 
     private void Awake()
     {
@@ -44,10 +44,11 @@ public class RunningGame : MonoBehaviourPunCallbacks
             {
                 ChariotSpawner();
                 ChariotAcceleration();
-                RemovePastTrack();
+                
             }
-            
-        }        
+        }
+        Debug.Log(isRemoverOn);
+        RemovePastTrack();
     }
 
     void FirstTrackSet()
@@ -108,23 +109,25 @@ public class RunningGame : MonoBehaviourPunCallbacks
             timer += Time.deltaTime;
         }
         ChariotInstantiate();
-        //PV.RPC(nameof(ChariotCreateSync), RpcTarget.All);
+        PV.RPC(nameof(IsRemoverSync), RpcTarget.All);
         yield return null;
     }
 
-    /*[PunRPC]
-    void ChariotCreateSync()
-    {
-        GameObject obj = Instantiate(chariot, maps.transform);
-        obj.transform.position = new Vector3(-4f, 0f, 0f);
-        obj.transform.localScale = new Vector3(5.5f, 2.5f, 3f);
-        chariotObj = obj;
-    }*/
     void ChariotInstantiate()
     {
         GameObject obj = PhotonNetwork.Instantiate("Chariot", new Vector3(-4f, 0f, 0f), Quaternion.identity);
+        PV.RPC(nameof(ChariotParentSync), RpcTarget.All, obj.GetComponent<PhotonView>().ViewID);
         obj.transform.localScale = new Vector3(5.5f, 2.5f, 3f);
-        chariotObj = obj;
+    }
+    [PunRPC]
+    void ChariotParentSync(int ID)
+    {
+        PhotonNetwork.GetPhotonView(ID).gameObject.transform.parent = transform.Find("Maps");
+    }
+    [PunRPC]
+    void IsRemoverSync()
+    {
+        isRemoverOn = true;
     }
     void ChariotAcceleration()
     {
@@ -136,21 +139,20 @@ public class RunningGame : MonoBehaviourPunCallbacks
     }
     void RemovePastTrack()
     {
-        if (chariotObj != null)
+        if (isRemoverOn == true)
         {
-            foreach (var track in TrackList)
+            chariotObj = GameObject.FindGameObjectWithTag("Chariot").gameObject;
+            if (chariotObj != null)
             {
-                if (chariotObj.transform.position.z > track.transform.position.z + 40)
+                foreach (var track in TrackList)
                 {
-                    PV.RPC(nameof(RemoveTrackSync), RpcTarget.All, track);
+                    if (chariotObj.transform.position.z > track.transform.position.z + 40)
+                    {
+                        TrackList.Remove(track);
+                        Destroy(track.gameObject);
+                    }
                 }
             }
         }
-    }
-    [PunRPC]
-    void RemoveTrackSync(GameObject track)
-    {
-        TrackList.Remove(track);
-        Destroy(track.gameObject);
     }
 }
