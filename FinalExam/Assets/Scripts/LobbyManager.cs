@@ -150,6 +150,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
         PhotonNetwork.AutomaticallySyncScene = true;
         PV = GetComponent<PhotonView>();
         audioSource = GetComponent<AudioSource>();
+        PlayerPrefs.DeleteAll();
     }
 
     void Start()
@@ -446,6 +447,12 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
         title.SetActive(false);
         login.SetActive(false);
         audioSource.Play();
+        Invoke("TutorialCheck", 2f);
+    }
+
+    void TutorialCheck()
+    {
+        Debug.Log("test");
         if(isTutorial == 0)
         {
             roomLoading.SetActive(true);
