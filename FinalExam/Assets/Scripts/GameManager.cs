@@ -4,6 +4,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using UnityEngine.Audio;
 using UnityEngine.SceneManagement;
@@ -34,7 +35,11 @@ public class GameManager : MonoBehaviourPunCallbacks
     public TMP_Text myScoreText;
     public TMP_Text otherScoreText;
     private float limitTime;
-    private bool isTutorial = false;
+    public bool isTutorial = false;
+    public bool isTutorial2 = false;
+    public bool isTutorial4 = false;
+    public bool isTutorial6 = false;
+    public int tutorialNum = 0;
     public bool isStart = false;
     public bool isFinish = false;
     private bool isGiveUp = false;
@@ -53,6 +58,7 @@ public class GameManager : MonoBehaviourPunCallbacks
     public bool isRandom = false;
     PhotonView PV;
     LobbyManager lobbyManager;
+    public GameObject joyStick;
 
     void Awake()
     {
@@ -62,7 +68,7 @@ public class GameManager : MonoBehaviourPunCallbacks
 
     void Update()
     {
-        if(lobbyManager.isTutorial == 0 && isTutorial == false)
+        if(lobbyManager.isTutorial == 0)
         {
             Tutorial();
         }
@@ -91,23 +97,119 @@ public class GameManager : MonoBehaviourPunCallbacks
 
     void Tutorial()
     {
-        isTutorial = true;
-        tutorial.SetActive(true);
-        isStart = true;
-        GameObject player = Instantiate(tutorialPlayer, Vector3.zero, Quaternion.identity);
-        player.transform.parent = GameObject.Find("InGame").transform;
-        cameraObject.GetComponent<CameraController>().player = player;
-        cameraObject.transform.GetComponent<CameraController>().enabled = true;
-        ui.SetActive(true);
-        ui.transform.Find("Time_Score").gameObject.SetActive(false);
-        ui.transform.Find("Button_Pause").gameObject.SetActive(false);
-        ui.transform.Find("JoyStick").gameObject.SetActive(true);
-        ui.transform.Find("Button_Jump").gameObject.SetActive(true);
-        ui.transform.Find("Button_Slide").gameObject.SetActive(true);
-        ui.transform.Find("Button_Attack").gameObject.SetActive(false);
-        ui.transform.Find("Button_Run").gameObject.SetActive(false);
-        RenderSettings.skybox = Skyboxes[2];
-        RenderSettings.skybox.SetFloat("_Rotation", 0);
+        if(isTutorial == false && tutorialNum == 0)
+        {
+            isTutorial = true;
+            tutorial.SetActive(true);
+            isStart = true;
+            GameObject player = Instantiate(tutorialPlayer, Vector3.zero, Quaternion.identity);
+            player.transform.parent = GameObject.Find("InGame").transform;
+            player.transform.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezePositionX | RigidbodyConstraints.FreezePositionZ | RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationY | RigidbodyConstraints.FreezeRotationZ;
+            cameraObject.GetComponent<CameraController>().player = player;
+            cameraObject.transform.GetComponent<CameraController>().enabled = true;
+            ui.SetActive(true);
+            ui.transform.Find("Time_Score").gameObject.SetActive(false);
+            ui.transform.Find("Button_Pause").gameObject.SetActive(false);
+            ui.transform.Find("JoyStick").gameObject.SetActive(true);
+            ui.transform.Find("Button_Jump").gameObject.SetActive(false);
+            ui.transform.Find("Button_Slide").gameObject.SetActive(false);
+            ui.transform.Find("Button_Attack").gameObject.SetActive(false);
+            ui.transform.Find("Button_Run").gameObject.SetActive(false);
+            ui.transform.Find("Tutorial").gameObject.SetActive(true);
+            ui.transform.Find("Tutorial").transform.Find("Message").gameObject.SetActive(true);
+            ui.transform.Find("Tutorial").transform.Find("Message").transform.Find("Chat").transform.Find("Text").gameObject.GetComponent<TMP_Text>().text = "Let`s Drag  joystick with your left thumb to get moving.";
+            tutorialNum = 1;
+        }
+        else if(isTutorial2 == false && tutorialNum == 2)
+        {
+            if(joyStick.GetComponent<JoyStick>().lever.anchoredPosition.x != 0)
+            {
+                isTutorial2 = true;
+                Invoke("TutorialBtn", 2f);
+            }
+        }
+        else if(isTutorial4 == false && tutorialNum == 4)
+        {
+            GameObject btn = UnityEngine.EventSystems.EventSystem.current.currentSelectedGameObject;
+            if(btn.name == "Button_Jump")
+            {
+                isTutorial4 = true;
+                Invoke("TutorialBtn", 2f);
+            }
+        }
+        else if(isTutorial6 == false && tutorialNum == 6)
+        {
+            GameObject btn = UnityEngine.EventSystems.EventSystem.current.currentSelectedGameObject;
+            if(btn.name == "Button_Slide")
+            {
+                isTutorial6 = true;
+                Invoke("TutorialBtn", 2f);
+            }
+        }
+    }
+
+    public void TutorialBtn()
+    {
+        if(tutorialNum == 1)
+        {
+            ui.transform.Find("Tutorial").transform.Find("Message").gameObject.SetActive(false);
+            ui.transform.Find("Tutorial").transform.Find("Hand").gameObject.SetActive(true);
+            ui.transform.Find("Tutorial").transform.Find("Hand").transform.Find("Fx").gameObject.GetComponent<RectTransform>().anchoredPosition = new Vector3(-920, -235, 0);
+            ui.transform.Find("Tutorial").transform.Find("Hand").transform.Find("Fx").gameObject.transform.localScale = new Vector3(70, 70, 70);
+            ui.transform.Find("Tutorial").transform.Find("Hand").transform.Find("Image_Hand").gameObject.GetComponent<RectTransform>().anchoredPosition = new Vector3(-1100, -50, 0);
+            tutorialNum = 2;
+        }
+        else if(tutorialNum == 2)
+        {
+            ui.transform.Find("Tutorial").transform.Find("Message").gameObject.SetActive(true);
+            ui.transform.Find("Tutorial").transform.Find("Hand").gameObject.SetActive(false);
+            ui.transform.Find("Tutorial").transform.Find("Message").transform.Find("Chat").transform.Find("Text").gameObject.GetComponent<TMP_Text>().text = "Let`s touch  jump Button with your right thumb to get jumping.";
+            ui.transform.Find("Button_Jump").gameObject.SetActive(true);
+            tutorialNum = 3;
+        }
+        else if(tutorialNum == 3)
+        {
+            ui.transform.Find("Tutorial").transform.Find("Message").gameObject.SetActive(false);
+            ui.transform.Find("Tutorial").transform.Find("Hand").gameObject.SetActive(true);
+            ui.transform.Find("Tutorial").transform.Find("Hand").transform.Find("Fx").gameObject.GetComponent<RectTransform>().anchoredPosition = new Vector3(760, -330, 0);
+            ui.transform.Find("Tutorial").transform.Find("Hand").transform.Find("Fx").gameObject.transform.localScale = new Vector3(60, 60, 60);
+            ui.transform.Find("Tutorial").transform.Find("Hand").transform.Find("Image_Hand").gameObject.GetComponent<RectTransform>().anchoredPosition = new Vector3(430, -130, 0);
+            tutorialNum = 4;
+        }
+        else if(tutorialNum == 4)
+        {
+            ui.transform.Find("Tutorial").transform.Find("Message").gameObject.SetActive(true);
+            ui.transform.Find("Tutorial").transform.Find("Hand").gameObject.SetActive(false);
+            ui.transform.Find("Tutorial").transform.Find("Message").transform.Find("Chat").transform.Find("Text").gameObject.GetComponent<TMP_Text>().text = "Let`s touch  Slider Button with your right thumb to get jumping.";
+            ui.transform.Find("Button_Slide").gameObject.SetActive(true);
+            tutorialNum = 5;
+        }
+        else if(tutorialNum == 5)
+        {
+            ui.transform.Find("Tutorial").transform.Find("Message").gameObject.SetActive(false);
+            ui.transform.Find("Tutorial").transform.Find("Hand").gameObject.SetActive(true);
+            ui.transform.Find("Tutorial").transform.Find("Hand").transform.Find("Fx").gameObject.GetComponent<RectTransform>().anchoredPosition = new Vector3(1065, -30, 0);
+            ui.transform.Find("Tutorial").transform.Find("Hand").transform.Find("Fx").gameObject.transform.localScale = new Vector3(60, 60, 60);
+            ui.transform.Find("Tutorial").transform.Find("Hand").transform.Find("Image_Hand").gameObject.GetComponent<RectTransform>().anchoredPosition = new Vector3(800, 200, 0);
+            tutorialNum = 6;
+        }
+        else if(tutorialNum == 6)
+        {
+            ui.transform.Find("Tutorial").transform.Find("Message").gameObject.SetActive(true);
+            ui.transform.Find("Tutorial").transform.Find("Hand").gameObject.SetActive(false);
+            ui.transform.Find("Tutorial").transform.Find("Message").transform.Find("Chat").transform.Find("Text").gameObject.GetComponent<TMP_Text>().text = "Now, Let`s play game.";
+            tutorialNum = 7;
+        }
+        else if(tutorialNum == 7)
+        {
+            gameObject.SetActive(false);
+            lobbyManager.main.SetActive(true);
+            lobbyManager.inGame.SetActive(false);
+            tutorial.SetActive(false);
+            isTutorial = false;
+            isStart = false;
+            lobbyManager.TutorialFinish();
+        }
     }
 
     void RoundStart()

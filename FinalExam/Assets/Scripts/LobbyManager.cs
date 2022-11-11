@@ -150,7 +150,6 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
         PhotonNetwork.AutomaticallySyncScene = true;
         PV = GetComponent<PhotonView>();
         audioSource = GetComponent<AudioSource>();
-        PlayerPrefs.DeleteAll();
     }
 
     void Start()
@@ -447,12 +446,11 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
         title.SetActive(false);
         login.SetActive(false);
         audioSource.Play();
-        Invoke("TutorialCheck", 2f);
+        Invoke("TutorialCheck", 1f);
     }
 
     void TutorialCheck()
     {
-        Debug.Log("test");
         if(isTutorial == 0)
         {
             roomLoading.SetActive(true);
@@ -482,6 +480,33 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
         yield return null;
     }
 
+    public void TutorialFinish()
+    {
+        PlayFabClientAPI.UpdatePlayerStatistics(new UpdatePlayerStatisticsRequest
+        {
+            Statistics = new List<StatisticUpdate>
+            {
+                new StatisticUpdate {StatisticName = "isTutorial", Value = int.Parse((isTutorial + 1).ToString())},
+            }
+        },
+            (result) => {
+                PlayFabClientAPI.GetPlayerStatistics(new GetPlayerStatisticsRequest(),
+                (result) =>
+                {
+                    foreach (var eachStat in result.Statistics)
+                    {
+                        if (eachStat.StatisticName == "isTutorial")
+                        {
+                            isTutorial = eachStat.Value;
+                        }
+                    }
+                },
+                (error) => { Debug.Log("값 로딩 실패"); });
+        },
+        (error) => { Debug.Log("값 저장 실패"); });
+        lobbyShop_Purchase_Success.SetActive(true);
+    }
+    
     public void LoginSignUp()
     {
         signUp.SetActive(true);
