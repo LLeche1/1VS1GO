@@ -71,14 +71,13 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
     void FixedUpdate()
     {
-        if (PV.IsMine && gameManager.isStart == true)
+        if (PV.IsMine && gameManager.isStart == true || gameManager.isTutorial == true)
         {
             joyStick = GameObject.Find("UI").transform.Find("JoyStick").GetComponent<JoyStick>();
             jumpBtn = GameObject.Find("UI").transform.Find("Button_Jump").GetComponent<Button>();
             slideBtn = GameObject.Find("UI").transform.Find("Button_Slide").GetComponent<Button>();
             attackBtn = GameObject.Find("UI").transform.Find("Button_Attack").GetComponent<Button>();
             runBtn = GameObject.Find("UI").transform.Find("Button_Run").GetComponent<Button>();
-            Debug.Log(joyStick);
 
             if (jumpBtn != null)
             {

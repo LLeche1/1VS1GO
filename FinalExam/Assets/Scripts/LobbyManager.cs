@@ -408,7 +408,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
         {
             Statistics = new List<StatisticUpdate>
             {
-                new StatisticUpdate {StatisticName = "isTutorial", Value = 0},
+                new StatisticUpdate {StatisticName = "isTutorial", Value = 1},
                 new StatisticUpdate {StatisticName = "Level", Value = 1},
                 new StatisticUpdate {StatisticName = "Exp", Value = 0},
                 new StatisticUpdate {StatisticName = "MaxExp", Value = 10},
@@ -442,20 +442,33 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
     {
         Debug.Log("로비");
         SetData();
-        lobby.SetActive(true);
-        title.SetActive(false);
-        login.SetActive(false);
         audioSource.Play();
-        Invoke("TutorialCheck", 1f);
+        StartCoroutine(TutorialCheck());
     }
 
-    void TutorialCheck()
+    IEnumerator TutorialCheck()
     {
-        if(isTutorial == 0)
+        bool check = false;
+
+        while(check == false)
+        {
+            yield return new WaitForEndOfFrame();
+            if(isTutorial != 0)
+            {
+                check = true;
+            }
+        }
+
+        if(isTutorial == 1)
         {
             roomLoading.SetActive(true);
             StartCoroutine(TutorialDelay());
         }
+
+        lobby.SetActive(true);
+        title.SetActive(false);
+        login.SetActive(false);
+        yield return null;
     }
 
     IEnumerator TutorialDelay()
@@ -486,7 +499,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
         {
             Statistics = new List<StatisticUpdate>
             {
-                new StatisticUpdate {StatisticName = "isTutorial", Value = int.Parse((isTutorial + 1).ToString())},
+                new StatisticUpdate {StatisticName = "isTutorial", Value = int.Parse(2.ToString())},
             }
         },
             (result) => {
@@ -504,7 +517,6 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
                 (error) => { Debug.Log("값 로딩 실패"); });
         },
         (error) => { Debug.Log("값 저장 실패"); });
-        lobbyShop_Purchase_Success.SetActive(true);
     }
     
     public void LoginSignUp()

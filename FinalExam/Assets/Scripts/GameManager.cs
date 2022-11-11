@@ -68,11 +68,11 @@ public class GameManager : MonoBehaviourPunCallbacks
 
     void Update()
     {
-        if(lobbyManager.isTutorial == 0)
+        if(lobbyManager.isTutorial == 1)
         {
             Tutorial();
         }
-        else if(lobbyManager.isTutorial == 1)
+        else if(lobbyManager.isTutorial == 2)
         {
             if(PhotonNetwork.IsMasterClient && isRandom == false)
             {
@@ -202,9 +202,14 @@ public class GameManager : MonoBehaviourPunCallbacks
         }
         else if(tutorialNum == 7)
         {
+            GameObject player = GameObject.FindGameObjectWithTag("Player");
+            Destroy(player);
             gameObject.SetActive(false);
             lobbyManager.main.SetActive(true);
             lobbyManager.inGame.SetActive(false);
+            ui.transform.Find("Tutorial").gameObject.SetActive(false);
+            ui.transform.Find("Time_Score").gameObject.SetActive(true);
+            ui.transform.Find("Button_Pause").gameObject.SetActive(true);
             tutorial.SetActive(false);
             isTutorial = false;
             isStart = false;

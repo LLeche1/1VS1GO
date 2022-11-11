@@ -6903,7 +6903,6 @@ MonoBehaviour:
   isJump: 0
   isDead: 0
   jumpKeyDown: 0
-  isSlide: 0
   isFallDown: 0
   jumpMoveDir: {x: 0, y: 0, z: 0}
   ball: {fileID: 300502393607073509, guid: f47a41b5cc8d4465583445ce991374e1, type: 3}
