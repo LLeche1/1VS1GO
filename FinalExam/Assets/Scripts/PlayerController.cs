@@ -20,6 +20,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
     private int boostStack = 0;
     private float speed = 5.0f;
     private float jumpForce = 5.0f;
+    private float rotateSpeed = 0;
     private Vector3 inputDir = Vector3.zero;
     private Vector3 moveDir;
     private Vector3 lookVector;
@@ -98,8 +99,9 @@ public class PlayerController : MonoBehaviourPunCallbacks
             }
 
             GetInput();
-            JoyStickMove();
             GroundCheck();
+            Rotation();
+            JoyStickMove();
             Jump();
             Slide();
             FallDown();
@@ -145,6 +147,17 @@ public class PlayerController : MonoBehaviourPunCallbacks
         animator.SetFloat("Speed", moveMag);
     }
 
+    void Rotation()
+    {
+        if (isMove)
+            rotateSpeed = 15f;
+        else if (isSlide)
+            rotateSpeed = 2.5f;
+        else if (isJump)
+            rotateSpeed = 3f;
+        if (inputDir != Vector3.zero)
+            transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.LookRotation(inputDir), rotateSpeed * Time.deltaTime);
+    }
     void JoyStickMove()
     {
         if (!isSlide && !isFallDown && !isJump)
@@ -156,9 +169,6 @@ public class PlayerController : MonoBehaviourPunCallbacks
             if (isMove)
             {
                 transform.Translate(inputDir * speed * Time.deltaTime, Space.World);
-                if(inputDir != Vector3.zero)
-                    transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.LookRotation(inputDir), 15f * Time.deltaTime);
-
             }
         }
     }
@@ -182,10 +192,6 @@ public class PlayerController : MonoBehaviourPunCallbacks
         else if (isJump && !isSlide)
         {
             rb.AddForce(new Vector3(jumpMoveDir.x, 0, jumpMoveDir.z) * speed, ForceMode.Impulse);
-            if (inputDir != Vector3.zero)
-                transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.LookRotation(inputDir), 3f * Time.deltaTime);
-            //transform.Translate(new Vector3(jumpMoveDir.x, 0, jumpMoveDir.y) * speed * Time.deltaTime, Space.World);
-            //transform.LookAt(transform.position + new Vector3(jumpMoveDir.x, 0, jumpMoveDir.y));
         }
     }
 
@@ -219,10 +225,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
         }
         else if (isSlide)
         {
-            rb.AddForce(new Vector3(jumpMoveDir.x, 0f, jumpMoveDir.z).normalized * (speed + 3f), ForceMode.Impulse);
-
-            if (inputDir != Vector3.zero)
-                transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.LookRotation(inputDir), 2.5f * Time.deltaTime);
+            rb.AddForce(new Vector3(jumpMoveDir.x, 0f, jumpMoveDir.z) * (speed + 3f), ForceMode.Impulse);
         }
     }
 
@@ -400,8 +403,8 @@ public class PlayerController : MonoBehaviourPunCallbacks
             isJump = true;
             isSlide = true;
             rb.velocity = Vector3.zero;
-            rb.AddForce(new Vector3((Random.Range(0, 2) == 0) ? Random.Range(-3f, -1f) : Random.Range(3f, 1f), 10f, runningGame.chariotSpeed * 10f), ForceMode.Impulse);
-            animator.SetBool("isJump", isJump);
+            rb.AddForce(new Vector3(0f, 13f, 0f), ForceMode.Impulse);
+            jumpMoveDir = new Vector3((Random.Range(0, 2) == 0) ? Random.Range(-2f, -1f) : Random.Range(2f, 1f), 0f, 2f);
         }
     }
 

@@ -18,9 +18,10 @@ public class RunningGame : MonoBehaviourPunCallbacks
     public GameObject chariot;
     private GameObject chariotObj;
     public float chariotSpeed = 1f;
-    const int chariotGenTime = 3;
+    const int chariotGenTime = 25;
 
-    const int rTrackPatternCount = 10;
+    const int rTrackPatternCount = 11;
+    const int trackLength = 20;
     private int[] randNumArray;
     public GameObject firstTrack;
     public GameObject runningTrack;
@@ -72,10 +73,10 @@ public class RunningGame : MonoBehaviourPunCallbacks
     {
         foreach (var player in gameManager.players)
         {
-            if (TrackList[TrackList.Count - 1].transform.position.z - player.transform.position.z < 60f)
+            if (TrackList[TrackList.Count - 1].transform.position.z - player.transform.position.z < trackLength * 6)
             {
                 int randPatternNum = Random.Range(0, rTrackPatternCount);
-                preBoardPos += new Vector3(0f, 0f, 20f);
+                preBoardPos += new Vector3(0f, 0f, trackLength);
                 PV.RPC(nameof(RunningTrackCreateSync), RpcTarget.All, preBoardPos, randPatternNum);
             }
         }
@@ -133,7 +134,7 @@ public class RunningGame : MonoBehaviourPunCallbacks
         if(chariotObj != null)
         {
             chariotObj.GetComponent<Rigidbody>().AddForce(Vector3.forward * chariotSpeed, ForceMode.Acceleration);
-            chariotSpeed *= 1.0001f;
+            //chariotSpeed *= 1.0001f;
         }
     }
     void RemovePastTrack()
@@ -145,7 +146,7 @@ public class RunningGame : MonoBehaviourPunCallbacks
             {
                 foreach (var track in TrackList)
                 {
-                    if (chariotObj.transform.position.z > track.transform.position.z + 40)
+                    if (chariotObj.transform.position.z > track.transform.position.z + trackLength * 8)
                     {
                         TrackList.Remove(track);
                         Destroy(track.gameObject);

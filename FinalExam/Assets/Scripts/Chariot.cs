@@ -17,7 +17,7 @@ public class Chariot : MonoBehaviour
         // layer 7 = RunningGameObjects
         if (collision.gameObject.layer == 7 && collision.gameObject.tag != "Player")
         {
-            collision.transform.GetComponent<Rigidbody>().AddForce(new Vector3(Random.Range(-4f, 4f), 2f, runningGame.chariotSpeed) * 10f, ForceMode.Impulse);
+            collision.transform.GetComponent<Rigidbody>().AddForce(new Vector3((Random.Range(0, 2) == 0) ? Random.Range(-3f, -1f) : Random.Range(3f, 1f), 2f, runningGame.chariotSpeed) * 10f, ForceMode.Impulse);
         }
     }
 }
