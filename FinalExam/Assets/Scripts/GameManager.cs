@@ -34,6 +34,7 @@ public class GameManager : MonoBehaviourPunCallbacks
     public TMP_Text timeText;
     public TMP_Text myScoreText;
     public TMP_Text otherScoreText;
+    public TMP_Text roundText;
     private float limitTime;
     public bool isTutorial = false;
     public bool isTutorial2 = false;
@@ -325,6 +326,7 @@ public class GameManager : MonoBehaviourPunCallbacks
     {
         ui.SetActive(false);
         fade.SetActive(true);
+        roundText.text = "Blue " + blueRound + " vs " + redRound + " Red";
         cameraObject.transform.position = cameraObject.GetComponent<CameraController>().player.transform.position - (Vector3.forward * 10) + (Vector3.up * 17);
         float count = 1;
 
@@ -394,6 +396,15 @@ public class GameManager : MonoBehaviourPunCallbacks
         }
 
         players = GameObject.FindGameObjectsWithTag("Player");
+
+        if(random == 1)
+        {
+            foreach(GameObject player in players)
+            {
+                player.layer = 7;
+            }
+        }
+
         fade.SetActive(false);
         isStart = true;
         isFinish = false;
