@@ -92,8 +92,15 @@ public class CannonGame : MonoBehaviourPunCallbacks
             float randZ = Random.Range(-12f, 14f);
             GameObject diamond = PhotonNetwork.Instantiate("Diamond", new Vector3(randX, 1, randZ), Quaternion.Euler(-90, 0, 0));
             diamond.transform.position = new Vector3(randX, 1, randZ);
+            PV.RPC("DiamondRpc", RpcTarget.All, diamond.GetComponent<PhotonView>().ViewID);
             StartCoroutine("DiamondDelay");
         }
+    }
+
+    [PunRPC]
+    void DiamondRpc(int ID)
+    {
+        PhotonNetwork.GetPhotonView(ID).gameObject.transform.parent = transform.Find("Cannons");
     }
 
     IEnumerator DiamondDelay()

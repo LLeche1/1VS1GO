@@ -63,6 +63,12 @@ MonoBehaviour:
   - RedRound
   - isRandomRpc
   - RoundReadyRpc
+  - ChariotParentSync
+  - IsRemoverSync
+  - ChariotRpc
+  - DiamondRpc
+  - Set
+  - NextRoundRpc
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

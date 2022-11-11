@@ -19,22 +19,7 @@ public class CameraController : MonoBehaviour
     {
         if(gameManager.isStart == true)
         {
-            if (player.transform.localScale != Vector3.zero)
-            {
-                cameraPos = player.transform.position - (Vector3.forward * distance) + (Vector3.up * height);
-            }
-            else
-            {
-                foreach (var player in gameManager.players)
-                {
-                    if (player.GetComponent<PlayerController>().isDead != true)
-                    {
-                        cameraPos = player.transform.position - (Vector3.forward * distance) + (Vector3.up * height);
-                    }  
-                }
-            }
-
-            gameObject.transform.position = cameraPos;
+            gameObject.transform.position = player.transform.position - (Vector3.forward * distance) + (Vector3.up * height);
         }
 
     }

@@ -1650,8 +1650,6 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
             inGame.SetActive(false);
             lobbyResult_Continue.SetActive(false);
             lobbyResult.SetActive(false);
-            game_Manager.isResult = false;
-            game_Manager.isRandom = false;
         }
         else if (lastCanvas == "lobbyLevelUp")
         {
