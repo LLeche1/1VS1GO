@@ -21,6 +21,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
     private float speed = 5.0f;
     private float jumpForce = 5.0f;
     private float rotateSpeed = 0;
+    private float speedAnimSpeed = 0;
     private Vector3 inputDir = Vector3.zero;
     private Vector3 moveDir;
     private Vector3 lookVector;
@@ -36,6 +37,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
     Animator animator;
     Rigidbody rb;
     Material material;
+    ParticleSystem boostEffect;
     SkinnedMeshRenderer skinnedMeshRenderer;
     GameManager gameManager;
     SpeedGame speedGame;
@@ -295,6 +297,9 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
         tr.Translate(new Vector3(0, 0, speedGame.speed * 0.1f));
         animator.SetBool("isRun", true);
+        if(speedGame.speed / 3 < 3)
+            speedAnimSpeed = speedGame.speed / 3;
+        animator.SetFloat("Speed", speedAnimSpeed);
         isRunBtn = false;
     }
 
@@ -319,14 +324,30 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
     void BoostEffect()
     {
-        if(boostStack > 2)
+        if (gameManager.runningGame.activeSelf == true)
         {
-            transform.Find("BoostEffect").gameObject.SetActive(true);
+            if (boostStack > 2)
+            {
+                transform.Find("BoostEffect").gameObject.SetActive(true);
+            }
+            else
+            {
+                transform.Find("BoostEffect").gameObject.SetActive(false);
+            }
         }
-        else
+        else if(gameManager.speedGame.activeSelf == true)
         {
-            transform.Find("BoostEffect").gameObject.SetActive(false);
+            Debug.Log(speedAnimSpeed);
+            if (speedAnimSpeed > 1)
+            {
+                transform.Find("BoostEffect").gameObject.SetActive(true);
+                if (boostEffect == null)
+                    boostEffect = transform.Find("BoostEffect").GetComponent<ParticleSystem>();
+                boostEffect.startSpeed = speedGame.speed;
+
+            }
         }
+       
     }
     private void OnTriggerEnter(Collider other)
     {
