@@ -16,6 +16,7 @@ GameObject:
   - component: {fileID: 683536538751574635}
   - component: {fileID: 5280139603075810034}
   - component: {fileID: 8751791970546969460}
+  - component: {fileID: 3382255446634156769}
   m_Layer: 8
   m_Name: Chariot
   m_TagString: Chariot
@@ -97,7 +98,7 @@ MeshCollider:
   m_GameObject: {fileID: 1589121929859186}
   m_Material: {fileID: 13400000, guid: 359359630b424394fb42bafdcf3a9836, type: 2}
   m_IsTrigger: 0
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 4
   m_Convex: 1
   m_CookingOptions: 30
@@ -169,3 +170,16 @@ MonoBehaviour:
   m_SynchronizeRotation: 1
   m_SynchronizeScale: 1
   m_UseLocal: 1
+--- !u!65 &3382255446634156769
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1589121929859186}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 2.9438677, y: 2.3243573, z: 3.9718323}
+  m_Center: {x: 0, y: 1.1166557, z: -0.00000029802322}

@@ -10,15 +10,15 @@ public class RunningGame : MonoBehaviourPunCallbacks
     GameObject maps;
     GameObject frontLineBoard;
     Vector3 preBoardPos;
-    List<GameObject> TrackList;
+    public List<GameObject> TrackList;
     public bool isFirstTrackCreated = false;
     public bool isChariotSpawnerOn = false;
     public bool isRemoverOn = false;
 
     public GameObject chariot;
     private GameObject chariotObj;
-    float chariotSpeed = 1f;
-    const int chariotGenTime = 15;
+    public float chariotSpeed = 1f;
+    const int chariotGenTime = 3;
 
     const int rTrackPatternCount = 10;
     private int[] randNumArray;
@@ -44,11 +44,10 @@ public class RunningGame : MonoBehaviourPunCallbacks
             {
                 ChariotSpawner();
                 ChariotAcceleration();
-                
             }
         }
-        Debug.Log(isRemoverOn);
         RemovePastTrack();
+        Debug.Log(chariotSpeed);
     }
 
     void FirstTrackSet()
@@ -150,6 +149,7 @@ public class RunningGame : MonoBehaviourPunCallbacks
                     {
                         TrackList.Remove(track);
                         Destroy(track.gameObject);
+                        break;
                     }
                 }
             }
