@@ -75,6 +75,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
             slideBtn = GameObject.Find("UI").transform.Find("Button_Slide").GetComponent<Button>();
             attackBtn = GameObject.Find("UI").transform.Find("Button_Attack").GetComponent<Button>();
             runBtn = GameObject.Find("UI").transform.Find("Button_Run").GetComponent<Button>();
+            Debug.Log(joyStick);
 
             if (jumpBtn != null)
             {
@@ -106,15 +107,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
             if (isSpeedGame == true)
             {
-                if(isRunBtn == true)
-                {
-                    speedGame = GameObject.Find("SpeedGame").GetComponent<SpeedGame>();
-                    speedGame.speed++; 
-                }
-
-                tr.Translate(new Vector3(0, 0, speedGame.speed * 0.1f));
-                animator.SetBool("isRun", true);
-                isRunBtn = false;
+                ButtonRun2();
             }
         }
     }
@@ -226,7 +219,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
         }
         else if (isSlide)
         {
-            rb.AddForce(new Vector3(jumpMoveDir.x, 0f, jumpMoveDir.z).normalized * (speed + 1000f), ForceMode.Impulse);
+            rb.AddForce(new Vector3(jumpMoveDir.x, 0f, jumpMoveDir.z).normalized * (speed + 3f), ForceMode.Impulse);
 
             if (inputDir != Vector3.zero)
                 transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.LookRotation(inputDir), 2.5f * Time.deltaTime);
@@ -287,6 +280,19 @@ public class PlayerController : MonoBehaviourPunCallbacks
     {
         isSpeedGame = true;
         isRunBtn = true;
+    }
+
+    void ButtonRun2()
+    {
+        if(isRunBtn == true)
+        {
+            speedGame = GameObject.Find("SpeedGame").GetComponent<SpeedGame>();
+            speedGame.speed++; 
+        }
+
+        tr.Translate(new Vector3(0, 0, speedGame.speed * 0.1f));
+        animator.SetBool("isRun", true);
+        isRunBtn = false;
     }
 
     void FallDown()

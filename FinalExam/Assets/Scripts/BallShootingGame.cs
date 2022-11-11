@@ -16,7 +16,6 @@ public class BallShootingGame : MonoBehaviourPunCallbacks
     private Vector3 spawnPos = Vector3.zero;
     private Vector3 forceDir;
     private int ballNum = 0;
-    int randPlateNum = 0;
     
     private bool ballGenTrigger = true;
     void Awake()
@@ -69,7 +68,7 @@ public class BallShootingGame : MonoBehaviourPunCallbacks
     [PunRPC]
     void PlateRandomActive(GameObject plate, int r)
     {
-        plate.transform.GetChild(r).gameObject.active = true;
+        plate.transform.GetChild(r).gameObject.SetActive(true);
     }
     void BallRandomSpawner()
     {

@@ -13,7 +13,9 @@ using TMPro;
 public class GameManager : MonoBehaviourPunCallbacks
 {
     public Material[] Skyboxes;
+    public GameObject tutorialPlayer;
     public GameObject cameraObject;
+    public GameObject tutorial;
     public GameObject runningGame;
     public GameObject cannonGame;
     public GameObject speedGame;
@@ -32,6 +34,7 @@ public class GameManager : MonoBehaviourPunCallbacks
     public TMP_Text myScoreText;
     public TMP_Text otherScoreText;
     private float limitTime;
+    private bool isTutorial = false;
     public bool isStart = false;
     public bool isFinish = false;
     private bool isGiveUp = false;
@@ -44,6 +47,8 @@ public class GameManager : MonoBehaviourPunCallbacks
     public int redRound = 0;
     public int isWin = 0;
     public int random = 0;
+    public List<int> randomList = new List<int>{1, 2, 3, 1, 2};
+    public int randomNum = 5;
     private string team = null;
     public bool isRandom = false;
     PhotonView PV;
@@ -57,31 +62,62 @@ public class GameManager : MonoBehaviourPunCallbacks
 
     void Update()
     {
-        if(PhotonNetwork.IsMasterClient && isRandom == false)
+        if(lobbyManager.isTutorial == 0 && isTutorial == false)
         {
-            RoundStart();
+            Tutorial();
         }
-
-        if (isStart == true)
+        else if(lobbyManager.isTutorial == 1)
         {
-            Score();
-            PV.RPC("Statue", RpcTarget.All);
-            if (PhotonNetwork.IsMasterClient)
+            if(PhotonNetwork.IsMasterClient && isRandom == false)
             {
-                limitTime -= Time.deltaTime;
-                PV.RPC("LimitTime", RpcTarget.All, limitTime);
+                RoundStart();
             }
-        }
 
-        RenderSettings.skybox.SetFloat("_Rotation", Time.time * 2f);
-        LastCanvas();
+            if (isStart == true)
+            {
+                Score();
+                PV.RPC("Statue", RpcTarget.All);
+                if (PhotonNetwork.IsMasterClient)
+                {
+                    limitTime -= Time.deltaTime;
+                    PV.RPC("LimitTime", RpcTarget.All, limitTime);
+                }
+            }
+
+            RenderSettings.skybox.SetFloat("_Rotation", Time.time * 2f);
+            LastCanvas();
+        }
+    }
+
+    void Tutorial()
+    {
+        isTutorial = true;
+        tutorial.SetActive(true);
+        isStart = true;
+        GameObject player = Instantiate(tutorialPlayer, Vector3.zero, Quaternion.identity);
+        player.transform.parent = GameObject.Find("InGame").transform;
+        cameraObject.GetComponent<CameraController>().player = player;
+        cameraObject.transform.GetComponent<CameraController>().enabled = true;
+        ui.SetActive(true);
+        ui.transform.Find("Time_Score").gameObject.SetActive(false);
+        ui.transform.Find("Button_Pause").gameObject.SetActive(false);
+        ui.transform.Find("JoyStick").gameObject.SetActive(true);
+        ui.transform.Find("Button_Jump").gameObject.SetActive(true);
+        ui.transform.Find("Button_Slide").gameObject.SetActive(true);
+        ui.transform.Find("Button_Attack").gameObject.SetActive(false);
+        ui.transform.Find("Button_Run").gameObject.SetActive(false);
+        RenderSettings.skybox = Skyboxes[2];
+        RenderSettings.skybox.SetFloat("_Rotation", 0);
     }
 
     void RoundStart()
     {
         isRandom = true;
-        random = Random.Range(1,2);
+        int i = Random.Range(0, randomNum);
+        random = randomList[i];
         PV.RPC("RandomMap", RpcTarget.All, random);
+        randomList.RemoveAt(i);
+        randomNum--;
     }
 
     [PunRPC]
@@ -532,6 +568,7 @@ public class GameManager : MonoBehaviourPunCallbacks
         blueScore = 0;
         redScore = 0;
         isRandom = false;
+        joystick.GetComponent<JoyStick>().Reset();
     }
 
     IEnumerator RoundFinish()
@@ -632,6 +669,8 @@ public class GameManager : MonoBehaviourPunCallbacks
         blueRound = 0;
         redRound = 0;
         isRandom = false;
+        randomList = new List<int>{1, 2, 3, 1, 2};
+        randomNum = 5;
         gameObject.SetActive(false);
         joystick.GetComponent<JoyStick>().Reset();
     }

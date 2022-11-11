@@ -34,41 +34,32 @@ MonoBehaviour:
   RunInBackground: 1
   StartInOfflineMode: 0
   RpcList:
-  - RandomMap
+  - AttackRPC
+  - BlueReady
+  - BlueRound
   - CannonBallCreateSysnc
-  - ChariotCreateSync
+  - ChariotParentSync
   - ClickRpc
   - DestroyRpc
   - DestroySpaceship
-  - DiamondSpawner
+  - DiamondRpc
   - Fire
   - FirstTrackCreateSync
   - GiveUp_Rpc
+  - IsRemoverSync
   - LimitTime
+  - NextRoundRpc
   - PlateRandomActive
+  - RandomMap
   - RandPosSync
+  - RedReady
+  - RedRound
   - RespawnSpaceship
   - RoomLoadingCountRpc
   - RunningTrackCreateSync
   - Score
-  - Statue
-  - ReadyCheck
-  - BlueReady
-  - RedReady
-  - BallRPC
-  - AttackRPC
-  - ChariotAccSync
-  - RemoveTrackSync
-  - BlueRound
-  - RedRound
-  - isRandomRpc
-  - RoundReadyRpc
-  - ChariotParentSync
-  - IsRemoverSync
-  - ChariotRpc
-  - DiamondRpc
   - Set
-  - NextRoundRpc
+  - Statue
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1
