@@ -249,7 +249,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
     void ButtonAttack()
     {
-        if(isAttack == false)
+        if (isAttack == false)
         {
             isAttack = true;
             PV.RPC("AttackRPC", RpcTarget.All);
@@ -288,15 +288,15 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
     void ButtonRun2()
     {
-        if(isRunBtn == true)
+        if (isRunBtn == true)
         {
             speedGame = GameObject.Find("SpeedGame").GetComponent<SpeedGame>();
-            speedGame.speed++; 
+            speedGame.speed++;
         }
 
         tr.Translate(new Vector3(0, 0, speedGame.speed * 0.1f));
         animator.SetBool("isRun", true);
-        if(speedGame.speed / 3 < 3)
+        if (speedGame.speed / 3 < 3)
             speedAnimSpeed = speedGame.speed / 3;
         animator.SetFloat("Speed", speedAnimSpeed);
         isRunBtn = false;
@@ -325,6 +325,18 @@ public class PlayerController : MonoBehaviourPunCallbacks
     {
         if (gameManager.runningGame.activeSelf == true)
         {
+            PV.RPC(nameof(BoostEffectRPC), RpcTarget.All, 1);
+        }
+        else if (gameManager.speedGame.activeSelf == true)
+        {
+            PV.RPC(nameof(BoostEffectRPC), RpcTarget.All, 3);
+        }
+    }
+    [PunRPC]
+    void BoostEffectRPC(int gameNum)
+    {
+        if (gameNum == 3)
+        {
             if (boostStack > 2)
             {
                 transform.Find("BoostEffect").gameObject.SetActive(true);
@@ -334,19 +346,17 @@ public class PlayerController : MonoBehaviourPunCallbacks
                 transform.Find("BoostEffect").gameObject.SetActive(false);
             }
         }
-        else if(gameManager.speedGame.activeSelf == true)
+        else if (gameNum == 1)
         {
-            Debug.Log(speedAnimSpeed);
             if (speedAnimSpeed > 1)
             {
                 transform.Find("BoostEffect").gameObject.SetActive(true);
                 if (boostEffect == null)
                     boostEffect = transform.Find("BoostEffect").GetComponent<ParticleSystem>();
                 boostEffect.startSpeed = speedGame.speed;
-
             }
         }
-       
+
     }
     private void OnTriggerEnter(Collider other)
     {
@@ -410,7 +420,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
             Vector3 contatsDir = collision.contacts[0].normal;
             rb.velocity = Vector3.zero;
             rb.AddForce(new Vector3(0f, 3f, 0f), ForceMode.Impulse);
-            jumpMoveDir = new Vector3(contatsDir.x, 0f, contatsDir.z).normalized * 1.5f; 
+            jumpMoveDir = new Vector3(contatsDir.x, 0f, contatsDir.z).normalized * 1.5f;
             isJump = true;
             animator.SetBool("isJump", isJump);
 
