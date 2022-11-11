@@ -60,6 +60,10 @@ MonoBehaviour:
   - Score
   - Set
   - Statue
+  - BoostEffectRpc
+  - RgBoostEffect
+  - SgBoostEffect
+  - BoostStackSync
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

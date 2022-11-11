@@ -17,7 +17,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
     private bool isHit = false;
     private bool isSpeedGame = false;
     private bool isRunBtn = false;
-    private int boostStack = 0;
+    public int boostStack = 0;
     private float speed = 5.0f;
     private float jumpForce = 5.0f;
     private float rotateSpeed = 0;
@@ -325,38 +325,56 @@ public class PlayerController : MonoBehaviourPunCallbacks
     {
         if (gameManager.runningGame.activeSelf == true)
         {
-            PV.RPC(nameof(BoostEffectRPC), RpcTarget.All, 1);
+            PV.RPC(nameof(RgBoostEffect), RpcTarget.All);
         }
         else if (gameManager.speedGame.activeSelf == true)
         {
-            PV.RPC(nameof(BoostEffectRPC), RpcTarget.All, 3);
-        }
-    }
-    [PunRPC]
-    void BoostEffectRPC(int gameNum)
-    {
-        if (gameNum == 3)
-        {
-            if (boostStack > 2)
+            if (speedAnimSpeed > 1)
             {
-                transform.Find("BoostEffect").gameObject.SetActive(true);
+                PV.RPC(nameof(SgBoostEffect), RpcTarget.All, true);
             }
             else
             {
-                transform.Find("BoostEffect").gameObject.SetActive(false);
-            }
-        }
-        else if (gameNum == 1)
-        {
-            if (speedAnimSpeed > 1)
-            {
-                transform.Find("BoostEffect").gameObject.SetActive(true);
-                if (boostEffect == null)
-                    boostEffect = transform.Find("BoostEffect").GetComponent<ParticleSystem>();
-                boostEffect.startSpeed = speedGame.speed;
+                PV.RPC(nameof(SgBoostEffect), RpcTarget.All, false);
+
             }
         }
 
+    }
+    [PunRPC]
+    void RgBoostEffect()
+    {
+
+        if (boostStack > 2)
+        {
+            transform.Find("BoostEffect").gameObject.SetActive(true);
+        }
+        else
+        {
+            transform.Find("BoostEffect").gameObject.SetActive(false);
+        }
+
+    }
+    [PunRPC]
+    void SgBoostEffect(bool On)
+    {
+        if (On)
+        {
+            transform.Find("BoostEffect").gameObject.SetActive(true);
+            if (boostEffect == null)
+                boostEffect = transform.Find("BoostEffect").GetComponent<ParticleSystem>();
+            boostEffect.startSpeed = speedGame.speed;
+        }
+        else if (!On)
+        {
+            transform.Find("BoostEffect").gameObject.SetActive(false);
+        }
+    }
+
+    [PunRPC]
+    void BoostStackSync()
+    {
+        boostStack++;
     }
     private void OnTriggerEnter(Collider other)
     {
@@ -394,7 +412,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
         {
             if (isMove)
             {
-                boostStack++;
+                PV.RPC(nameof(BoostStackSync), RpcTarget.All);
                 speed += 1f;
             }
         }

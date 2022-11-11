@@ -6901,6 +6901,7 @@ MonoBehaviour:
   isGrounded: 0
   jDown: 0
   isJump: 0
+  boostStack: 0
   isDead: 0
   jumpKeyDown: 0
   isFallDown: 0
