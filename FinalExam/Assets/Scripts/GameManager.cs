@@ -844,7 +844,6 @@ public class GameManager : MonoBehaviourPunCallbacks
     [PunRPC]
     void GiveUp_Rpc()
     {
-        Debug.Log("test");
         if (isGiveUp == true)
         {
             isWin = 0;

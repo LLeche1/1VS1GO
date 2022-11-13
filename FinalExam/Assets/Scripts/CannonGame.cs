@@ -22,8 +22,7 @@ public class CannonGame : MonoBehaviourPunCallbacks
     public bool lineGenTrigger = true;
     public bool isDiamond = false;
     private const float shootForce = 100f;
-    public GameObject cannonObj;
-    public GameObject cannonBallObj;
+    public GameObject cannonBall;
     private GameObject maps;
     private GameObject leftSideCannons;
     private GameObject rightSideCannons;
@@ -43,11 +42,6 @@ public class CannonGame : MonoBehaviourPunCallbacks
         bottomSideCannons = maps.transform.Find("CannonBottomSide").gameObject;
     }
 
-    void Start()
-    {
-        CannonGenerate();
-    }
-
     void Update()
     {
         if (PhotonNetwork.IsMasterClient && gameManager.isStart == true)
@@ -57,41 +51,15 @@ public class CannonGame : MonoBehaviourPunCallbacks
         }
     }
 
-    void CannonGenerate()
-    {
-        for (int i = 0; i < (rowSize / 2) - 1; i++)
-        {
-            GameObject leftSideCannon = Instantiate(cannonObj);
-            leftSideCannon.transform.SetParent(leftSideCannons.transform);
-            leftSideCannon.transform.position = new Vector3(leftSideCannons.transform.position.x, leftSideCannons.transform.position.y, leftSideCannons.transform.position.z + (2 * i));
-            leftSideCannon.transform.rotation = Quaternion.Euler(0f, 90f, 0f);
-
-            GameObject rightSideCannon = Instantiate(cannonObj);
-            rightSideCannon.transform.position = new Vector3(rightSideCannons.transform.position.x, rightSideCannons.transform.position.y, rightSideCannons.transform.position.z + (2 * i));
-            rightSideCannon.transform.rotation = Quaternion.Euler(0f, 270f, 0f);
-            rightSideCannon.transform.SetParent(rightSideCannons.transform);
-
-            GameObject topSideCannon = Instantiate(cannonObj);
-            topSideCannon.transform.position = new Vector3(topSideCannons.transform.position.x + (2 * i), topSideCannons.transform.position.y, topSideCannons.transform.position.z);
-            topSideCannon.transform.rotation = Quaternion.Euler(0f, 180f, 0f);
-            topSideCannon.transform.SetParent(topSideCannons.transform);
-
-            GameObject bottomSideCannon = Instantiate(cannonObj);
-            bottomSideCannon.transform.position = new Vector3(bottomSideCannons.transform.position.x + (2 * i), bottomSideCannons.transform.position.y, bottomSideCannons.transform.position.z);
-            bottomSideCannon.transform.rotation = Quaternion.Euler(0f, 0f, 0f);
-            bottomSideCannon.transform.SetParent(bottomSideCannons.transform);
-        }
-    }
-
     void DiamondSpawner()
     {
         if (isDiamond == false)
         {
             isDiamond = true;
-            float randX = Random.Range(-12f, 14f);
-            float randZ = Random.Range(-12f, 14f);
-            GameObject diamond = PhotonNetwork.Instantiate("Diamond", new Vector3(randX, 1, randZ), Quaternion.Euler(-90, 0, 0));
-            diamond.transform.position = new Vector3(randX, 1, randZ);
+            float x = Random.Range(-12f, 14f);
+            float z = Random.Range(-12f, 14f);
+            GameObject diamond = PhotonNetwork.Instantiate("Diamond", new Vector3(x, 1, z), Quaternion.Euler(-90, 0, 0));
+            diamond.transform.position = new Vector3(x, 1, z);
             PV.RPC("DiamondRpc", RpcTarget.All, diamond.GetComponent<PhotonView>().ViewID);
             StartCoroutine("DiamondDelay");
         }
@@ -120,32 +88,32 @@ public class CannonGame : MonoBehaviourPunCallbacks
         if (randGenTrigger)
         {
             randGenTrigger = false;
-            StartCoroutine(RandomCannonAttack());
+            StartCoroutine(RandomCannonBall());
         }
         if (lineGenTrigger)
         {
             lineGenTrigger = false;
-            StartCoroutine(LineCannonAttack());
+            StartCoroutine(LineCannonBall());
         }
     }
 
-    IEnumerator RandomCannonAttack()
+    IEnumerator RandomCannonBall()
     {
         int randSide = Random.Range(0, 4);
         int randCannon = Random.Range(0, 15);
-        PV.RPC(nameof(RandPosSync), RpcTarget.All, randSide, randCannon, CannonAttackType.Random); //randI?? randJ?? ?????? ???? ???????? ?? ???? RPC?? ???? ?????????? ?????? ????????.
+        PV.RPC("RandPosSync", RpcTarget.All, randSide, randCannon, CannonAttackType.Random);
         yield return new WaitForSeconds(1f);
-        PV.RPC(nameof(CannonBallCreateSysnc), RpcTarget.All, CannonAttackType.Random);
+        PV.RPC("CannonBallCreateSync", RpcTarget.All, CannonAttackType.Random);
         randGenTrigger = true;
     }
 
-    IEnumerator LineCannonAttack()
+    IEnumerator LineCannonBall()
     {
         int randSide = Random.Range(0, 4);
         int randCannon = Random.Range(0, 2);
-        PV.RPC(nameof(RandPosSync), RpcTarget.All, randSide, randCannon, CannonAttackType.Line); //randI?? randJ?? ?????? ???? ???????? ?? ???? RPC?? ???? ?????????? ?????? ????????.
+        PV.RPC("RandPosSync", RpcTarget.All, randSide, randCannon, CannonAttackType.Line);
         yield return new WaitForSeconds(1.5f);
-        PV.RPC(nameof(CannonBallCreateSysnc), RpcTarget.All,CannonAttackType.Line);
+        PV.RPC("CannonBallCreateSync", RpcTarget.All,CannonAttackType.Line);
         lineGenTrigger = true;
     }
 
@@ -158,6 +126,7 @@ public class CannonGame : MonoBehaviourPunCallbacks
                 randAtkSide = sideNum;
                 randAtkCannon = cannonNum;
                 break;
+                
             case CannonAttackType.Line:
                 lineAtkSide = sideNum;
                 lineAtkCannon = cannonNum;
@@ -166,87 +135,103 @@ public class CannonGame : MonoBehaviourPunCallbacks
     }
 
     [PunRPC]
-    void CannonBallCreateSysnc(CannonAttackType attackType)
+    void CannonBallCreateSync(CannonAttackType attackType)
     {
         switch (attackType)
         {
             case CannonAttackType.Random:
+            {
+                Transform genPos = null;
+                GameObject cannon = Instantiate(cannonBall, transform.Find("Cannons").transform);
+
+                switch (randAtkSide)
                 {
-                    Transform genPos = null;
-                    GameObject cannon = Instantiate(cannonBallObj, transform.Find("Cannons").transform);
-                    switch (randAtkSide)
-                    {
-                        case 0:
-                            genPos = leftSideCannons.transform.GetChild(randAtkCannon).transform.Find("Cannon").transform;
-                            cannon.GetComponent<Rigidbody>().AddForce(new Vector3(shootForce, 0f, 0f), ForceMode.Impulse);
-                            break;
-                        case 1:
-                            genPos = rightSideCannons.transform.GetChild(randAtkCannon).transform.Find("Cannon").transform;
-                            cannon.GetComponent<Rigidbody>().AddForce(new Vector3(-shootForce, 0f, 0f), ForceMode.Impulse);
-                            break;
-                        case 2:
-                            genPos = topSideCannons.transform.GetChild(randAtkCannon).transform.Find("Cannon").transform;
-                            cannon.GetComponent<Rigidbody>().AddForce(new Vector3(0f, 0f, -shootForce), ForceMode.Impulse);
-                            break;
-                        case 3:
-                            genPos = bottomSideCannons.transform.GetChild(randAtkCannon).transform.Find("Cannon").transform;
-                            cannon.GetComponent<Rigidbody>().AddForce(new Vector3(0f, 0f, shootForce), ForceMode.Impulse);
-                            break;
-                    }
-                    cannon.transform.position = genPos.position;
+                    case 0:
+                        genPos = leftSideCannons.transform.GetChild(randAtkCannon).transform.Find("Cannon").transform;
+                        cannon.GetComponent<Rigidbody>().AddForce(new Vector3(shootForce, 0f, 0f), ForceMode.Impulse);
+                        break;
+                    case 1:
+                        genPos = rightSideCannons.transform.GetChild(randAtkCannon).transform.Find("Cannon").transform;
+                        cannon.GetComponent<Rigidbody>().AddForce(new Vector3(-shootForce, 0f, 0f), ForceMode.Impulse);
+                        break;
+                    case 2:
+                        genPos = topSideCannons.transform.GetChild(randAtkCannon).transform.Find("Cannon").transform;
+                        cannon.GetComponent<Rigidbody>().AddForce(new Vector3(0f, 0f, -shootForce), ForceMode.Impulse);
+                        break;
+                    case 3:
+                        genPos = bottomSideCannons.transform.GetChild(randAtkCannon).transform.Find("Cannon").transform;
+                        cannon.GetComponent<Rigidbody>().AddForce(new Vector3(0f, 0f, shootForce), ForceMode.Impulse);
+                        break;
                 }
-                break;
+                cannon.transform.position = genPos.position;
+            }
+
+            break;
+
             case CannonAttackType.Line:
+            {
+                Transform genPos = null;
+                int creatNum = 0;
+
+                if (lineAtkCannon == 0) 
+                { 
+                    creatNum = 8; 
+                }
+                else if (lineAtkCannon == 1) 
+                { 
+                    creatNum = 7; 
+                }
+
+                GameObject[] cannonBalls = new GameObject[creatNum];
+
+                for (int k = 0; k < creatNum; k++)
                 {
-                    Transform genPos = null;
-                    int creatNum = 0;
+                    cannonBalls[k] = Instantiate(cannonBall, transform.Find("Cannons").transform);
+                }
 
-                    if (lineAtkCannon == 0) { creatNum = 8; }
-                    else if (lineAtkCannon == 1) { creatNum = 7; }
+                switch (lineAtkSide)
+                {
+                    case 0:
+                        for (int l = 0; l < creatNum; l++)
+                        {
+                            genPos = leftSideCannons.transform.GetChild((2 * l) + lineAtkCannon).transform.Find("Cannon").transform;
+                            cannonBalls[l].transform.position = genPos.position;
+                            cannonBalls[l].GetComponent<Rigidbody>().AddForce(new Vector3(shootForce, 0f, 0f), ForceMode.Impulse);
+                        }
 
-                    GameObject[] cannonBalls = new GameObject[creatNum];
-                    for (int k = 0; k < creatNum; k++)
-                    {
-                        cannonBalls[k] = Instantiate(cannonBallObj, transform.Find("Cannons").transform);
-                    }
-                    switch (lineAtkSide)
-                    {
-                        case 0:
-                            for (int l = 0; l < creatNum; l++)
-                            {
-                                genPos = leftSideCannons.transform.GetChild((2 * l) + lineAtkCannon).transform.Find("Cannon").transform;
-                                cannonBalls[l].transform.position = genPos.position;
-                                cannonBalls[l].GetComponent<Rigidbody>().AddForce(new Vector3(shootForce, 0f, 0f), ForceMode.Impulse);
-                            }
-                            break;
-                        case 1:
-                            for (int l = 0; l < creatNum; l++)
-                            {
-                                genPos = rightSideCannons.transform.GetChild((2 * l) + lineAtkCannon).transform.Find("Cannon").transform;
-                                cannonBalls[l].transform.position = genPos.position;
-                                cannonBalls[l].GetComponent<Rigidbody>().AddForce(new Vector3(-shootForce, 0f, 0f), ForceMode.Impulse);
-                            }
-                            break;
-                        case 2:
-                            for (int l = 0; l < creatNum; l++)
-                            {
-                                genPos = topSideCannons.transform.GetChild((2 * l) + lineAtkCannon).transform.Find("Cannon").transform;
-                                cannonBalls[l].transform.position = genPos.position;
-                                cannonBalls[l].GetComponent<Rigidbody>().AddForce(new Vector3(0f, 0f, -shootForce), ForceMode.Impulse);
-                            }
-                            break;
-                        case 3:
-                            for (int l = 0; l < creatNum; l++)
-                            {
-                                genPos = bottomSideCannons.transform.GetChild((2 * l) + lineAtkCannon).transform.Find("Cannon").transform;
-                                cannonBalls[l].transform.position = genPos.position;
-                                cannonBalls[l].GetComponent<Rigidbody>().AddForce(new Vector3(0f, 0f, shootForce), ForceMode.Impulse);
-                            }
-                            break;
+                        break;
+
+                    case 1:
+                        for (int l = 0; l < creatNum; l++)
+                        {
+                            genPos = rightSideCannons.transform.GetChild((2 * l) + lineAtkCannon).transform.Find("Cannon").transform;
+                            cannonBalls[l].transform.position = genPos.position;
+                            cannonBalls[l].GetComponent<Rigidbody>().AddForce(new Vector3(-shootForce, 0f, 0f), ForceMode.Impulse);
+                        }
+                        break;
+
+                    case 2:
+                        for (int l = 0; l < creatNum; l++)
+                        {
+                            genPos = topSideCannons.transform.GetChild((2 * l) + lineAtkCannon).transform.Find("Cannon").transform;
+                            cannonBalls[l].transform.position = genPos.position;
+                            cannonBalls[l].GetComponent<Rigidbody>().AddForce(new Vector3(0f, 0f, -shootForce), ForceMode.Impulse);
+                        }
+
+                        break;
+
+                    case 3:
+                        for (int l = 0; l < creatNum; l++)
+                        {
+                            genPos = bottomSideCannons.transform.GetChild((2 * l) + lineAtkCannon).transform.Find("Cannon").transform;
+                            cannonBalls[l].transform.position = genPos.position;
+                            cannonBalls[l].GetComponent<Rigidbody>().AddForce(new Vector3(0f, 0f, shootForce), ForceMode.Impulse);
+                        }
+
+                        break;
                     }
                 }
                 break;
         }
-
     }
 }

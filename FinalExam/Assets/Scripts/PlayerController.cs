@@ -122,6 +122,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
         jDown = Input.GetButton("Jump");
         slideKeyDown = Input.GetKey(KeyCode.Q);
         inputDir = new Vector3(joyStick.inputDir.x, 0f, joyStick.inputDir.y);
+        
         if (inputDir != Vector3.zero && !isJump && !isSlide)
         {
             isMove = true;
@@ -130,6 +131,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
         {
             isMove = false;
         }
+
         lookVector = transform.forward;
     }
 
@@ -151,20 +153,29 @@ public class PlayerController : MonoBehaviourPunCallbacks
     void Rotation()
     {
         if (isMove)
+        {
             rotateSpeed = 15f;
+        }
         else if (isSlide)
+        {
             rotateSpeed = 2.5f;
+        }
         else if (isJump)
+        {
             rotateSpeed = 3f;
+        }
+            
         if (inputDir != Vector3.zero)
+        {
             transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.LookRotation(inputDir), rotateSpeed * Time.deltaTime);
+        }
     }
+
     void JoyStickMove()
     {
         if (!isSlide && !isFallDown && !isJump)
         {
             moveMag = joyStick.inputDir.magnitude;
-
             animator.SetBool("isRun", isMove);
             animator.SetFloat("Speed", moveMag);
             if (isMove)
@@ -179,12 +190,11 @@ public class PlayerController : MonoBehaviourPunCallbacks
         isGrounded = Physics.CheckSphere(groundCheck.transform.position, .1f);
     }
 
-    void Jump() //Ű���� ����
+    void Jump()
     {
         if (jDown && !isJump && isGrounded)
         {
             rb.velocity = Vector3.zero;
-
             jumpMoveDir = lookVector;
             rb.AddForce(new Vector3(0f, jumpForce, 0f), ForceMode.Impulse);
             isJump = true;
@@ -196,7 +206,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
         }
     }
 
-    public void ButtonJump() //UI ���� ��ư ����
+    public void ButtonJump()
     {
         if (!isJump)
         {
@@ -213,14 +223,15 @@ public class PlayerController : MonoBehaviourPunCallbacks
         {
             isSlide = true;
             isJump = true;
+
             if (isJump)
             {
                 animator.SetBool("isJump", false);
             }
+
             animator.SetBool("isSlide", isSlide);
             jumpMoveDir = lookVector;
             //StartCoroutine(SlideCoolTime());
-
             rb.velocity = Vector3.zero;
             rb.AddForce(new Vector3(0, jumpForce / 2, 0), ForceMode.Impulse);
         }
@@ -269,6 +280,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
     {
         float time = 0;
         attackBtn.transform.GetChild(0).transform.GetComponent<Image>().fillAmount = 0;
+
         while (time < 5)
         {
             yield return new WaitForEndOfFrame();
@@ -296,8 +308,12 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
         tr.Translate(new Vector3(0, 0, speedGame.speed * 0.1f));
         animator.SetBool("isRun", true);
+
         if (speedGame.speed / 3 < 3)
+        {
             speedAnimSpeed = speedGame.speed / 3;
+        }
+            
         animator.SetFloat("Speed", speedAnimSpeed);
         isRunBtn = false;
     }
@@ -336,15 +352,13 @@ public class PlayerController : MonoBehaviourPunCallbacks
             else
             {
                 PV.RPC(nameof(SgBoostEffect), RpcTarget.All, false);
-
             }
         }
-
     }
+
     [PunRPC]
     void RgBoostEffect()
     {
-
         if (boostStack > 2)
         {
             transform.Find("BoostEffect").gameObject.SetActive(true);
@@ -353,16 +367,20 @@ public class PlayerController : MonoBehaviourPunCallbacks
         {
             transform.Find("BoostEffect").gameObject.SetActive(false);
         }
-
     }
+
     [PunRPC]
     void SgBoostEffect(bool On)
     {
         if (On)
         {
             transform.Find("BoostEffect").gameObject.SetActive(true);
+
             if (boostEffect == null)
+            {
                 boostEffect = transform.Find("BoostEffect").GetComponent<ParticleSystem>();
+            }
+
             boostEffect.startSpeed = speedGame.speed;
         }
         else if (!On)
@@ -425,6 +443,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
             boostStack = 0;
             speed = 5.0f;
         }
+
         if (collision.transform.tag == "Floor")
         {
             isJump = false;
@@ -441,7 +460,6 @@ public class PlayerController : MonoBehaviourPunCallbacks
             jumpMoveDir = new Vector3(contatsDir.x, 0f, contatsDir.z).normalized * 1.5f;
             isJump = true;
             animator.SetBool("isJump", isJump);
-
             collision.transform.GetComponent<Rigidbody>().velocity = -contatsDir.normalized * 15f;
         }
 
@@ -460,6 +478,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
     {
         material.color = Color.red;
         yield return new WaitForSeconds(0.5f);
+
         for (int i = 0; i < 5; i++)
         {
             material.color = Color.white;
@@ -467,6 +486,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
             material.color = Color.grey;
             yield return new WaitForSeconds(0.25f);
         }
+
         material.color = Color.white;
         isHit = false;
     }

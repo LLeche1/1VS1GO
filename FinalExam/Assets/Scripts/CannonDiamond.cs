@@ -5,7 +5,6 @@ using System.Collections;
 
 public class CannonDiamond : MonoBehaviour
 {
-    [SerializeField]
     private float speed = 100;
     GameManager gameManager;
     PhotonView PV;
