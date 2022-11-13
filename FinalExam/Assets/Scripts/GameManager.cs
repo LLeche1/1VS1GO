@@ -101,6 +101,7 @@ public class GameManager : MonoBehaviourPunCallbacks
         if(isTutorial == false && tutorialNum == 0)
         {
             isTutorial = true;
+            fade.SetActive(false);
             tutorial.SetActive(true);
             isStart = true;
             GameObject player = Instantiate(tutorialPlayer, Vector3.zero, Quaternion.identity);
