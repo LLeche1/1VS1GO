@@ -4,7 +4,7 @@ using UnityEngine;
 using Photon.Pun;
 using Photon.Realtime;
 
-public class Chariot : MonoBehaviour
+public class RunningChariot : MonoBehaviour
 {
     RunningGame runningGame;
 
