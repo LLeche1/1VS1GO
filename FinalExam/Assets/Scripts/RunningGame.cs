@@ -48,7 +48,6 @@ public class RunningGame : MonoBehaviourPunCallbacks
             }
         }
         RemovePastTrack();
-        Debug.Log(chariotSpeed);
     }
 
     void FirstTrackSet()
