@@ -244,18 +244,19 @@ public class PlayerController : MonoBehaviourPunCallbacks
         if (!isSlide)
         {
             isSlide = true;
+            isJump = true;
+
+            if (isJump)
+            {
+                animator.SetBool("isJump", false);
+            }
+
             animator.SetBool("isSlide", isSlide);
-            rb.AddForce(new Vector3(0, jumpForce / 2, 0), ForceMode.Impulse); ;
+            jumpMoveDir = lookVector;
+            rb.velocity = Vector3.zero;
+            rb.AddForce(new Vector3(0, jumpForce / 2, 0), ForceMode.Impulse);
         }
     }
-
-    IEnumerator SlideCoolTime()
-    {
-        yield return new WaitForSeconds(1.167f);
-        isSlide = false;
-        animator.SetBool("isSlide", isSlide);
-    }
-
     void ButtonAttack()
     {
         if (isAttack == false)

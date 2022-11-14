@@ -20,6 +20,7 @@ public class GameManager : MonoBehaviourPunCallbacks
     public GameObject runningGame;
     public GameObject cannonGame;
     public GameObject speedGame;
+    public GameObject ballShootingGame;
     public GameObject ui;
     public GameObject fade;
     public GameObject[] players;
@@ -53,7 +54,7 @@ public class GameManager : MonoBehaviourPunCallbacks
     public int redRound = 0;
     public int isWin = 0;
     public int random = 0;
-    public List<int> randomList = new List<int>{1, 2, 3, 1, 2};
+    public List<int> randomList = new List<int>{1, 2, 3, 4, 2};
     public int randomNum = 5;
     public string team = null;
     public bool isRandom = false;
@@ -118,6 +119,7 @@ public class GameManager : MonoBehaviourPunCallbacks
             ui.transform.Find("Button_Slide").gameObject.SetActive(false);
             ui.transform.Find("Button_Attack").gameObject.SetActive(false);
             ui.transform.Find("Button_Run").gameObject.SetActive(false);
+            ui.transform.Find("Button_Throw").gameObject.SetActive(false);
             ui.transform.Find("Tutorial").gameObject.SetActive(true);
             ui.transform.Find("Tutorial").transform.Find("Message").gameObject.SetActive(true);
             ui.transform.Find("Tutorial").transform.Find("Message").transform.Find("Chat").transform.Find("Text").gameObject.GetComponent<TMP_Text>().text = "Let`s Drag  joystick with your left thumb to get moving.";
@@ -257,6 +259,13 @@ public class GameManager : MonoBehaviourPunCallbacks
             RenderSettings.skybox.SetFloat("_Rotation", 0);
             limitTime = 30;
         }
+        else if (random == 4)
+        {
+            ballShootingGame.SetActive(true);
+            RenderSettings.skybox = Skyboxes[3];
+            RenderSettings.skybox.SetFloat("_Rotation", 0);
+            limitTime = 120;
+        }
         
         Generate();
     }
@@ -301,6 +310,19 @@ public class GameManager : MonoBehaviourPunCallbacks
             else
             {
                 position = new Vector3(-4, 0, -485);
+                team = "Red";
+            }
+        }
+        else if (random == 4)
+        {
+            if (PhotonNetwork.IsMasterClient)
+            {
+                position = new Vector3(4, 0, 0);
+                team = "Blue";
+            }
+            else
+            {
+                position = new Vector3(-4, 0, 0);
                 team = "Red";
             }
         }
@@ -354,6 +376,7 @@ public class GameManager : MonoBehaviourPunCallbacks
             ui.transform.Find("Button_Slide").gameObject.SetActive(true);
             ui.transform.Find("Button_Attack").gameObject.SetActive(false);
             ui.transform.Find("Button_Run").gameObject.SetActive(false);
+            ui.transform.Find("Button_Throw").gameObject.SetActive(false);
         }
         else if (random == 2)
         {
@@ -362,6 +385,7 @@ public class GameManager : MonoBehaviourPunCallbacks
             ui.transform.Find("Button_Slide").gameObject.SetActive(true);
             ui.transform.Find("Button_Attack").gameObject.SetActive(true);
             ui.transform.Find("Button_Run").gameObject.SetActive(false);
+            ui.transform.Find("Button_Throw").gameObject.SetActive(false);
         }
         else if (random == 3)
         {
@@ -370,6 +394,16 @@ public class GameManager : MonoBehaviourPunCallbacks
             ui.transform.Find("Button_Slide").gameObject.SetActive(false);
             ui.transform.Find("Button_Attack").gameObject.SetActive(false);
             ui.transform.Find("Button_Run").gameObject.SetActive(true);
+            ui.transform.Find("Button_Throw").gameObject.SetActive(false);
+        }
+        else if (random == 4)
+        {
+            ui.transform.Find("JoyStick").gameObject.SetActive(true);
+            ui.transform.Find("Button_Jump").gameObject.SetActive(false);
+            ui.transform.Find("Button_Slide").gameObject.SetActive(false);
+            ui.transform.Find("Button_Attack").gameObject.SetActive(false);
+            ui.transform.Find("Button_Run").gameObject.SetActive(false);
+            ui.transform.Find("Button_Throw").gameObject.SetActive(true);
         }
 
         if (team == "Blue")
@@ -774,7 +808,7 @@ public class GameManager : MonoBehaviourPunCallbacks
         blueRound = 0;
         redRound = 0;
         isRandom = false;
-        randomList = new List<int>{1, 2, 3, 1, 2};
+        randomList = new List<int>{1, 2, 3, 4, 2};
         randomNum = 5;
         gameObject.SetActive(false);
         joystick.GetComponent<JoyStick>().Reset();
