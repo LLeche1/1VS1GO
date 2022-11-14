@@ -83,7 +83,8 @@ public class GameManager : MonoBehaviourPunCallbacks
             if (isStart == true)
             {
                 Score();
-                PV.RPC("Statue", RpcTarget.All);
+                Statue();
+                //PV.RPC("Statue", RpcTarget.All);
                 if (PhotonNetwork.IsMasterClient)
                 {
                     limitTime -= Time.deltaTime;
@@ -560,8 +561,6 @@ public class GameManager : MonoBehaviourPunCallbacks
                         {
                             PV.RPC("RedRound", RpcTarget.All);
                         }
-
-                        StartCoroutine(RoundCheck());
                     }
 
                     if (limitTime <= 0)
@@ -677,6 +676,7 @@ public class GameManager : MonoBehaviourPunCallbacks
         {
             Destroy(player);
         }
+
         isStart = false;
         isFinish = false;
         blueReady = false;

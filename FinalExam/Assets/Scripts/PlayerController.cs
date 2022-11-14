@@ -16,9 +16,9 @@ public class PlayerController : MonoBehaviourPunCallbacks
     private bool isMove = false;
     private bool isHit = false;
     private bool isSpeedGame = false;
-    private bool isRunBtn = false;
     public int boostStack = 0;
     private float speed = 5.0f;
+    private float speedGameSpeed = 0;
     private float jumpForce = 5.0f;
     private float rotateSpeed = 0;
     private float speedAnimSpeed = 0;
@@ -40,7 +40,6 @@ public class PlayerController : MonoBehaviourPunCallbacks
     ParticleSystem boostEffect;
     SkinnedMeshRenderer skinnedMeshRenderer;
     GameManager gameManager;
-    SpeedGame speedGame;
     RunningGame runningGame;
     public bool jumpKeyDown = false;
     private bool slideKeyDown = false;
@@ -50,7 +49,6 @@ public class PlayerController : MonoBehaviourPunCallbacks
     public Vector3 jumpMoveDir;
     private float jumpMoveMag;
     private GameObject groundCheck;
-
     private bool isAttack = false;
     public GameObject ball;
 
@@ -295,27 +293,37 @@ public class PlayerController : MonoBehaviourPunCallbacks
     void ButtonRun()
     {
         isSpeedGame = true;
-        isRunBtn = true;
+        speedGameSpeed += 0.0001f;
     }
 
     void ButtonRun2()
     {
-        if (isRunBtn == true)
-        {
-            speedGame = GameObject.Find("SpeedGame").GetComponent<SpeedGame>();
-            speedGame.speed++;
-        }
-
-        tr.Translate(new Vector3(0, 0, speedGame.speed * 0.1f));
+        tr.Translate(new Vector3(0, 0, speedGameSpeed));
         animator.SetBool("isRun", true);
 
-        if (speedGame.speed / 3 < 3)
+        if (speedGameSpeed / 3 < 3)
         {
-            speedAnimSpeed = speedGame.speed / 3;
+            speedAnimSpeed = speedGameSpeed * 2;
         }
             
         animator.SetFloat("Speed", speedAnimSpeed);
-        isRunBtn = false;
+
+        if(gameObject.transform.position.z > 460)
+        {
+            gameObject.transform.position = new Vector3(gameObject.transform.position.x, gameObject.transform.position.y, 460);
+        }
+    }
+
+    [PunRPC]
+    void BlueCheck()
+    {
+        gameManager.blueReady = true;
+    }
+
+    [PunRPC]
+    void RedCheck()
+    {
+        gameManager.redReady = true;
     }
 
     void FallDown()
@@ -381,7 +389,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
                 boostEffect = transform.Find("BoostEffect").GetComponent<ParticleSystem>();
             }
 
-            boostEffect.startSpeed = speedGame.speed;
+            boostEffect.startSpeed = speedGameSpeed;
         }
         else if (!On)
         {
