@@ -683,8 +683,8 @@ public class GameManager : MonoBehaviourPunCallbacks
         redReady = false;
         blueScore = 0;
         redScore = 0;
-        isRandom = false;
         joystick.GetComponent<JoyStick>().Reset();
+        isRandom = false;
     }
 
     void RoundFinish()
