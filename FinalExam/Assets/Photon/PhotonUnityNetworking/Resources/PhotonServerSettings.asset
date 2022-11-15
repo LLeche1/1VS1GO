@@ -35,9 +35,11 @@ MonoBehaviour:
   StartInOfflineMode: 0
   RpcList:
   - AttackRPC
+  - BlueCheck
   - BlueReady
   - BlueRound
-  - CannonBallCreateSysnc
+  - BoostStackSync
+  - CannonBallCreateSync
   - ChariotParentSync
   - ClickRpc
   - DestroyRpc
@@ -48,26 +50,21 @@ MonoBehaviour:
   - GiveUp_Rpc
   - IsRemoverSync
   - LimitTime
-  - NextRoundRpc
+  - NextRound
   - PlateRandomActive
   - RandomMap
   - RandPosSync
+  - RedCheck
   - RedReady
   - RedRound
   - RespawnSpaceship
+  - RgBoostEffect
   - RoomLoadingCountRpc
   - RunningTrackCreateSync
   - Score
   - Set
-  - Statue
-  - BoostEffectRpc
-  - RgBoostEffect
   - SgBoostEffect
-  - BoostStackSync
-  - NextRound
-  - CannonBallCreateSync
-  - BlueCheck
-  - RedCheck
+  - Statue
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

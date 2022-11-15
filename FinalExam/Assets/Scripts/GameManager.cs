@@ -595,6 +595,8 @@ public class GameManager : MonoBehaviourPunCallbacks
                         {
                             PV.RPC("RedRound", RpcTarget.All);
                         }
+
+                        StartCoroutine(RoundCheck());
                     }
 
                     if (limitTime <= 0)
