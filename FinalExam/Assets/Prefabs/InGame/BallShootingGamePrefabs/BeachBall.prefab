@@ -97,9 +97,10 @@ GameObject:
   - component: {fileID: 4097906754252079001}
   - component: {fileID: 4758192966003280991}
   - component: {fileID: 5549205372395186000}
+  - component: {fileID: -8043780270174207531}
   m_Layer: 0
   m_Name: BeachBall
-  m_TagString: Untagged
+  m_TagString: BasketBall
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -148,4 +149,17 @@ SphereCollider:
   m_Enabled: 1
   serializedVersion: 2
   m_Radius: 1
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!135 &-8043780270174207531
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4097906754252078998}
+  m_Material: {fileID: 13400000, guid: b700736d0f3a8bf41aae71c7f02c2844, type: 2}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 2.5
   m_Center: {x: 0, y: 0, z: 0}

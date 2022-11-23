@@ -11,9 +11,10 @@ GameObject:
   - component: {fileID: 2601456844144034737}
   - component: {fileID: -6549316320629755874}
   - component: {fileID: 2263455956255667780}
+  - component: {fileID: 264889249374049133}
   m_Layer: 0
   m_Name: BasketBall
-  m_TagString: Untagged
+  m_TagString: BasketBall
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -62,6 +63,19 @@ SphereCollider:
   m_Enabled: 1
   serializedVersion: 2
   m_Radius: 0.95
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!135 &264889249374049133
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2601456844144034738}
+  m_Material: {fileID: 13400000, guid: b700736d0f3a8bf41aae71c7f02c2844, type: 2}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 2.5
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &3322959401665522333
 GameObject:

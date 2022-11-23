@@ -66,6 +66,7 @@ public class GameManager : MonoBehaviourPunCallbacks
     {
         PV = GetComponent<PhotonView>();
         lobbyManager = GameObject.Find("LobbyManager").GetComponent<LobbyManager>();
+        Debug.Log(PhotonNetwork.IsMasterClient);
     }
 
     void Update()
@@ -328,10 +329,10 @@ public class GameManager : MonoBehaviourPunCallbacks
         }
 
         GameObject player = PhotonNetwork.Instantiate("Player", position, Quaternion.identity);
-        player.name = lobbyManager.nickName;
+        /*player.name = lobbyManager.nickName;
         player.transform.GetComponent<PlayerController>().team = team;
-        player.transform.parent = GameObject.Find("InGame").transform;
-        //PV.RPC("Set", RpcTarget.All, player.GetComponent<PhotonView>().ViewID);
+        player.transform.parent = GameObject.Find("InGame").transform;*/
+        PV.RPC("Set", RpcTarget.All, player.GetComponent<PhotonView>().ViewID);
         cameraObject.GetComponent<CameraController>().player = player;
         cameraObject.transform.GetComponent<CameraController>().enabled = true;
         players = GameObject.FindGameObjectsWithTag("Player");

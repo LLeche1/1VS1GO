@@ -5810,6 +5810,7 @@ Transform:
   - {fileID: 4841591210305698445}
   - {fileID: 3013461285162922337}
   - {fileID: 6475476890707526565}
+  - {fileID: 1754403063376241342}
   m_Father: {fileID: 2003871042075812769}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -6906,7 +6907,9 @@ MonoBehaviour:
   jumpKeyDown: 0
   isFallDown: 0
   jumpMoveDir: {x: 0, y: 0, z: 0}
-  ball: {fileID: 300502393607073509, guid: f47a41b5cc8d4465583445ce991374e1, type: 3}
+  cannonGameBall: {fileID: 300502393607073509, guid: f47a41b5cc8d4465583445ce991374e1, type: 3}
+  grabedBall: {fileID: 0}
+  ballList: []
 --- !u!114 &2454238730925186208
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6937,9 +6940,17 @@ MonoBehaviour:
   - Type: 4
     SynchronizeType: 2
     Name: isFallDown
+  - Type: 4
+    SynchronizeType: 2
+    Name: isGrab
+  - Type: 9
+    SynchronizeType: 2
+    Name: Throw
   m_SynchronizeLayers:
   - SynchronizeType: 2
     LayerIndex: 0
+  - SynchronizeType: 2
+    LayerIndex: 1
 --- !u!114 &6585015444209354078
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -16091,6 +16102,37 @@ Transform:
   - {fileID: 6856642675423197622}
   m_Father: {fileID: 5906751424341705542}
   m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &8323898283150992254
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1754403063376241342}
+  m_Layer: 0
+  m_Name: ballGrabPos
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1754403063376241342
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8323898283150992254}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.3, y: -0.5, z: 0.15}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1192235159329345472}
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &8356905134165566138
 GameObject:

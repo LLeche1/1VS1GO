@@ -21,7 +21,7 @@ public class CannonDiamond : MonoBehaviour
     }
 
     [PunRPC]
-    void Score(string team)
+    void CannonGameScore(string team)
     {
         if(team == "Blue")
         {

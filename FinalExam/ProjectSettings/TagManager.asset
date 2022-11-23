@@ -11,6 +11,8 @@ TagManager:
   - CannonBall
   - RunningGameObstacle
   - Chariot
+  - BlueBall
+  - RedBall
   layers:
   - Default
   - TransparentFX

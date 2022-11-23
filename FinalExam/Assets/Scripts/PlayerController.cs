@@ -31,6 +31,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
     private Button slideBtn;
     private Button attackBtn;
     private Button runBtn;
+    private Button throwBtn;
     public bool isDead = false;
     PhotonView PV;
     Transform tr;
@@ -43,14 +44,19 @@ public class PlayerController : MonoBehaviourPunCallbacks
     RunningGame runningGame;
     public bool jumpKeyDown = false;
     private bool slideKeyDown = false;
+    private bool grabKeyDown = false;
     private bool isSlide = false;
+    private bool isGrab = false;
     public bool isFallDown = false;
     private bool fallAble = true;
+    private bool grabthrowAble = true;
     public Vector3 jumpMoveDir;
     private float jumpMoveMag;
     private GameObject groundCheck;
     private bool isAttack = false;
-    public GameObject ball;
+    public GameObject cannonGameBall;
+    public GameObject grabedBall;
+    public List<GameObject> ballList;
 
     void Awake()
     {
@@ -65,6 +71,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
         animator = GetComponent<Animator>();
         gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
         groundCheck = transform.Find("GroundCheck").gameObject;
+        ballList = new List<GameObject>();
     }
 
     void FixedUpdate()
@@ -76,6 +83,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
             slideBtn = GameObject.Find("UI").transform.Find("Button_Slide").GetComponent<Button>();
             attackBtn = GameObject.Find("UI").transform.Find("Button_Attack").GetComponent<Button>();
             runBtn = GameObject.Find("UI").transform.Find("Button_Run").GetComponent<Button>();
+            throwBtn = GameObject.Find("UI").transform.Find("Button_Throw").GetComponent<Button>();
 
             if (jumpBtn != null)
             {
@@ -97,12 +105,18 @@ public class PlayerController : MonoBehaviourPunCallbacks
                 runBtn.onClick.AddListener(ButtonRun);
             }
 
+            if (throwBtn != null)
+            {
+                throwBtn.onClick.AddListener(ButtonGrabThrow);
+            }
+
             GetInput();
             GroundCheck();
             Rotation();
             JoyStickMove();
             Jump();
             Slide();
+            GrabThrow();
             FallDown();
             BoostEffect();
 
@@ -118,9 +132,10 @@ public class PlayerController : MonoBehaviourPunCallbacks
         hAxis = Input.GetAxis("Horizontal");
         vAxis = Input.GetAxis("Vertical");
         jDown = Input.GetButton("Jump");
-        slideKeyDown = Input.GetKey(KeyCode.Q);
+        slideKeyDown = Input.GetKeyDown(KeyCode.Q);
+        grabKeyDown = Input.GetKey(KeyCode.W);
         inputDir = new Vector3(joyStick.inputDir.x, 0f, joyStick.inputDir.y);
-        
+
         if (inputDir != Vector3.zero && !isJump && !isSlide)
         {
             isMove = true;
@@ -162,7 +177,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
         {
             rotateSpeed = 3f;
         }
-            
+
         if (inputDir != Vector3.zero)
         {
             transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.LookRotation(inputDir), rotateSpeed * Time.deltaTime);
@@ -257,6 +272,142 @@ public class PlayerController : MonoBehaviourPunCallbacks
             rb.AddForce(new Vector3(0, jumpForce / 2, 0), ForceMode.Impulse);
         }
     }
+
+    void GrabThrow()
+    {
+        if (grabKeyDown)
+        {
+            if (!isGrab && grabthrowAble && ballList.Count != 0)
+            {
+                grabthrowAble = false;
+                if (ballList.Count == 1)
+                {
+                    isGrab = true;
+                    animator.SetBool("isGrab", true);
+                    PV.RPC(nameof(GrabBallRPC),RpcTarget.All);
+                }
+                else if (ballList.Count > 1)
+                {
+
+                    for (int i = 0; i < ballList.Count; i++)
+                    {
+
+                    }
+                }
+                StartCoroutine(GrabDelay());
+            }
+            else if (isGrab && grabthrowAble && grabedBall != null)
+            {
+                grabthrowAble = false;
+                isGrab = false;
+                animator.SetTrigger("Throw");
+                animator.SetBool("isGrab", false);
+                PV.RPC(nameof(ThrowBallRPC), RpcTarget.All);
+                StartCoroutine(GrabDelay());
+            }
+        }
+    }
+
+    [PunRPC]
+    void GrabBallRPC()
+    {
+        grabedBall = ballList[0];
+        grabedBall.transform.parent = transform.Find("root").Find("pelvis").Find("spine_01").Find("spine_02").Find("spine_03").
+            Find("clavicle_r").Find("upperarm_r").Find("lowerarm_r").Find("hand_r").Find("ballGrabPos");
+        ballList[0].transform.position = ballList[0].transform.parent.position;
+        foreach (var collider in grabedBall.GetComponents<SphereCollider>())
+        {
+            collider.enabled = false;
+        }
+        grabedBall.GetComponent<Rigidbody>().velocity = Vector3.zero;
+        grabedBall.GetComponent<Rigidbody>().isKinematic = true;
+        grabedBall.GetComponent<Rigidbody>().useGravity = false;
+        grabedBall.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeRotation;
+        string ballTeam = "";
+        if (team == "Red") ballTeam = "RedBall";
+        else if (team == "Blue") ballTeam = "BlueBall";
+        grabedBall.tag = ballTeam;
+    }
+    [PunRPC]
+    void ThrowBallRPC()
+    {
+        grabedBall.transform.parent = GameObject.Find("BallShootingGame").transform.Find("Maps").Find("Balls");
+        foreach (var collider in grabedBall.GetComponents<SphereCollider>())
+        {
+            collider.enabled = true;
+        }
+        grabedBall.GetComponent<Rigidbody>().isKinematic = false;
+        grabedBall.GetComponent<Rigidbody>().useGravity = true;
+        grabedBall.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
+        grabedBall.GetComponent<Rigidbody>().AddForce(transform.forward * 2f, ForceMode.Impulse);
+        ballList.Remove(grabedBall);
+        grabedBall = null;
+    }
+    void ButtonGrabThrow()
+    {
+        if (!isGrab && grabthrowAble && ballList.Count != 0)
+        {
+            grabthrowAble = false;
+            if (ballList.Count == 1)
+            {
+                isGrab = true;
+                animator.SetBool("isGrab", true);
+                grabedBall = ballList[0];
+                grabedBall.transform.parent = transform.Find("root").Find("pelvis").Find("spine_01").Find("spine_02").Find("spine_03").
+                        Find("clavicle_r").Find("upperarm_r").Find("lowerarm_r").Find("hand_r").Find("ballGrabPos");
+                ballList[0].transform.position = ballList[0].transform.parent.position;
+                foreach (var collider in grabedBall.GetComponents<SphereCollider>())
+                {
+                    collider.enabled = false;
+                }
+                grabedBall.GetComponent<Rigidbody>().velocity = Vector3.zero;
+                grabedBall.GetComponent<Rigidbody>().isKinematic = true;
+                grabedBall.GetComponent<Rigidbody>().useGravity = false;
+                grabedBall.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeRotation;
+                string ballTeam = "";
+                if (team == "Red") ballTeam = "RedBall";
+                else if (team == "Blue") ballTeam = "BlueBall";
+                grabedBall.tag = ballTeam;
+            }
+            else if (ballList.Count > 1)
+            {
+
+                for (int i = 0; i < ballList.Count; i++)
+                {
+
+                }
+            }
+            StartCoroutine(GrabDelay());
+        }
+        else if (isGrab && grabthrowAble && grabedBall != null)
+        {
+            grabthrowAble = false;
+            isGrab = false;
+            animator.SetTrigger("Throw");
+            animator.SetBool("isGrab", false);
+            grabedBall.transform.parent = GameObject.Find("BallShootingGame").transform.Find("Maps").Find("Balls");
+            foreach (var collider in grabedBall.GetComponents<SphereCollider>())
+            {
+                collider.enabled = true;
+            }
+            grabedBall.GetComponent<Rigidbody>().isKinematic = false;
+            grabedBall.GetComponent<Rigidbody>().useGravity = true;
+            grabedBall.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
+            grabedBall.GetComponent<Rigidbody>().AddForce(transform.forward * 2f, ForceMode.Impulse);
+            ballList.Remove(grabedBall);
+            grabedBall = null;
+            StartCoroutine(GrabDelay());
+        }
+
+
+    }
+
+    IEnumerator GrabDelay()
+    {
+        yield return new WaitForSeconds(0.1f);
+        grabthrowAble = true;
+    }
+
     void ButtonAttack()
     {
         if (isAttack == false)
@@ -270,7 +421,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
     [PunRPC]
     void AttackRPC()
     {
-        GameObject ballObject = Instantiate(ball, gameObject.transform.position + transform.forward, Quaternion.identity);
+        GameObject ballObject = Instantiate(cannonGameBall, gameObject.transform.position + transform.forward, Quaternion.identity);
         ballObject.transform.parent = GameObject.Find("InGame").transform.Find("CannonGame").transform.Find("Cannons").transform;
         ballObject.GetComponent<Rigidbody>().AddForce(transform.forward * 100, ForceMode.Impulse);
     }
@@ -306,10 +457,10 @@ public class PlayerController : MonoBehaviourPunCallbacks
         {
             speedAnimSpeed = speedGameSpeed * 2;
         }
-            
+
         animator.SetFloat("Speed", speedAnimSpeed);
 
-        if(gameObject.transform.position.z > 460)
+        if (gameObject.transform.position.z > 460)
         {
             gameObject.transform.position = new Vector3(gameObject.transform.position.x, gameObject.transform.position.y, 460);
         }
@@ -441,6 +592,20 @@ public class PlayerController : MonoBehaviourPunCallbacks
             {
                 PV.RPC(nameof(BoostStackSync), RpcTarget.All);
                 speed += 1f;
+            }
+        }
+        if (other.gameObject.name == "SoccerBall" || other.gameObject.name == "BasketBall" || other.gameObject.name == "BeachBall")
+        {
+            ballList.Add(other.gameObject);
+        }
+    }
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.gameObject.name == "SoccerBall" || other.gameObject.name == "BasketBall" || other.gameObject.name == "BeachBall")
+        {
+            if (ballList.Contains(other.gameObject) == true)
+            {
+                ballList.Remove(other.gameObject);
             }
         }
     }
