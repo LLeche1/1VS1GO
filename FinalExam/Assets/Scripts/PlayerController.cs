@@ -277,6 +277,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
     {
         if (grabKeyDown)
         {
+            Debug.Log(team);
             if (!isGrab && grabthrowAble && ballList.Count != 0)
             {
                 grabthrowAble = false;

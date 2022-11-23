@@ -332,7 +332,16 @@ public class GameManager : MonoBehaviourPunCallbacks
         /*player.name = lobbyManager.nickName;
         player.transform.GetComponent<PlayerController>().team = team;
         player.transform.parent = GameObject.Find("InGame").transform;*/
-        PV.RPC("Set", RpcTarget.All, player.GetComponent<PhotonView>().ViewID);
+        string t = "";
+        if (PhotonNetwork.IsMasterClient)
+        {
+            t = "Blue";
+        }
+        else if (!PhotonNetwork.IsMasterClient)
+        {
+            t = "Red";
+        }
+        PV.RPC("Set", RpcTarget.All, player.GetComponent<PhotonView>().ViewID, t);
         cameraObject.GetComponent<CameraController>().player = player;
         cameraObject.transform.GetComponent<CameraController>().enabled = true;
         players = GameObject.FindGameObjectsWithTag("Player");
@@ -340,7 +349,7 @@ public class GameManager : MonoBehaviourPunCallbacks
     }
 
     [PunRPC]
-    void Set(int ID)
+    void Set(int ID, string team)
     {
         PhotonNetwork.GetPhotonView(ID).name = lobbyManager.nickName;
         PhotonNetwork.GetPhotonView(ID).transform.GetComponent<PlayerController>().team = team;
