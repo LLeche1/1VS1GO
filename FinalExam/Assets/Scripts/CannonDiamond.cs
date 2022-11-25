@@ -43,11 +43,11 @@ public class CannonDiamond : MonoBehaviour
                 {
                     if (player.transform.GetComponent<PlayerController>().team == "Blue")
                     {
-                        PV.RPC("Score", RpcTarget.All, "Blue");
+                        PV.RPC("CannonGameScore", RpcTarget.All, "Blue");
                     }
                     else if (player.transform.GetComponent<PlayerController>().team == "Red")
                     {
-                        PV.RPC("Score", RpcTarget.All, "Red");
+                        PV.RPC("CannonGameScore", RpcTarget.All, "Red");
                     }
                 }
             }

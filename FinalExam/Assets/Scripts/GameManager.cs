@@ -66,7 +66,6 @@ public class GameManager : MonoBehaviourPunCallbacks
     {
         PV = GetComponent<PhotonView>();
         lobbyManager = GameObject.Find("LobbyManager").GetComponent<LobbyManager>();
-        Debug.Log(PhotonNetwork.IsMasterClient);
     }
 
     void Update()
@@ -86,7 +85,6 @@ public class GameManager : MonoBehaviourPunCallbacks
             {
                 Score();
                 Statue();
-                //PV.RPC("Statue", RpcTarget.All);
                 if (PhotonNetwork.IsMasterClient)
                 {
                     limitTime -= Time.deltaTime;
@@ -279,12 +277,12 @@ public class GameManager : MonoBehaviourPunCallbacks
         {
             if (PhotonNetwork.IsMasterClient)
             {
-                position = new Vector3(-8, 0, 10);
+                position = new Vector3(0, 0, 10);
                 team = "Blue";
             }
             else
             {
-                position = new Vector3(0, 0, 10);
+                position = new Vector3(-8, 0, 10);
                 team = "Red";
             }
         }
@@ -329,19 +327,7 @@ public class GameManager : MonoBehaviourPunCallbacks
         }
 
         GameObject player = PhotonNetwork.Instantiate("Player", position, Quaternion.identity);
-        /*player.name = lobbyManager.nickName;
-        player.transform.GetComponent<PlayerController>().team = team;
-        player.transform.parent = GameObject.Find("InGame").transform;*/
-        string t = "";
-        if (PhotonNetwork.IsMasterClient)
-        {
-            t = "Blue";
-        }
-        else if (!PhotonNetwork.IsMasterClient)
-        {
-            t = "Red";
-        }
-        PV.RPC("Set", RpcTarget.All, player.GetComponent<PhotonView>().ViewID, t);
+        PV.RPC("PlayerSet", RpcTarget.All, player.GetComponent<PhotonView>().ViewID, lobbyManager.nickName, team);
         cameraObject.GetComponent<CameraController>().player = player;
         cameraObject.transform.GetComponent<CameraController>().enabled = true;
         players = GameObject.FindGameObjectsWithTag("Player");
@@ -349,9 +335,9 @@ public class GameManager : MonoBehaviourPunCallbacks
     }
 
     [PunRPC]
-    void Set(int ID, string team)
+    void PlayerSet(int ID, string name, string team)
     {
-        PhotonNetwork.GetPhotonView(ID).name = lobbyManager.nickName;
+        PhotonNetwork.GetPhotonView(ID).name = name;
         PhotonNetwork.GetPhotonView(ID).transform.GetComponent<PlayerController>().team = team;
         PhotonNetwork.GetPhotonView(ID).transform.parent = GameObject.Find("InGame").transform;
     }

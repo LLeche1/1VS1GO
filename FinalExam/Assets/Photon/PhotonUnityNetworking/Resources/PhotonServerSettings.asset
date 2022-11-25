@@ -34,13 +34,12 @@ MonoBehaviour:
   RunInBackground: 1
   StartInOfflineMode: 0
   RpcList:
-  - AttackRPC
+  - AttackRpc
   - BallShootingGameScore
   - BlueCheck
   - BlueReady
   - BlueRound
   - BoostStackSync
-  - CannonBallCreateSync
   - CannonGameScore
   - ChariotParentSync
   - ClickRpc
@@ -50,13 +49,15 @@ MonoBehaviour:
   - Fire
   - FirstTrackCreateSync
   - GiveUp_Rpc
+  - GrabBallRPC
   - IsRemoverSync
   - LimitTime
+  - LineRpc
   - NextRound
   - PlateRandomActive
   - PlateRandomChange
   - RandomMap
-  - RandPosSync
+  - RandomRpc
   - RedCheck
   - RedReady
   - RedRound
@@ -68,9 +69,8 @@ MonoBehaviour:
   - SgBoostEffect
   - SpawnBallRpc
   - Statue
-  - GrabBallRPC
   - ThrowBallRPC
-  - PlateChange
+  - PlayerSet
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1
