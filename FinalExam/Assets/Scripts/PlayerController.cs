@@ -284,7 +284,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
                 {
                     isGrab = true;
                     animator.SetBool("isGrab", true);
-                    PV.RPC(nameof(GrabBallRPC),RpcTarget.All);
+                    PV.RPC(nameof(GrabBallRPC),RpcTarget.All,team);
                 }
                 else if (ballList.Count > 1)
                 {
@@ -308,7 +308,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
     }
 
     [PunRPC]
-    void GrabBallRPC()
+    void GrabBallRPC(string team)
     {
         grabedBall = ballList[0];
         grabedBall.transform.parent = transform.Find("root").Find("pelvis").Find("spine_01").Find("spine_02").Find("spine_03").

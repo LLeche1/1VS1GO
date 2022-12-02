@@ -66,15 +66,15 @@ public class BallDetection : MonoBehaviour
         {
             if (other.transform.tag == "BlueBall")
             {
-                Debug.Log("blueGoal");
                 PV.RPC(nameof(BallShootingGameScore), RpcTarget.All, "Blue");
-                //BallShootingGameScore("Blue");
                 PV.RPC(nameof(PlateRandomChange), RpcTarget.All, Random.Range(0, 3));
                 PhotonNetwork.Destroy(other.gameObject);
             }
             else if (other.transform.tag == "RedBall")
             {
-                //PV.RPC(nameof(BallShootingGameScore), RpcTarget.All, "Red");
+                PV.RPC(nameof(BallShootingGameScore), RpcTarget.All, "Red");
+                PV.RPC(nameof(PlateRandomChange), RpcTarget.All, Random.Range(0, 3));
+                PhotonNetwork.Destroy(other.gameObject);
             }
         }
         

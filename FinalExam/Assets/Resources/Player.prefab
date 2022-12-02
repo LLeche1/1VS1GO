@@ -6946,6 +6946,9 @@ MonoBehaviour:
   - Type: 9
     SynchronizeType: 2
     Name: Throw
+  - Type: 4
+    SynchronizeType: 0
+    Name: isThrowCharge
   m_SynchronizeLayers:
   - SynchronizeType: 2
     LayerIndex: 0
