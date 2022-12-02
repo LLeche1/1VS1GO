@@ -427,7 +427,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
     IEnumerator GrabDelay()
     {
-        yield return new WaitForSeconds(0.1f);
+        yield return gameManager.waitForSeconds2;
         grabthrowAble = true;
     }
 
@@ -462,7 +462,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
         while (time < 5)
         {
-            yield return new WaitForEndOfFrame();
+            yield return gameManager.waitForSeconds;
             time += Time.deltaTime;
             attackBtn.transform.GetChild(0).transform.GetComponent<Image>().fillAmount = time * 0.2f;
         }
@@ -520,7 +520,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
     IEnumerator FallUp()
     {
-        yield return new WaitForSeconds(1f);
+        yield return gameManager.waitForSeconds3;
         isFallDown = false;
         animator.SetBool("isFallDown", isFallDown);
         fallAble = true;
@@ -586,7 +586,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.transform.tag == "Spike")
+        if (other.transform.CompareTag("Spike"))
         {
             if (!isHit)
             {
@@ -607,7 +607,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
             }
         }
 
-        if (other.transform.tag == "JumpPad")
+        if (other.transform.CompareTag("JumpPad"))
         {
             isJump = true;
             jumpMoveDir = lookVector;
@@ -616,7 +616,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
             animator.SetBool("isJump", true);
         }
 
-        if (other.transform.tag == "SpeedPad")
+        if (other.transform.CompareTag("SpeedPad"))
         {
             if (isMove)
             {
@@ -644,13 +644,13 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
     private void OnCollisionEnter(Collision collision)
     {
-        if (collision.transform.tag == "RunningGameObstacle")
+        if (collision.transform.CompareTag("RunningGameObstacle"))
         {
             boostStack = 0;
             speed = 5.0f;
         }
 
-        if (collision.transform.tag == "Floor")
+        if (collision.transform.CompareTag("Floor"))
         {
             isJump = false;
             animator.SetBool("isJump", isJump);
@@ -658,7 +658,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
             animator.SetBool("isSlide", isSlide);
         }
 
-        if (collision.transform.tag == "CannonBall")
+        if (collision.transform.CompareTag("CannonBall"))
         {
             Vector3 contatsDir = collision.contacts[0].normal;
             rb.velocity = Vector3.zero;
@@ -669,7 +669,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
             collision.transform.GetComponent<Rigidbody>().velocity = -contatsDir.normalized * 15f;
         }
 
-        if (collision.transform.tag == "Chariot")
+        if (collision.transform.CompareTag("Chariot"))
         {
             animator.SetBool("isJump", true);
             isJump = true;
@@ -683,14 +683,14 @@ public class PlayerController : MonoBehaviourPunCallbacks
     IEnumerator UnHittable()
     {
         material.color = Color.red;
-        yield return new WaitForSeconds(0.5f);
+        yield return gameManager.waitForSeconds4;
 
         for (int i = 0; i < 5; i++)
         {
             material.color = Color.white;
-            yield return new WaitForSeconds(0.25f);
+            yield return gameManager.waitForSeconds3;
             material.color = Color.grey;
-            yield return new WaitForSeconds(0.25f);
+            yield return gameManager.waitForSeconds3;
         }
 
         material.color = Color.white;

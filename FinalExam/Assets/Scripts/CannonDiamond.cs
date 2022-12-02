@@ -35,7 +35,7 @@ public class CannonDiamond : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if(other.tag == "Player")
+        if(other.CompareTag("Player"))
         {
             foreach(GameObject player in gameManager.players)
             {

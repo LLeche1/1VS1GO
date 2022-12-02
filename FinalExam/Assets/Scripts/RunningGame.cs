@@ -104,14 +104,9 @@ public class RunningGame : MonoBehaviourPunCallbacks
     IEnumerator ChariotSpawn()
     {
         float timer = 0;
-        while(timer < chariotGenTime)
-        {
-            yield return new WaitForEndOfFrame();
-            timer += Time.deltaTime;
-        }
+        yield return new WaitForSeconds(25f);
         ChariotInstantiate();
         PV.RPC(nameof(IsRemoverSync), RpcTarget.All);
-        yield return null;
     }
 
     void ChariotInstantiate()

@@ -141,6 +141,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
     public GameManager game_Manager;
     PhotonView PV;
     AudioSource audioSource;
+    WaitForEndOfFrame waitForEndOfFrame = new WaitForEndOfFrame();
 
     void Awake()
     {
@@ -247,7 +248,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
         float time = 0;
         while (time < 100)
         {
-            yield return new WaitForEndOfFrame();
+            yield return waitForEndOfFrame;
             time += 30.0f * Time.deltaTime;
             titleLoading.GetComponent<Slider>().value = time * 0.01f;
             titleLoading.transform.GetChild(1).GetComponent<TMP_Text>().text = time.ToString("0") + "%";
@@ -452,7 +453,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
 
         while(check == false)
         {
-            yield return new WaitForEndOfFrame();
+            yield return waitForEndOfFrame;
             if(isTutorial != 0)
             {
                 check = true;
@@ -476,7 +477,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
         float time = 0;
         while (time < 100)
         {
-            yield return new WaitForEndOfFrame();
+            yield return waitForEndOfFrame;
             time += 30.0f * Time.deltaTime;
             roomLoading_Slider.GetComponent<Slider>().value = time * 0.01f;
             roomLoading_Slider.transform.GetChild(1).GetComponent<TMP_Text>().text = time.ToString("0") + "%";
@@ -1154,7 +1155,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
         float time = 0;
         while (roomLoading.activeSelf == false)
         {
-            yield return new WaitForEndOfFrame();
+            yield return waitForEndOfFrame;
             time += Time.deltaTime;
             lobby1vs1_Count.text = TimeSpan.FromSeconds(time).ToString(@"m\:ss");
         }
@@ -1221,7 +1222,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
         float time = 0;
         while (time < 100)
         {
-            yield return new WaitForEndOfFrame();
+            yield return waitForEndOfFrame;
             time += 30.0f * Time.deltaTime;
             PV.RPC("RoomLoadingCountRpc", RpcTarget.All, time);
         }
@@ -1607,7 +1608,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
         bool isLevelUp = false;
         while (time < 1)
         {
-            yield return new WaitForEndOfFrame();
+            yield return waitForEndOfFrame;
             time += Time.deltaTime;
         }
 
@@ -1628,7 +1629,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
 
             while (delay < 0.001f)
             {
-                yield return new WaitForEndOfFrame();
+                yield return waitForEndOfFrame;
                 delay += Time.deltaTime;
             }
 
@@ -1660,7 +1661,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
 
                 while (delay < 0.001f)
                 {
-                    yield return new WaitForEndOfFrame();
+                    yield return waitForEndOfFrame;
                     delay += Time.deltaTime;
                 }
             }
@@ -1952,7 +1953,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
         float time = 0;
         while(time < 1f)
         {
-            yield return new WaitForEndOfFrame();
+            yield return waitForEndOfFrame;
             time += Time.deltaTime;
         }
         lobbyExp_Slider.GetComponent<Slider>().enabled = true;

@@ -15,7 +15,7 @@ public class RunningChariot : MonoBehaviour
     private void OnCollisionEnter(Collision collision)
     {
         // layer 7 = RunningGameObjects
-        if (collision.gameObject.layer == 7 && collision.gameObject.tag != "Player")
+        if (collision.gameObject.layer == 7 && !collision.gameObject.CompareTag("Player"))
         {
             collision.transform.GetComponent<Rigidbody>().AddForce(new Vector3((Random.Range(0, 2) == 0) ? Random.Range(-3f, -1f) : Random.Range(3f, 1f), 2f, runningGame.chariotSpeed) * 10f, ForceMode.Impulse);
         }

@@ -61,6 +61,15 @@ public class GameManager : MonoBehaviourPunCallbacks
     PhotonView PV;
     LobbyManager lobbyManager;
     public GameObject joyStick;
+    public WaitForSeconds waitForSeconds = new WaitForSeconds(0.01f);
+    public WaitForSeconds waitForSeconds2 = new WaitForSeconds(0.1f);
+    public WaitForSeconds waitForSeconds3 = new WaitForSeconds(0.25f);
+    public WaitForSeconds waitForSeconds4 = new WaitForSeconds(0.5f);
+    public WaitForSeconds waitForSeconds5 = new WaitForSeconds(1f);
+    public WaitForSeconds waitForSeconds6 = new WaitForSeconds(1.5f);
+
+    
+    
 
     void Awake()
     {
@@ -354,7 +363,7 @@ public class GameManager : MonoBehaviourPunCallbacks
         while (count > 0)
         {
             count -= 0.3f * Time.deltaTime;
-            yield return new WaitForSeconds(0.01f);
+            yield return waitForSeconds;
 
             if (cameraObject.transform.position.y > 7.3f)
             {
@@ -421,7 +430,7 @@ public class GameManager : MonoBehaviourPunCallbacks
 
         while (check == false)
         {
-            yield return new WaitForSeconds(0.1f);
+            yield return waitForSeconds2;
             if (blueReady == true && redReady == true)
             {
                 check = true;
@@ -646,7 +655,7 @@ public class GameManager : MonoBehaviourPunCallbacks
 
         while (check == false)
         {
-            yield return new WaitForSeconds(0.1f);
+            yield return waitForSeconds2;
             if (blueReady == true && redReady == true)
             {
                 check = true;
@@ -772,10 +781,15 @@ public class GameManager : MonoBehaviourPunCallbacks
         {
             speedGame.SetActive(false);
         }
+        else if (random == 4)
+        {
+            child = ballShootingGame.transform.GetChild(0).GetComponentsInChildren<Transform>();
+            ballShootingGame.SetActive(false);
+        }
 
         foreach (var item in child)
         {
-            if (random == 1 && item.name != "Maps")
+            if ((random == 1 || random == 4) && item.name != "Maps")
             {
                 Destroy(item.gameObject);
             }

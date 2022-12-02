@@ -70,3 +70,6 @@ crashlytics-build.properties
 # Temporary auto-generated Android Assets
 /[Aa]ssets/[Ss]treamingAssets/aa.meta
 /[Aa]ssets/[Ss]treamingAssets/aa/*
+FinalExam/Assets/Materials/InGame/Sky/CloudyCrown_05_Daybreak/CloudyCrown_Daybreak.mat
+FinalExam/Assets/Materials/InGame/Sky/CloudyCrown_04_Sunset/CloudyCrown_Sunset.mat
+FinalExam/Assets/Materials/InGame/Sky/CloudyCrown_03_Midnight/CloudyCrown_Midnight.mat

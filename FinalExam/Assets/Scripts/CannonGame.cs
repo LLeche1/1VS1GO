@@ -75,7 +75,7 @@ public class CannonGame : MonoBehaviourPunCallbacks
         float time = 0;
         while (time < 100)
         {
-            yield return new WaitForEndOfFrame();
+            yield return gameManager.waitForSeconds;
             time += 10.0f * Time.deltaTime;
         }
         isDiamond = false;
@@ -101,7 +101,7 @@ public class CannonGame : MonoBehaviourPunCallbacks
         int randSide = Random.Range(0, 4);
         int randCannon = Random.Range(0, 15);
         RandPos(randSide, randCannon, CannonAttackType.Random);
-        yield return new WaitForSeconds(1f);
+        yield return gameManager.waitForSeconds5;
         CannonBallCreate(CannonAttackType.Random);
         randGenTrigger = true;
     }
@@ -111,7 +111,7 @@ public class CannonGame : MonoBehaviourPunCallbacks
         int randSide = Random.Range(0, 4);
         int randCannon = Random.Range(0, 2);
         RandPos(randSide, randCannon, CannonAttackType.Line);
-        yield return new WaitForSeconds(1.5f);
+        yield return gameManager.waitForSeconds6;
         CannonBallCreate(CannonAttackType.Line);
         lineGenTrigger = true;
     }
@@ -209,7 +209,6 @@ public class CannonGame : MonoBehaviourPunCallbacks
         {
             case CannonAttackType.Random:
             {
-                Transform genPos = null;
                 GameObject cannon = PhotonNetwork.Instantiate("cannonBall", Vector3.zero, Quaternion.identity);
                 PV.RPC("RandomRpc", RpcTarget.All, cannon.GetComponent<PhotonView>().ViewID, randAtkSide, randAtkCannon);
             }
@@ -218,7 +217,6 @@ public class CannonGame : MonoBehaviourPunCallbacks
 
             case CannonAttackType.Line:
             {
-                Transform genPos = null;
                 int creatNum = 0;
                 int num = 0;
 
