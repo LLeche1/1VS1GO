@@ -328,6 +328,7 @@ public class GameManager : MonoBehaviourPunCallbacks
 
         GameObject player = PhotonNetwork.Instantiate("Player", position, Quaternion.identity);
         PV.RPC("PlayerSet", RpcTarget.All, player.GetComponent<PhotonView>().ViewID, lobbyManager.nickName, team);
+        player.transform.GetComponent<PlayerController>().team = team;
         cameraObject.GetComponent<CameraController>().player = player;
         cameraObject.transform.GetComponent<CameraController>().enabled = true;
         players = GameObject.FindGameObjectsWithTag("Player");
@@ -338,7 +339,7 @@ public class GameManager : MonoBehaviourPunCallbacks
     void PlayerSet(int ID, string name, string team)
     {
         PhotonNetwork.GetPhotonView(ID).name = name;
-        PhotonNetwork.GetPhotonView(ID).transform.GetComponent<PlayerController>().team = team;
+        //PhotonNetwork.GetPhotonView(ID).transform.GetComponent<PlayerController>().team = team;
         PhotonNetwork.GetPhotonView(ID).transform.parent = GameObject.Find("InGame").transform;
     }
 
@@ -502,8 +503,6 @@ public class GameManager : MonoBehaviourPunCallbacks
             }
         }
     }
-
-    [PunRPC]
     void Statue()
     {
         if(isFinish == false)
