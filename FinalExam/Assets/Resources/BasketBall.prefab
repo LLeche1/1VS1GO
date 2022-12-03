@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 2263455956255667780}
   - component: {fileID: 264889249374049133}
   - component: {fileID: 8805582019907848809}
-  - component: {fileID: 719704456739264999}
+  - component: {fileID: -8210270839146363357}
   m_Layer: 0
   m_Name: BasketBall
   m_TagString: BasketBall
@@ -94,15 +94,15 @@ MonoBehaviour:
   ObservedComponentsFoldoutOpen: 1
   Group: 0
   prefixField: -1
-  Synchronization: 2
+  Synchronization: 3
   OwnershipTransfer: 0
   observableSearch: 2
   ObservedComponents:
-  - {fileID: 719704456739264999}
+  - {fileID: -8210270839146363357}
   sceneViewId: 0
   InstantiationId: 0
   isRuntimeInstantiated: 0
---- !u!114 &719704456739264999
+--- !u!114 &-8210270839146363357
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -111,13 +111,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 2601456844144034738}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 627855c7f81362d41938ffe0b1475957, type: 3}
+  m_Script: {fileID: 11500000, guid: a23dfc9f35500e649a223a9e73033e9c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_SynchronizePosition: 1
-  m_SynchronizeRotation: 1
-  m_SynchronizeScale: 0
-  m_UseLocal: 1
 --- !u!1 &3322959401665522333
 GameObject:
   m_ObjectHideFlags: 0

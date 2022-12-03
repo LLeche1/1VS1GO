@@ -62,21 +62,23 @@ public class BallDetection : MonoBehaviour
     }
     private void OnTriggerEnter(Collider other)
     {
-        if(other.gameObject.name + "Plate" == plateType)
+        if (PhotonNetwork.IsMasterClient)
         {
-            if (other.transform.tag == "BlueBall")
+            if (other.gameObject.name + "Plate" == plateType)
             {
-                PV.RPC(nameof(BallShootingGameScore), RpcTarget.All, "Blue");
-                PV.RPC(nameof(PlateRandomChange), RpcTarget.All, Random.Range(0, 3));
-                PhotonNetwork.Destroy(other.gameObject);
-            }
-            else if (other.transform.tag == "RedBall")
-            {
-                PV.RPC(nameof(BallShootingGameScore), RpcTarget.All, "Red");
-                PV.RPC(nameof(PlateRandomChange), RpcTarget.All, Random.Range(0, 3));
-                PhotonNetwork.Destroy(other.gameObject);
+                if (other.transform.tag == "BlueBall")
+                {
+                    PV.RPC(nameof(BallShootingGameScore), RpcTarget.All, "Blue");
+                    PV.RPC(nameof(PlateRandomChange), RpcTarget.All, Random.Range(0, 3));
+                    PhotonNetwork.Destroy(other.gameObject);
+                }
+                else if (other.transform.tag == "RedBall")
+                {
+                    PV.RPC(nameof(BallShootingGameScore), RpcTarget.All, "Red");
+                    PV.RPC(nameof(PlateRandomChange), RpcTarget.All, Random.Range(0, 3));
+                    PhotonNetwork.Destroy(other.gameObject);
+                }
             }
         }
-        
     }
 }

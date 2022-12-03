@@ -99,7 +99,7 @@ GameObject:
   - component: {fileID: 5549205372395186000}
   - component: {fileID: -8043780270174207531}
   - component: {fileID: 5571584134711510740}
-  - component: {fileID: 5451913718087818296}
+  - component: {fileID: -2329264598059126693}
   m_Layer: 0
   m_Name: BeachBall
   m_TagString: BasketBall
@@ -180,15 +180,15 @@ MonoBehaviour:
   ObservedComponentsFoldoutOpen: 1
   Group: 0
   prefixField: -1
-  Synchronization: 2
+  Synchronization: 3
   OwnershipTransfer: 0
   observableSearch: 2
   ObservedComponents:
-  - {fileID: 5451913718087818296}
+  - {fileID: -2329264598059126693}
   sceneViewId: 0
   InstantiationId: 0
   isRuntimeInstantiated: 0
---- !u!114 &5451913718087818296
+--- !u!114 &-2329264598059126693
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -197,10 +197,6 @@ MonoBehaviour:
   m_GameObject: {fileID: 4097906754252078998}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 627855c7f81362d41938ffe0b1475957, type: 3}
+  m_Script: {fileID: 11500000, guid: a23dfc9f35500e649a223a9e73033e9c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_SynchronizePosition: 1
-  m_SynchronizeRotation: 1
-  m_SynchronizeScale: 0
-  m_UseLocal: 1

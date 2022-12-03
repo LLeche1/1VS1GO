@@ -96,7 +96,7 @@ GameObject:
   - component: {fileID: 3927051116767175955}
   - component: {fileID: 7381448876431442489}
   - component: {fileID: 1129388499055555231}
-  - component: {fileID: -5972663251959435862}
+  - component: {fileID: -3089785756553727106}
   m_Layer: 0
   m_Name: SoccerBall
   m_TagString: SoccerBall
@@ -177,15 +177,15 @@ MonoBehaviour:
   ObservedComponentsFoldoutOpen: 1
   Group: 0
   prefixField: -1
-  Synchronization: 2
+  Synchronization: 3
   OwnershipTransfer: 0
   observableSearch: 2
   ObservedComponents:
-  - {fileID: -5972663251959435862}
+  - {fileID: -3089785756553727106}
   sceneViewId: 0
   InstantiationId: 0
   isRuntimeInstantiated: 0
---- !u!114 &-5972663251959435862
+--- !u!114 &-3089785756553727106
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -194,10 +194,6 @@ MonoBehaviour:
   m_GameObject: {fileID: 8444209527239403506}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 627855c7f81362d41938ffe0b1475957, type: 3}
+  m_Script: {fileID: 11500000, guid: a23dfc9f35500e649a223a9e73033e9c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_SynchronizePosition: 1
-  m_SynchronizeRotation: 1
-  m_SynchronizeScale: 0
-  m_UseLocal: 1

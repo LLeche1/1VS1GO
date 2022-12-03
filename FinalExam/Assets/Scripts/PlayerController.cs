@@ -5,7 +5,7 @@ using Photon.Pun;
 using Photon.Realtime;
 using UnityEngine.UI;
 
-public class PlayerController : MonoBehaviourPunCallbacks
+public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
 {
     public string team = null;
     private float hAxis;
@@ -74,7 +74,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
         ballList = new List<GameObject>();
     }
 
-    void FixedUpdate()
+    void Update()
     {
         if (PV.IsMine && gameManager.isStart == true || gameManager.isTutorial == true)
         {
@@ -215,7 +215,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
         }
         else if (isJump && !isSlide)
         {
-            rb.AddForce(new Vector3(jumpMoveDir.x, 0, jumpMoveDir.z) * speed, ForceMode.Impulse);
+            transform.Translate(new Vector3(jumpMoveDir.x, 0, jumpMoveDir.z) * speed * Time.deltaTime, Space.World);
         }
     }
 
@@ -250,7 +250,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
         }
         else if (isSlide)
         {
-            rb.AddForce(new Vector3(jumpMoveDir.x, 0f, jumpMoveDir.z) * (speed + 3f), ForceMode.Impulse);
+            transform.Translate(new Vector3(jumpMoveDir.x, 0f, jumpMoveDir.z) * (speed + 2f) * Time.deltaTime,Space.World);
         }
     }
 
@@ -284,7 +284,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
                 {
                     isGrab = true;
                     animator.SetBool("isGrab", true);
-                    PV.RPC(nameof(GrabBallRPC),RpcTarget.All,team);
+                    PV.RPC(nameof(GrabBallRPC), RpcTarget.All, ballList[0].GetComponent<PhotonView>().ViewID, team);
                 }
                 else if (ballList.Count > 1)
                 {
@@ -308,7 +308,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
     }
 
     [PunRPC]
-    void GrabBallRPC(string team)
+    void GrabBallRPC(int ID, string team)
     {
         grabedBall = ballList[0];
         grabedBall.transform.parent = transform.Find("root").Find("pelvis").Find("spine_01").Find("spine_02").Find("spine_03").
@@ -351,7 +351,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
         grabedBall.GetComponent<Rigidbody>().isKinematic = false;
         grabedBall.GetComponent<Rigidbody>().useGravity = true;
         grabedBall.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
-        grabedBall.GetComponent<Rigidbody>().AddForce(transform.forward * 2f, ForceMode.Impulse);
+        grabedBall.GetComponent<Rigidbody>().AddForce(transform.forward * 1.5f, ForceMode.Impulse);
         ballList.Remove(grabedBall);
         grabedBall = null;
     }
@@ -695,5 +695,24 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
         material.color = Color.white;
         isHit = false;
+    }
+
+    public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
+    {
+        if (stream.IsWriting)
+        {
+            stream.SendNext(rb.position);
+            stream.SendNext(rb.rotation);
+            stream.SendNext(rb.velocity);
+        }
+        else if (stream.IsReading)
+        {
+            rb.position = (Vector3)stream.ReceiveNext();
+            rb.rotation = (Quaternion)stream.ReceiveNext();
+            rb.velocity = (Vector3)stream.ReceiveNext();
+
+            float lag = Mathf.Abs((float)(PhotonNetwork.Time - info.timestamp));
+            rb.position += rb.velocity * lag;
+        }
     }
 }

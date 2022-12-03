@@ -38,7 +38,6 @@ public class BallShootingGame : MonoBehaviourPunCallbacks
         if(PhotonNetwork.IsMasterClient)
         {
             BallRandomSpawner();
-            BallsDestroyer();
         }
     }
 
@@ -125,24 +124,5 @@ public class BallShootingGame : MonoBehaviourPunCallbacks
         ball.transform.parent = transform.Find("Maps").Find("Balls");
         ball.transform.position = spawnPos;
         ball.GetComponent<Rigidbody>().AddForce(forceDir * 0.6f, ForceMode.Impulse);
-    }
-    void BallsDestroyer()
-    {
-        StartCoroutine(nameof(BallsDestroyCoroutine));
-    }
-    IEnumerator BallsDestroyCoroutine()
-    {
-        yield return new WaitForSeconds(3f);
-        
-        checkBalls = transform.Find("Maps").Find("Balls").GetComponentsInChildren<Transform>();
-        foreach(var ball in checkBalls)
-        {
-            if(ball.position.y < -10f)
-            {
-                PhotonNetwork.Destroy(ball.gameObject);
-                Debug.Log("Destroy");
-            }
-        }
-        checkBalls = null;
     }
 }
