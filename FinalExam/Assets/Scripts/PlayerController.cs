@@ -44,7 +44,12 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
     RunningGame runningGame;
     public bool jumpKeyDown = false;
     private bool slideKeyDown = false;
+    private bool grabKey = false;
     private bool grabKeyDown = false;
+    private bool grabKeyUp = false;
+    private bool isPowerCharge = false;
+    private bool onLongThrow = false;
+    float ballPower;
     private bool isSlide = false;
     private bool isGrab = false;
     public bool isFallDown = false;
@@ -116,7 +121,8 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
             JoyStickMove();
             Jump();
             Slide();
-            GrabThrow();
+            GrabBall();
+            ThrowBall();
             FallDown();
             BoostEffect();
 
@@ -133,7 +139,9 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
         vAxis = Input.GetAxis("Vertical");
         jDown = Input.GetButton("Jump");
         slideKeyDown = Input.GetKeyDown(KeyCode.Q);
-        grabKeyDown = Input.GetKey(KeyCode.W);
+        grabKey = Input.GetKey(KeyCode.W);
+        grabKeyDown = Input.GetKeyDown(KeyCode.W);
+        grabKeyUp = Input.GetKeyUp(KeyCode.W);
         inputDir = new Vector3(joyStick.inputDir.x, 0f, joyStick.inputDir.y);
 
         if (inputDir != Vector3.zero && !isJump && !isSlide)
@@ -250,7 +258,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
         }
         else if (isSlide)
         {
-            transform.Translate(new Vector3(jumpMoveDir.x, 0f, jumpMoveDir.z) * (speed + 2f) * Time.deltaTime,Space.World);
+            transform.Translate(new Vector3(jumpMoveDir.x, 0f, jumpMoveDir.z) * (speed + 2f) * Time.deltaTime, Space.World);
         }
     }
 
@@ -273,9 +281,9 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
         }
     }
 
-    void GrabThrow()
+    void GrabBall()
     {
-        if (grabKeyDown)
+        if (grabKeyUp)
         {
             if (!isGrab && grabthrowAble && ballList.Count != 0)
             {
@@ -295,16 +303,60 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
                 }
                 StartCoroutine(GrabDelay());
             }
-            else if (isGrab && grabthrowAble && grabedBall != null)
+        }
+    }
+
+    void ThrowBall()
+    {
+        Debug.Log(ballPower);
+        if (grabKeyDown)
+        {
+            if (isGrab && grabthrowAble && grabedBall != null)
             {
+                isPowerCharge = true;
+            }
+            /*if (grabKeyUp)
+            {
+                if (isGrab && grabthrowAble && grabedBall != null)
+                {
+                    isPowerCharge = false;
+                    grabthrowAble = false;
+                    isGrab = false;
+                    animator.SetTrigger("Throw");
+                    animator.SetBool("isGrab", false);
+                    PV.RPC(nameof(ThrowBallRPC), RpcTarget.All);
+                    StartCoroutine(GrabDelay());
+                }
+            }*/
+        }
+        else if (grabKeyUp)
+        {
+            if (isGrab && grabthrowAble && grabedBall != null)
+            {
+                isPowerCharge = false;
                 grabthrowAble = false;
                 isGrab = false;
-                animator.SetTrigger("Throw");
+                if (onLongThrow)
+                {
+                    animator.SetBool("isThrowCharge", false);
+                }
                 animator.SetBool("isGrab", false);
+                onLongThrow = false;
+                ballPower = 0;
                 PV.RPC(nameof(ThrowBallRPC), RpcTarget.All);
                 StartCoroutine(GrabDelay());
             }
         }
+        if (isPowerCharge)
+        {
+            ballPower += Time.deltaTime;
+        }
+        if (ballPower > 1f && onLongThrow == false)
+        {
+            onLongThrow = true;
+            animator.SetBool("isThrowCharge", true);
+        }
+
     }
 
     [PunRPC]
@@ -326,11 +378,11 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
         grabedBall.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeRotation;
         string ballTeam = "";
 
-        if (team == "Red") 
+        if (team == "Red")
         {
             ballTeam = "RedBall";
         }
-        else if (team == "Blue") 
+        else if (team == "Blue")
         {
             ballTeam = "BlueBall";
         }
@@ -381,11 +433,11 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
                 grabedBall.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeRotation;
                 string ballTeam = "";
 
-                if (team == "Red") 
+                if (team == "Red")
                 {
                     ballTeam = "RedBall";
                 }
-                else if (team == "Blue") 
+                else if (team == "Blue")
                 {
                     ballTeam = "BlueBall";
                 }
