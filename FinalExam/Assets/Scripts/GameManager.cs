@@ -272,7 +272,7 @@ public class GameManager : MonoBehaviourPunCallbacks
             ballShootingGame.SetActive(true);
             RenderSettings.skybox = Skyboxes[3];
             RenderSettings.skybox.SetFloat("_Rotation", 0);
-            limitTime = 120;
+            limitTime = 60;
         }
         
         Generate();
@@ -330,7 +330,7 @@ public class GameManager : MonoBehaviourPunCallbacks
             }
             else
             {
-                position = new Vector3(-4, 0, 0);
+                position = new Vector3(8, 0, 0);
                 team = "Red";
             }
         }
@@ -617,6 +617,61 @@ public class GameManager : MonoBehaviourPunCallbacks
                         StartCoroutine(RoundCheck());
                     }
                 }
+                else if (ballShootingGame.activeSelf == true)
+                {
+                    if (limitTime <= 0)
+                    {
+                        if(player.name == lobbyManager.nickName)
+                        {
+                            if (player.GetComponent<PlayerController>().team == "Blue")
+                            {
+                                if (blueScore > redScore)
+                                {
+                                    PV.RPC("BlueRound", RpcTarget.All);
+                                }
+                                else if (blueScore < redScore)
+                                {
+                                    PV.RPC("RedRound", RpcTarget.All);
+                                }
+                                else if (blueScore == redScore)
+                                {
+                                    if(team == "Blue")
+                                    {
+                                        PV.RPC("BlueRound", RpcTarget.All);
+                                    }
+                                    else if(team == "Red")
+                                    {
+                                        PV.RPC("RedRound", RpcTarget.All);
+                                    }
+                                }
+                            }
+                            else if (player.GetComponent<PlayerController>().team == "Red")
+                            {
+                                if (redScore > blueScore)
+                                {
+                                    PV.RPC("RedRound", RpcTarget.All);
+                                }
+                                else if (redScore < blueScore)
+                                {
+                                    PV.RPC("BlueRound", RpcTarget.All);
+                                }
+                                else if (redScore == blueScore)
+                                {
+                                    if(team == "Blue")
+                                    {
+                                        PV.RPC("BlueRound", RpcTarget.All);
+                                    }
+                                    else if(team == "Red")
+                                    {
+                                        PV.RPC("RedRound", RpcTarget.All);
+                                    }
+                                }
+                            }
+                        }
+
+                        StartCoroutine(RoundCheck());
+                    }
+                }
             }
         }
     }
@@ -783,18 +838,22 @@ public class GameManager : MonoBehaviourPunCallbacks
         }
         else if (random == 4)
         {
-            child = ballShootingGame.transform.GetChild(0).GetComponentsInChildren<Transform>();
+            child = ballShootingGame.transform.GetChild(0).GetChild(3).GetComponentsInChildren<Transform>();
             ballShootingGame.SetActive(false);
             ballShootingGame.GetComponent<BallShootingGame>().ballGenTrigger = true;
         }
 
         foreach (var item in child)
         {
-            if ((random == 1 || random == 4) && item.name != "Maps")
+            if (random == 1 && item.name != "Maps")
             {
                 Destroy(item.gameObject);
             }
             else if (random == 2 && item.name != "Cannons")
+            {
+                Destroy(item.gameObject);
+            }
+            else if (random == 4 && item.name != "Balls")
             {
                 Destroy(item.gameObject);
             }
