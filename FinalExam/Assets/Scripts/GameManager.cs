@@ -405,7 +405,7 @@ public class GameManager : MonoBehaviourPunCallbacks
         else if (random == 4)
         {
             ui.transform.Find("JoyStick").gameObject.SetActive(true);
-            ui.transform.Find("Button_Jump").gameObject.SetActive(false);
+            ui.transform.Find("Button_Jump").gameObject.SetActive(true);
             ui.transform.Find("Button_Slide").gameObject.SetActive(false);
             ui.transform.Find("Button_Attack").gameObject.SetActive(false);
             ui.transform.Find("Button_Run").gameObject.SetActive(false);
@@ -754,6 +754,12 @@ public class GameManager : MonoBehaviourPunCallbacks
         {
             speedGame.SetActive(false);
         }
+        else if (random == 4)
+        {
+            child = ballShootingGame.transform.GetChild(0).GetChild(3).GetComponentsInChildren<Transform>();
+            ballShootingGame.SetActive(false);
+            ballShootingGame.GetComponent<BallShootingGame>().ballGenTrigger = true;
+        }
 
         foreach (var item in child)
         {
@@ -762,6 +768,10 @@ public class GameManager : MonoBehaviourPunCallbacks
                 Destroy(item.gameObject);
             }
             else if (random == 2 && item.name != "Cannons")
+            {
+                Destroy(item.gameObject);
+            }
+            else if (random == 4 && item.name != "Balls")
             {
                 Destroy(item.gameObject);
             }

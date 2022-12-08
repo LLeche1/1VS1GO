@@ -56,6 +56,7 @@ MonoBehaviour:
   - NextRound
   - PlateRandomActive
   - PlateRandomChange
+  - PlayerSet
   - RandomMap
   - RandomRpc
   - RedCheck
@@ -65,14 +66,9 @@ MonoBehaviour:
   - RgBoostEffect
   - RoomLoadingCountRpc
   - RunningTrackCreateSync
-  - Set
   - SgBoostEffect
   - SpawnBallRpc
-  - Statue
   - ThrowBallRPC
-  - PlayerSet
-  - BallsDestroyerRPC
-  - MeshDestroy
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1
