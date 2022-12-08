@@ -308,6 +308,16 @@ public class PlayerController : MonoBehaviourPunCallbacks/*, IPunObservable*/
 
     void ThrowBall()
     {
+        if (isPowerCharge)
+        {
+            ballPower += Time.deltaTime;
+        }
+        if (ballPower > 0.6f && onLongThrow == false)
+        {
+            animator.SetBool("isThrowCharge", true);
+            onLongThrow = true;
+        }
+
         if (grabKeyDown)
         {
             if (isGrab && grabthrowAble && grabedBall != null)
@@ -332,6 +342,7 @@ public class PlayerController : MonoBehaviourPunCallbacks/*, IPunObservable*/
         {
             if (isGrab && grabthrowAble && grabedBall != null)
             {
+                PV.RPC(nameof(ThrowBallRPC), RpcTarget.All, ballPower);
                 isPowerCharge = false;
                 grabthrowAble = false;
                 isGrab = false;
@@ -341,20 +352,11 @@ public class PlayerController : MonoBehaviourPunCallbacks/*, IPunObservable*/
                 }
                 animator.SetBool("isGrab", false);
                 onLongThrow = false;
-                PV.RPC(nameof(ThrowBallRPC), RpcTarget.All, ballPower);
                 ballPower = 0;
                 StartCoroutine(GrabDelay());
             }
         }
-        if (isPowerCharge)
-        {
-            ballPower += Time.deltaTime;
-        }
-        if (ballPower > 0.6f && onLongThrow == false)
-        {
-            onLongThrow = true;
-            animator.SetBool("isThrowCharge", true);
-        }
+        
 
     }
 
