@@ -5,7 +5,7 @@ using Photon.Pun;
 using Photon.Realtime;
 using UnityEngine.UI;
 
-public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
+public class PlayerController : MonoBehaviourPunCallbacks/*, IPunObservable*/
 {
     public string team = null;
     private float hAxis;
@@ -290,9 +290,9 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
                 grabthrowAble = false;
                 if (ballList.Count == 1)
                 {
+                    PV.RPC(nameof(GrabBallRPC), RpcTarget.All, ballList[0].GetComponent<PhotonView>().ViewID, team);
                     isGrab = true;
                     animator.SetBool("isGrab", true);
-                    PV.RPC(nameof(GrabBallRPC), RpcTarget.All, ballList[0].GetComponent<PhotonView>().ViewID, team);
                 }
                 else if (ballList.Count > 1)
                 {
@@ -308,7 +308,6 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
 
     void ThrowBall()
     {
-        Debug.Log(ballPower);
         if (grabKeyDown)
         {
             if (isGrab && grabthrowAble && grabedBall != null)
@@ -342,8 +341,8 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
                 }
                 animator.SetBool("isGrab", false);
                 onLongThrow = false;
+                PV.RPC(nameof(ThrowBallRPC), RpcTarget.All, ballPower);
                 ballPower = 0;
-                PV.RPC(nameof(ThrowBallRPC), RpcTarget.All);
                 StartCoroutine(GrabDelay());
             }
         }
@@ -351,7 +350,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
         {
             ballPower += Time.deltaTime;
         }
-        if (ballPower > 1f && onLongThrow == false)
+        if (ballPower > 0.6f && onLongThrow == false)
         {
             onLongThrow = true;
             animator.SetBool("isThrowCharge", true);
@@ -362,10 +361,10 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
     [PunRPC]
     void GrabBallRPC(int ID, string team)
     {
-        grabedBall = ballList[0];
+        grabedBall = PhotonNetwork.GetPhotonView(ID).gameObject;
         grabedBall.transform.parent = transform.Find("root").Find("pelvis").Find("spine_01").Find("spine_02").Find("spine_03").
             Find("clavicle_r").Find("upperarm_r").Find("lowerarm_r").Find("hand_r").Find("ballGrabPos");
-        ballList[0].transform.position = ballList[0].transform.parent.position;
+        grabedBall.transform.position = grabedBall.transform.parent.position;
 
         foreach (var collider in grabedBall.GetComponents<SphereCollider>())
         {
@@ -391,7 +390,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
     }
 
     [PunRPC]
-    void ThrowBallRPC()
+    void ThrowBallRPC(float throwForce)
     {
         grabedBall.transform.parent = GameObject.Find("BallShootingGame").transform.Find("Maps").Find("Balls");
 
@@ -403,7 +402,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
         grabedBall.GetComponent<Rigidbody>().isKinematic = false;
         grabedBall.GetComponent<Rigidbody>().useGravity = true;
         grabedBall.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
-        grabedBall.GetComponent<Rigidbody>().AddForce(transform.forward * 1.5f, ForceMode.Impulse);
+        grabedBall.GetComponent<Rigidbody>().AddForce((transform.forward + transform.up * throwForce).normalized * 0.85f, ForceMode.Impulse);
         ballList.Remove(grabedBall);
         grabedBall = null;
     }
@@ -749,7 +748,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
         isHit = false;
     }
 
-    public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
+    /*public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
     {
         if (stream.IsWriting)
         {
@@ -765,6 +764,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
 
             float lag = Mathf.Abs((float)(PhotonNetwork.Time - info.timestamp));
             rb.position += rb.velocity * lag;
+            //rb.rotation = Quaternion.Lerp(rb.rotation, rb.rotation + lag, (float)(PhotonNetwork.Time - info.timestamp));
         }
-    }
+    }*/
 }

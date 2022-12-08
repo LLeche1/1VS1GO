@@ -10,13 +10,17 @@ public class Balls : MonoBehaviourPunCallbacks, IPunObservable
     private Rigidbody rb;
     private Vector3 remotePos;
 
+    private float lag;
     private Vector3 netPos;
+    private Quaternion curnRot;
     private Quaternion netRot;
     private Vector3 netVel;
-    private void Start()
+    private void Awake()
     {
         rb = GetComponent<Rigidbody>();
         PV = GetComponent<PhotonView>();
+        /*PhotonNetwork.SendRate = 30;
+        PhotonNetwork.SerializationRate = 30;*/
         if (!PhotonNetwork.IsMasterClient)
         {
             rb.useGravity = false;
@@ -36,16 +40,17 @@ public class Balls : MonoBehaviourPunCallbacks, IPunObservable
         if (stream.IsWriting)
         {
             stream.SendNext(transform.position);
-            stream.SendNext(rb.rotation);
+            stream.SendNext(transform.rotation);
             stream.SendNext(rb.velocity);
         }
         else if (stream.IsReading)
         {
-            rb.position = (Vector3) stream.ReceiveNext();
-            rb.rotation = (Quaternion) stream.ReceiveNext();
+            rb.position = (Vector3)stream.ReceiveNext();
+            rb.rotation = (Quaternion)stream.ReceiveNext();
             rb.velocity = (Vector3)stream.ReceiveNext();
 
-            float lag = Mathf.Abs((float)(PhotonNetwork.Time - info.timestamp));
+
+            lag = Mathf.Abs((float)(PhotonNetwork.Time - info.timestamp));
             rb.position += rb.velocity * lag;
         }
     }

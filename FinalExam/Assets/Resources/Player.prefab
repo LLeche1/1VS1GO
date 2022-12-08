@@ -6801,6 +6801,7 @@ GameObject:
   - component: {fileID: 3537497997395675085}
   - component: {fileID: 3537497997395675082}
   - component: {fileID: 3537497997395675084}
+  - component: {fileID: 4596360114427585931}
   - component: {fileID: 2454238730925186208}
   - component: {fileID: 905013083270073557}
   m_Layer: 0
@@ -6909,6 +6910,18 @@ MonoBehaviour:
   cannonGameBall: {fileID: 300502393607073509, guid: f47a41b5cc8d4465583445ce991374e1, type: 3}
   grabedBall: {fileID: 0}
   ballList: []
+--- !u!114 &4596360114427585931
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4840870414910055077}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 22403e59362eaaf45a9fd98139378a65, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &2454238730925186208
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6942,9 +6955,6 @@ MonoBehaviour:
   - Type: 4
     SynchronizeType: 2
     Name: isGrab
-  - Type: 9
-    SynchronizeType: 2
-    Name: Throw
   - Type: 4
     SynchronizeType: 2
     Name: isThrowCharge
@@ -6972,7 +6982,7 @@ MonoBehaviour:
   OwnershipTransfer: 0
   observableSearch: 2
   ObservedComponents:
-  - {fileID: 3537497997395675084}
+  - {fileID: 4596360114427585931}
   - {fileID: 2454238730925186208}
   sceneViewId: 0
   InstantiationId: 0

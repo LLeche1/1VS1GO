@@ -6,6 +6,7 @@ using Photon.Realtime;
 
 public class BallShootingGame : MonoBehaviourPunCallbacks
 {
+    private GameManager gameManager;
     private PhotonView PV;
     [SerializeField] private GameObject land;
     [SerializeField] private GameObject scoreBoard;
@@ -13,14 +14,14 @@ public class BallShootingGame : MonoBehaviourPunCallbacks
     private Vector3 leftSpawnPos = new Vector3(-7.5f, -1f, 0f);
     private Vector3 rightSpawnPos = new Vector3(20f, -1f, 0f);
     public GameObject[] balls;
-    private bool ballGenTrigger = true;
+    public bool ballGenTrigger = true;
     private Vector3 spawnPos = Vector3.zero;
     private Vector3 forceDir;
     private int ballNum = 0;
-    private Transform[] checkBalls;
     void Awake()
     {
         PV = GetComponent<PhotonView>();
+        gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
     }
     // Start is called before the first frame update
     void Start()
@@ -35,7 +36,7 @@ public class BallShootingGame : MonoBehaviourPunCallbacks
     // Update is called once per frame
     void Update()
     {
-        if(PhotonNetwork.IsMasterClient)
+        if(PhotonNetwork.IsMasterClient && gameManager.isStart == true)
         {
             BallRandomSpawner();
         }
@@ -75,7 +76,7 @@ public class BallShootingGame : MonoBehaviourPunCallbacks
     }
     void BallRandomSpawner()
     {
-        if (ballGenTrigger)
+        if (ballGenTrigger == true)
         {
             ballGenTrigger = false;
             StartCoroutine(BallRandomSpawn());
@@ -89,7 +90,7 @@ public class BallShootingGame : MonoBehaviourPunCallbacks
         int randBall = Random.Range(0, 3);
         Vector3 fDir = new Vector3(((randSide == 0) ? 1 : -1) * Random.Range(50, 100) / 100f, Random.Range(50, 100) / 100f, 0f).normalized;
         SpawnBallValueSetting(randSide, randZPos, randBall, fDir);
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(2f);
         SpawnBall();
         ballGenTrigger = true;
     }

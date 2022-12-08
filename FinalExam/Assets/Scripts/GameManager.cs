@@ -785,6 +785,7 @@ public class GameManager : MonoBehaviourPunCallbacks
         {
             child = ballShootingGame.transform.GetChild(0).GetComponentsInChildren<Transform>();
             ballShootingGame.SetActive(false);
+            ballShootingGame.GetComponent<BallShootingGame>().ballGenTrigger = true;
         }
 
         foreach (var item in child)
