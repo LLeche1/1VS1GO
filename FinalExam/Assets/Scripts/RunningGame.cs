@@ -16,15 +16,18 @@ public class RunningGame : MonoBehaviourPunCallbacks
     public bool isRemoverOn = false;
 
     public GameObject chariot;
-    private GameObject chariotObj;
+    [HideInInspector]
+    public GameObject chariotInstance = null;
     public float chariotSpeed = 1f;
-    const int chariotGenTime = 25;
+    const int chariotGenTime = 15;
 
     const int rTrackPatternCount = 11;
     const int trackLength = 20;
     private int[] randNumArray;
     public GameObject firstTrack;
     public GameObject runningTrack;
+
+    float distance;
 
     PhotonView PV;
 
@@ -104,16 +107,16 @@ public class RunningGame : MonoBehaviourPunCallbacks
     IEnumerator ChariotSpawn()
     {
         float timer = 0;
-        yield return new WaitForSeconds(25f);
+        yield return new WaitForSeconds(chariotGenTime);
         ChariotInstantiate();
         PV.RPC(nameof(IsRemoverSync), RpcTarget.All);
     }
 
     void ChariotInstantiate()
     {
-        GameObject obj = PhotonNetwork.Instantiate("Chariot", new Vector3(-4f, 0f, 0f), Quaternion.identity);
-        PV.RPC(nameof(ChariotParentSync), RpcTarget.All, obj.GetComponent<PhotonView>().ViewID);
-        obj.transform.localScale = new Vector3(5.5f, 2.5f, 3f);
+        chariotInstance = PhotonNetwork.Instantiate("Chariot", new Vector3(-4f, 0f, 0f), Quaternion.identity);
+        PV.RPC(nameof(ChariotParentSync), RpcTarget.All, chariotInstance.GetComponent<PhotonView>().ViewID);
+        chariotInstance.transform.localScale = new Vector3(5.5f, 2.5f, 3f);
     }
 
     [PunRPC]
@@ -130,9 +133,9 @@ public class RunningGame : MonoBehaviourPunCallbacks
 
     void ChariotAcceleration()
     {
-        if(chariotObj != null)
+        if(chariotInstance != null)
         {
-            chariotObj.GetComponent<Rigidbody>().AddForce(Vector3.forward * chariotSpeed, ForceMode.Acceleration);
+            chariotInstance.GetComponent<Rigidbody>().AddForce(Vector3.forward * chariotSpeed, ForceMode.Acceleration);
         }
     }
 
@@ -140,12 +143,12 @@ public class RunningGame : MonoBehaviourPunCallbacks
     {
         if (isRemoverOn == true)
         {
-            chariotObj = GameObject.FindGameObjectWithTag("Chariot").gameObject;
-            if (chariotObj != null)
+            chariotInstance = GameObject.FindGameObjectWithTag("Chariot").gameObject;
+            if (chariotInstance != null)
             {
                 foreach (var track in TrackList)
                 {
-                    if (chariotObj.transform.position.z > track.transform.position.z + trackLength * 8)
+                    if (chariotInstance.transform.position.z > track.transform.position.z + trackLength * 8)
                     {
                         TrackList.Remove(track);
                         Destroy(track.gameObject);
@@ -154,5 +157,16 @@ public class RunningGame : MonoBehaviourPunCallbacks
                 }
             }
         }
+    }
+    public float DistancePlayerAndChariot()
+    {
+        foreach (var myplayer in gameManager.players)
+        {
+            if(myplayer.GetComponent<PhotonView>().IsMine == true)
+            {
+                distance = myplayer.transform.position.z - chariotInstance.transform.position.z - 10;
+            }
+        }
+        return distance;
     }
 }

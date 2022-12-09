@@ -14,6 +14,7 @@ public class BallShootingGame : MonoBehaviourPunCallbacks
     private Vector3 leftSpawnPos = new Vector3(-7.5f, -1f, 0f);
     private Vector3 rightSpawnPos = new Vector3(20f, -1f, 0f);
     public GameObject[] balls;
+    public GameObject[] spawners;
     public bool ballGenTrigger = true;
     private Vector3 spawnPos = Vector3.zero;
     private Vector3 forceDir;
@@ -85,18 +86,19 @@ public class BallShootingGame : MonoBehaviourPunCallbacks
 
     IEnumerator BallRandomSpawn()
     {
-        int randSide = Random.Range(0, 2);
-        int randZPos = Random.Range(2, 9);
+        /*int randSide = Random.Range(0, 2);
+        int randZPos = Random.Range(2, 9);*/
         int randBall = Random.Range(0, 3);
-        Vector3 fDir = new Vector3(((randSide == 0) ? 1 : -1) * Random.Range(50, 100) / 100f, Random.Range(50, 100) / 100f, 0f).normalized;
-        SpawnBallValueSetting(randSide, randZPos, randBall, fDir);
+        int randSpawnPoint = Random.Range(0, 7);
+        //Vector3 fDir = new Vector3(((randSide == 0) ? 1 : -1) * Random.Range(50, 100) / 100f, Random.Range(50, 100) / 100f, 0f).normalized;
+        SpawnBallValueSetting(randSpawnPoint, randBall);
         yield return new WaitForSeconds(2f);
         SpawnBall();
         ballGenTrigger = true;
     }
-    void SpawnBallValueSetting(int randS, int randN, int randB, Vector3 fDir)
+    void SpawnBallValueSetting(int randSP, int randB)
     {
-        switch (randS)
+        /*switch (randS)
         {
             case 0:
                 spawnPos = leftSpawnPos;
@@ -104,10 +106,10 @@ public class BallShootingGame : MonoBehaviourPunCallbacks
             case 1:
                 spawnPos = rightSpawnPos;
                 break;
-        }
-        spawnPos = new Vector3(spawnPos.x, spawnPos.y, randN);
+        }*/
+        spawnPos = spawners[randSP].transform.GetChild(1).position;
         ballNum = randB;
-        forceDir = fDir;
+        forceDir = spawners[randSP].transform.GetChild(1).forward;
 
     }
     void SpawnBall()

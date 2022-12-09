@@ -27,6 +27,10 @@ public class GameManager : MonoBehaviourPunCallbacks
     public GameObject joystick;
     public GameObject pause;
     public GameObject set;
+    public GameObject warningUI;
+    public GameObject warningMessageBox;
+    public GameObject warningOnPos;
+    public GameObject warningOffPos;
     public AudioMixer audioMixer;
     public Slider set_Fx;
     public Slider set_Music;
@@ -36,6 +40,7 @@ public class GameManager : MonoBehaviourPunCallbacks
     public TMP_Text myScoreText;
     public TMP_Text otherScoreText;
     public TMP_Text roundText;
+    public TMP_Text distanceText;
     private float limitTime;
     public bool isTutorial = false;
     public bool isTutorial2 = false;
@@ -54,7 +59,7 @@ public class GameManager : MonoBehaviourPunCallbacks
     public int redRound = 0;
     public int isWin = 0;
     public int random = 0;
-    public List<int> randomList = new List<int>{1, 2, 3, 4, 2};
+    public List<int> randomList = new List<int> { 1, 2, 3, 4, 2 };
     public int randomNum = 5;
     public string team = null;
     public bool isRandom = false;
@@ -68,8 +73,8 @@ public class GameManager : MonoBehaviourPunCallbacks
     public WaitForSeconds waitForSeconds5 = new WaitForSeconds(1f);
     public WaitForSeconds waitForSeconds6 = new WaitForSeconds(1.5f);
 
-    
-    
+
+
 
     void Awake()
     {
@@ -79,13 +84,13 @@ public class GameManager : MonoBehaviourPunCallbacks
 
     void Update()
     {
-        if(lobbyManager.isTutorial == 1)
+        if (lobbyManager.isTutorial == 1)
         {
             Tutorial();
         }
-        else if(lobbyManager.isTutorial == 2)
+        else if (lobbyManager.isTutorial == 2)
         {
-            if(PhotonNetwork.IsMasterClient && isRandom == false)
+            if (PhotonNetwork.IsMasterClient && isRandom == false)
             {
                 RoundStart();
             }
@@ -94,6 +99,7 @@ public class GameManager : MonoBehaviourPunCallbacks
             {
                 Score();
                 Statue();
+                Warning();
                 if (PhotonNetwork.IsMasterClient)
                 {
                     limitTime -= Time.deltaTime;
@@ -108,7 +114,7 @@ public class GameManager : MonoBehaviourPunCallbacks
 
     void Tutorial()
     {
-        if(isTutorial == false && tutorialNum == 0)
+        if (isTutorial == false && tutorialNum == 0)
         {
             isTutorial = true;
             fade.SetActive(false);
@@ -133,27 +139,27 @@ public class GameManager : MonoBehaviourPunCallbacks
             ui.transform.Find("Tutorial").transform.Find("Message").transform.Find("Chat").transform.Find("Text").gameObject.GetComponent<TMP_Text>().text = "Let`s Drag  joystick with your left thumb to get moving.";
             tutorialNum = 1;
         }
-        else if(isTutorial2 == false && tutorialNum == 2)
+        else if (isTutorial2 == false && tutorialNum == 2)
         {
-            if(joyStick.GetComponent<JoyStick>().lever.anchoredPosition.x != 0)
+            if (joyStick.GetComponent<JoyStick>().lever.anchoredPosition.x != 0)
             {
                 isTutorial2 = true;
                 Invoke("TutorialBtn", 2f);
             }
         }
-        else if(isTutorial4 == false && tutorialNum == 4)
+        else if (isTutorial4 == false && tutorialNum == 4)
         {
             GameObject btn = UnityEngine.EventSystems.EventSystem.current.currentSelectedGameObject;
-            if(btn.name == "Button_Jump")
+            if (btn.name == "Button_Jump")
             {
                 isTutorial4 = true;
                 Invoke("TutorialBtn", 2f);
             }
         }
-        else if(isTutorial6 == false && tutorialNum == 6)
+        else if (isTutorial6 == false && tutorialNum == 6)
         {
             GameObject btn = UnityEngine.EventSystems.EventSystem.current.currentSelectedGameObject;
-            if(btn.name == "Button_Slide")
+            if (btn.name == "Button_Slide")
             {
                 isTutorial6 = true;
                 Invoke("TutorialBtn", 2f);
@@ -163,7 +169,7 @@ public class GameManager : MonoBehaviourPunCallbacks
 
     public void TutorialBtn()
     {
-        if(tutorialNum == 1)
+        if (tutorialNum == 1)
         {
             ui.transform.Find("Tutorial").transform.Find("Message").gameObject.SetActive(false);
             ui.transform.Find("Tutorial").transform.Find("Hand").gameObject.SetActive(true);
@@ -172,7 +178,7 @@ public class GameManager : MonoBehaviourPunCallbacks
             ui.transform.Find("Tutorial").transform.Find("Hand").transform.Find("Image_Hand").gameObject.GetComponent<RectTransform>().anchoredPosition = new Vector3(-1100, -50, 0);
             tutorialNum = 2;
         }
-        else if(tutorialNum == 2)
+        else if (tutorialNum == 2)
         {
             ui.transform.Find("Tutorial").transform.Find("Message").gameObject.SetActive(true);
             ui.transform.Find("Tutorial").transform.Find("Hand").gameObject.SetActive(false);
@@ -180,7 +186,7 @@ public class GameManager : MonoBehaviourPunCallbacks
             ui.transform.Find("Button_Jump").gameObject.SetActive(true);
             tutorialNum = 3;
         }
-        else if(tutorialNum == 3)
+        else if (tutorialNum == 3)
         {
             ui.transform.Find("Tutorial").transform.Find("Message").gameObject.SetActive(false);
             ui.transform.Find("Tutorial").transform.Find("Hand").gameObject.SetActive(true);
@@ -189,7 +195,7 @@ public class GameManager : MonoBehaviourPunCallbacks
             ui.transform.Find("Tutorial").transform.Find("Hand").transform.Find("Image_Hand").gameObject.GetComponent<RectTransform>().anchoredPosition = new Vector3(430, -130, 0);
             tutorialNum = 4;
         }
-        else if(tutorialNum == 4)
+        else if (tutorialNum == 4)
         {
             ui.transform.Find("Tutorial").transform.Find("Message").gameObject.SetActive(true);
             ui.transform.Find("Tutorial").transform.Find("Hand").gameObject.SetActive(false);
@@ -197,7 +203,7 @@ public class GameManager : MonoBehaviourPunCallbacks
             ui.transform.Find("Button_Slide").gameObject.SetActive(true);
             tutorialNum = 5;
         }
-        else if(tutorialNum == 5)
+        else if (tutorialNum == 5)
         {
             ui.transform.Find("Tutorial").transform.Find("Message").gameObject.SetActive(false);
             ui.transform.Find("Tutorial").transform.Find("Hand").gameObject.SetActive(true);
@@ -206,14 +212,14 @@ public class GameManager : MonoBehaviourPunCallbacks
             ui.transform.Find("Tutorial").transform.Find("Hand").transform.Find("Image_Hand").gameObject.GetComponent<RectTransform>().anchoredPosition = new Vector3(800, 200, 0);
             tutorialNum = 6;
         }
-        else if(tutorialNum == 6)
+        else if (tutorialNum == 6)
         {
             ui.transform.Find("Tutorial").transform.Find("Message").gameObject.SetActive(true);
             ui.transform.Find("Tutorial").transform.Find("Hand").gameObject.SetActive(false);
             ui.transform.Find("Tutorial").transform.Find("Message").transform.Find("Chat").transform.Find("Text").gameObject.GetComponent<TMP_Text>().text = "Now, Let`s play game.";
             tutorialNum = 7;
         }
-        else if(tutorialNum == 7)
+        else if (tutorialNum == 7)
         {
             GameObject player = GameObject.FindGameObjectWithTag("Player");
             Destroy(player);
@@ -274,7 +280,7 @@ public class GameManager : MonoBehaviourPunCallbacks
             RenderSettings.skybox.SetFloat("_Rotation", 0);
             limitTime = 60;
         }
-        
+
         Generate();
     }
 
@@ -383,6 +389,7 @@ public class GameManager : MonoBehaviourPunCallbacks
             ui.transform.Find("Button_Attack").gameObject.SetActive(false);
             ui.transform.Find("Button_Run").gameObject.SetActive(false);
             ui.transform.Find("Button_Throw").gameObject.SetActive(false);
+            ui.transform.Find("Warning_UI").gameObject.SetActive(true);
         }
         else if (random == 2)
         {
@@ -392,6 +399,7 @@ public class GameManager : MonoBehaviourPunCallbacks
             ui.transform.Find("Button_Attack").gameObject.SetActive(true);
             ui.transform.Find("Button_Run").gameObject.SetActive(false);
             ui.transform.Find("Button_Throw").gameObject.SetActive(false);
+            ui.transform.Find("Warning_UI").gameObject.SetActive(true);
         }
         else if (random == 3)
         {
@@ -401,6 +409,7 @@ public class GameManager : MonoBehaviourPunCallbacks
             ui.transform.Find("Button_Attack").gameObject.SetActive(false);
             ui.transform.Find("Button_Run").gameObject.SetActive(true);
             ui.transform.Find("Button_Throw").gameObject.SetActive(false);
+            ui.transform.Find("Warning_UI").gameObject.SetActive(true);
         }
         else if (random == 4)
         {
@@ -410,6 +419,7 @@ public class GameManager : MonoBehaviourPunCallbacks
             ui.transform.Find("Button_Attack").gameObject.SetActive(false);
             ui.transform.Find("Button_Run").gameObject.SetActive(false);
             ui.transform.Find("Button_Throw").gameObject.SetActive(true);
+            ui.transform.Find("Warning_UI").gameObject.SetActive(true);
         }
 
         if (team == "Blue")
@@ -439,9 +449,9 @@ public class GameManager : MonoBehaviourPunCallbacks
 
         players = GameObject.FindGameObjectsWithTag("Player");
 
-        if(random == 1)
+        if (random == 1)
         {
-            foreach(GameObject player in players)
+            foreach (GameObject player in players)
             {
                 player.layer = 7;
             }
@@ -473,19 +483,19 @@ public class GameManager : MonoBehaviourPunCallbacks
     void LimitTime(float limit)
     {
         limitTime = limit;
-        if(random == 1)
+        if (random == 1)
         {
             timeText.text = "∞";
             timeText.fontSize = 100;
         }
         else
         {
-            if(limitTime > 0)
+            if (limitTime > 0)
             {
                 timeText.text = TimeSpan.FromSeconds(limitTime).ToString(@"m\:ss");
                 timeText.fontSize = 50;
             }
-            else if(limitTime <= 0)
+            else if (limitTime <= 0)
             {
                 timeText.text = TimeSpan.FromSeconds(0).ToString(@"m\:ss");
                 timeText.fontSize = 50;
@@ -514,7 +524,7 @@ public class GameManager : MonoBehaviourPunCallbacks
     }
     void Statue()
     {
-        if(isFinish == false)
+        if (isFinish == false)
         {
             foreach (GameObject player in players)
             {
@@ -527,8 +537,8 @@ public class GameManager : MonoBehaviourPunCallbacks
                     else if (player.GetComponent<PlayerController>().team == "Red")
                     {
                         PV.RPC("BlueRound", RpcTarget.All);
-                    }                    
-                    
+                    }
+
                     StartCoroutine(RoundCheck());
                 }
 
@@ -550,11 +560,11 @@ public class GameManager : MonoBehaviourPunCallbacks
                                 }
                                 else if (blueScore == redScore)
                                 {
-                                    if(team == "Blue")
+                                    if (team == "Blue")
                                     {
                                         PV.RPC("BlueRound", RpcTarget.All);
                                     }
-                                    else if(team == "Red")
+                                    else if (team == "Red")
                                     {
                                         PV.RPC("RedRound", RpcTarget.All);
                                     }
@@ -572,11 +582,11 @@ public class GameManager : MonoBehaviourPunCallbacks
                                 }
                                 else if (redScore == blueScore)
                                 {
-                                    if(team == "Blue")
+                                    if (team == "Blue")
                                     {
                                         PV.RPC("BlueRound", RpcTarget.All);
                                     }
-                                    else if(team == "Red")
+                                    else if (team == "Red")
                                     {
                                         PV.RPC("RedRound", RpcTarget.All);
                                     }
@@ -605,9 +615,9 @@ public class GameManager : MonoBehaviourPunCallbacks
 
                     if (limitTime <= 0)
                     {
-                        if(player.name == lobbyManager.nickName)
+                        if (player.name == lobbyManager.nickName)
                         {
-                            if(PhotonNetwork.IsMasterClient)
+                            if (PhotonNetwork.IsMasterClient)
                             {
                                 PV.RPC("BlueRound", RpcTarget.All);
                                 PV.RPC("RedRound", RpcTarget.All);
@@ -621,7 +631,7 @@ public class GameManager : MonoBehaviourPunCallbacks
                 {
                     if (limitTime <= 0)
                     {
-                        if(player.name == lobbyManager.nickName)
+                        if (player.name == lobbyManager.nickName)
                         {
                             if (player.GetComponent<PlayerController>().team == "Blue")
                             {
@@ -635,11 +645,11 @@ public class GameManager : MonoBehaviourPunCallbacks
                                 }
                                 else if (blueScore == redScore)
                                 {
-                                    if(team == "Blue")
+                                    if (team == "Blue")
                                     {
                                         PV.RPC("BlueRound", RpcTarget.All);
                                     }
-                                    else if(team == "Red")
+                                    else if (team == "Red")
                                     {
                                         PV.RPC("RedRound", RpcTarget.All);
                                     }
@@ -657,11 +667,11 @@ public class GameManager : MonoBehaviourPunCallbacks
                                 }
                                 else if (redScore == blueScore)
                                 {
-                                    if(team == "Blue")
+                                    if (team == "Blue")
                                     {
                                         PV.RPC("BlueRound", RpcTarget.All);
                                     }
-                                    else if(team == "Red")
+                                    else if (team == "Red")
                                     {
                                         PV.RPC("RedRound", RpcTarget.All);
                                     }
@@ -676,6 +686,27 @@ public class GameManager : MonoBehaviourPunCallbacks
         }
     }
 
+    void Warning()
+    {
+        if (runningGame.activeSelf == true)
+        {
+            if (runningGame.GetComponent<RunningGame>().chariotInstance != null)
+            {
+                distanceText.text = "Distance: " + runningGame.GetComponent<RunningGame>().DistancePlayerAndChariot().ToString();
+                if (runningGame.GetComponent<RunningGame>().DistancePlayerAndChariot() < 150 && runningGame.GetComponent<RunningGame>().DistancePlayerAndChariot() > 0)
+                {
+                    //warningUI.gameObject.SetActive(true);
+                    warningMessageBox.GetComponent<RectTransform>().transform.position = Vector3.Lerp(warningMessageBox.GetComponent<RectTransform>().transform.position
+                        ,warningOnPos.GetComponent<RectTransform>().position, 2 * Time.deltaTime);
+                }
+                else if (runningGame.GetComponent<RunningGame>().DistancePlayerAndChariot() < 0)
+                {
+                    warningMessageBox.GetComponent<RectTransform>().transform.position = Vector3.Lerp(warningMessageBox.GetComponent<RectTransform>().transform.position
+                        , warningOffPos.GetComponent<RectTransform>().position, 2 * Time.deltaTime);
+                }
+            }
+        }
+    }
     [PunRPC]
     void BlueRound()
     {
@@ -692,11 +723,11 @@ public class GameManager : MonoBehaviourPunCallbacks
     {
         isFinish = true;
 
-        if(team == "Blue")
+        if (team == "Blue")
         {
             PV.RPC("BlueReady", RpcTarget.All);
         }
-        else if(team == "Red")
+        else if (team == "Red")
         {
             PV.RPC("RedReady", RpcTarget.All);
         }
@@ -717,9 +748,9 @@ public class GameManager : MonoBehaviourPunCallbacks
             }
         }
 
-        if(blueRound < 3 && redRound < 3)
+        if (blueRound < 3 && redRound < 3)
         {
-            if(PhotonNetwork.IsMasterClient)
+            if (PhotonNetwork.IsMasterClient)
             {
                 PV.RPC("NextRound", RpcTarget.All);
             }
@@ -743,6 +774,9 @@ public class GameManager : MonoBehaviourPunCallbacks
             runningGame.SetActive(false);
             runningGame.GetComponent<RunningGame>().isChariotSpawnerOn = false;
             runningGame.GetComponent<RunningGame>().isFirstTrackCreated = false;
+            runningGame.GetComponent<RunningGame>().isRemoverOn = false;
+            runningGame.GetComponent<RunningGame>().chariotInstance = null;
+            warningMessageBox.GetComponent<RectTransform>().position = warningOffPos.GetComponent<RectTransform>().position;
         }
         else if (random == 2)
         {
@@ -777,7 +811,7 @@ public class GameManager : MonoBehaviourPunCallbacks
             }
         }
 
-        foreach(GameObject player in players)
+        foreach (GameObject player in players)
         {
             Destroy(player);
         }
@@ -794,30 +828,30 @@ public class GameManager : MonoBehaviourPunCallbacks
 
     void RoundFinish()
     {
-        if(blueRound == 3 && redRound != 3)
+        if (blueRound == 3 && redRound != 3)
         {
-            if(team == "Blue")
+            if (team == "Blue")
             {
                 isWin = 1;
             }
-            else if(team == "Red")
+            else if (team == "Red")
             {
                 isWin = 0;
             }
         }
-        else if(redRound == 3 && blueRound != 3)
-        {                
-            if(team == "Blue")
+        else if (redRound == 3 && blueRound != 3)
+        {
+            if (team == "Blue")
             {
                 isWin = 0;
             }
-            else if(team == "Red")                
+            else if (team == "Red")
             {
-               isWin = 1;
+                isWin = 1;
             }
         }
-        else if(blueRound == 3 && redRound == 3)
-        {                
+        else if (blueRound == 3 && redRound == 3)
+        {
             isWin = 2;
         }
 
@@ -835,6 +869,10 @@ public class GameManager : MonoBehaviourPunCallbacks
             runningGame.SetActive(false);
             runningGame.GetComponent<RunningGame>().isChariotSpawnerOn = false;
             runningGame.GetComponent<RunningGame>().isFirstTrackCreated = false;
+            runningGame.GetComponent<RunningGame>().isRemoverOn = false;
+            runningGame.GetComponent<RunningGame>().chariotInstance = null;
+            warningMessageBox.GetComponent<RectTransform>().position = warningOffPos.GetComponent<RectTransform>().position;
+
         }
         else if (random == 2)
         {
@@ -889,7 +927,7 @@ public class GameManager : MonoBehaviourPunCallbacks
         blueRound = 0;
         redRound = 0;
         isRandom = false;
-        randomList = new List<int>{1, 2, 3, 4, 2};
+        randomList = new List<int> { 1, 2, 3, 4, 2 };
         randomNum = 5;
         gameObject.SetActive(false);
         joystick.GetComponent<JoyStick>().Reset();
