@@ -290,12 +290,12 @@ public class GameManager : MonoBehaviourPunCallbacks
         {
             if (PhotonNetwork.IsMasterClient)
             {
-                position = new Vector3(0, 0, 10);
+                position = new Vector3(-8, 0, 10);
                 team = "Blue";
             }
             else
             {
-                position = new Vector3(-8, 0, 10);
+                position = new Vector3(0, 0, 10);
                 team = "Red";
             }
         }
@@ -303,12 +303,12 @@ public class GameManager : MonoBehaviourPunCallbacks
         {
             if (PhotonNetwork.IsMasterClient)
             {
-                position = new Vector3(4, 0, 0);
+                position = new Vector3(-4, 0, 0);
                 team = "Blue";
             }
             else
             {
-                position = new Vector3(-4, 0, 0);
+                position = new Vector3(4, 0, 0);
                 team = "Red";
             }
         }
@@ -316,12 +316,12 @@ public class GameManager : MonoBehaviourPunCallbacks
         {
             if (PhotonNetwork.IsMasterClient)
             {
-                position = new Vector3(4, 0, -485);
+                position = new Vector3(-4, 0, -485);
                 team = "Blue";
             }
             else
             {
-                position = new Vector3(-4, 0, -485);
+                position = new Vector3(4, 0, -485);
                 team = "Red";
             }
         }
