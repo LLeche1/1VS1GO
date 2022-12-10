@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Photon.Pun;
 using Photon.Realtime;
+using TMPro;
 
 public class RunningGame : MonoBehaviourPunCallbacks
 {
@@ -19,7 +20,7 @@ public class RunningGame : MonoBehaviourPunCallbacks
     [HideInInspector]
     public GameObject chariotInstance = null;
     public float chariotSpeed = 1f;
-    const int chariotGenTime = 15;
+    const int chariotGenTime = 20;
 
     const int rTrackPatternCount = 11;
     const int trackLength = 20;
@@ -28,6 +29,10 @@ public class RunningGame : MonoBehaviourPunCallbacks
     public GameObject runningTrack;
 
     float distance;
+    public TMP_Text distanceText;
+    public GameObject warningMessageBox;
+    public GameObject warningOnPos;
+    public GameObject warningOffPos;
 
     PhotonView PV;
 
@@ -51,6 +56,7 @@ public class RunningGame : MonoBehaviourPunCallbacks
                 ChariotAcceleration();
             }
         }
+        Warning();
         RemovePastTrack();
     }
 
@@ -106,7 +112,6 @@ public class RunningGame : MonoBehaviourPunCallbacks
 
     IEnumerator ChariotSpawn()
     {
-        float timer = 0;
         yield return new WaitForSeconds(chariotGenTime);
         ChariotInstantiate();
         PV.RPC(nameof(IsRemoverSync), RpcTarget.All);
@@ -165,9 +170,31 @@ public class RunningGame : MonoBehaviourPunCallbacks
             if(player.GetComponent<PhotonView>().IsMine == true)
             {
                 distance = player.transform.position.z - chariotInstance.transform.position.z - 10;
+                if(distance <= 0)
+                {
+                    distance = 0;
+                }
             }
         }
-        
+
         return distance;
+    }
+
+    void Warning()
+    {
+            if (chariotInstance != null)
+            {
+                distanceText.text = "Distance: " + DistancePlayerAndChariot().ToString("0");
+                if (DistancePlayerAndChariot() < 150 && DistancePlayerAndChariot() > 0)
+                {
+                    warningMessageBox.GetComponent<RectTransform>().transform.position = Vector3.Lerp(warningMessageBox.GetComponent<RectTransform>().transform.position
+                        ,warningOnPos.GetComponent<RectTransform>().position, 2 * Time.deltaTime);
+                }
+                else if (DistancePlayerAndChariot() <= 0)
+                {
+                    warningMessageBox.GetComponent<RectTransform>().transform.position = Vector3.Lerp(warningMessageBox.GetComponent<RectTransform>().transform.position
+                        , warningOffPos.GetComponent<RectTransform>().position, 2 * Time.deltaTime);
+                }
+            }
     }
 }
