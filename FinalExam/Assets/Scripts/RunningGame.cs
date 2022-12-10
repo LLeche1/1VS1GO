@@ -160,13 +160,14 @@ public class RunningGame : MonoBehaviourPunCallbacks
     }
     public float DistancePlayerAndChariot()
     {
-        foreach (var myplayer in gameManager.players)
+        foreach (var player in gameManager.players)
         {
-            if(myplayer.GetComponent<PhotonView>().IsMine == true)
+            if(player.GetComponent<PhotonView>().IsMine == true)
             {
-                distance = myplayer.transform.position.z - chariotInstance.transform.position.z - 10;
+                distance = player.transform.position.z - chariotInstance.transform.position.z - 10;
             }
         }
+        
         return distance;
     }
 }

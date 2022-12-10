@@ -692,7 +692,7 @@ public class GameManager : MonoBehaviourPunCallbacks
         {
             if (runningGame.GetComponent<RunningGame>().chariotInstance != null)
             {
-                distanceText.text = "Distance: " + runningGame.GetComponent<RunningGame>().DistancePlayerAndChariot().ToString();
+                distanceText.text = "Distance: " + runningGame.GetComponent<RunningGame>().DistancePlayerAndChariot().ToString("0");
                 if (runningGame.GetComponent<RunningGame>().DistancePlayerAndChariot() < 150 && runningGame.GetComponent<RunningGame>().DistancePlayerAndChariot() > 0)
                 {
                     //warningUI.gameObject.SetActive(true);
@@ -707,6 +707,7 @@ public class GameManager : MonoBehaviourPunCallbacks
             }
         }
     }
+    
     [PunRPC]
     void BlueRound()
     {
