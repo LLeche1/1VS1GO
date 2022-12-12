@@ -447,7 +447,6 @@ public class GameManager : MonoBehaviourPunCallbacks
         }
         else if (random == 2)
         {
-            joystick.GetComponent<JoyStick>().Reset();
             ui.transform.Find("JoyStick").gameObject.SetActive(true);
             ui.transform.Find("Button_Jump").gameObject.SetActive(true);
             ui.transform.Find("Button_Slide").gameObject.SetActive(true);
@@ -458,7 +457,6 @@ public class GameManager : MonoBehaviourPunCallbacks
         }
         else if (random == 3)
         {
-            joystick.GetComponent<JoyStick>().Reset();
             ui.transform.Find("JoyStick").gameObject.SetActive(false);
             ui.transform.Find("Button_Jump").gameObject.SetActive(false);
             ui.transform.Find("Button_Slide").gameObject.SetActive(false);
@@ -469,7 +467,6 @@ public class GameManager : MonoBehaviourPunCallbacks
         }
         else if (random == 4)
         {
-            joystick.GetComponent<JoyStick>().Reset();
             ui.transform.Find("JoyStick").gameObject.SetActive(true);
             ui.transform.Find("Button_Jump").gameObject.SetActive(true);
             ui.transform.Find("Button_Slide").gameObject.SetActive(false);
@@ -507,6 +504,7 @@ public class GameManager : MonoBehaviourPunCallbacks
         fade.SetActive(false);
         isStart = true;
         isFinish = false;
+        ui.transform.Find("JoyStick").gameObject.GetComponent<JoyStick>().Reset();
         ui.SetActive(true);
         blueReady = false;
         redReady = false;
@@ -779,6 +777,7 @@ public class GameManager : MonoBehaviourPunCallbacks
             runningGame.GetComponent<RunningGame>().isFirstTrackCreated = false;
             runningGame.GetComponent<RunningGame>().isRemoverOn = false;
             runningGame.GetComponent<RunningGame>().chariotInstance = null;
+            runningGame.GetComponent<RunningGame>().TrackList.Clear();
             warningMessageBox.GetComponent<RectTransform>().position = warningOffPos.GetComponent<RectTransform>().position;
         }
         else if (random == 2)
@@ -875,6 +874,7 @@ public class GameManager : MonoBehaviourPunCallbacks
             runningGame.GetComponent<RunningGame>().isFirstTrackCreated = false;
             runningGame.GetComponent<RunningGame>().isRemoverOn = false;
             runningGame.GetComponent<RunningGame>().chariotInstance = null;
+            runningGame.GetComponent<RunningGame>().TrackList.Clear();
             warningMessageBox.GetComponent<RectTransform>().position = warningOffPos.GetComponent<RectTransform>().position;
 
         }
@@ -933,8 +933,8 @@ public class GameManager : MonoBehaviourPunCallbacks
         isRandom = false;
         randomList = new List<int> { 1, 2, 3, 4, 1};
         randomNum = 5;
-        gameObject.SetActive(false);
         joystick.GetComponent<JoyStick>().Reset();
+        gameObject.SetActive(false);
     }
 
     public void Pause()

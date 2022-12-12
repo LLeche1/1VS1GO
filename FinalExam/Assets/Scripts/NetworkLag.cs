@@ -8,6 +8,7 @@ public class NetworkLag : MonoBehaviourPun, IPunObservable
     Quaternion latestRot;
     //Lag compensation
     float currentTime = 0;
+    float t = 0;
     double currentPacketTime = 0;
     double lastPacketTime = 0;
     Vector3 positionAtLastPacket = Vector3.zero;
@@ -27,12 +28,12 @@ public class NetworkLag : MonoBehaviourPun, IPunObservable
             stream.SendNext(transform.position);
             stream.SendNext(transform.rotation);
             stream.SendNext(rb.velocity);
-        }
+        }   
         else if (stream.IsReading)
         {
             //Network player, receive data
             latestPos = (Vector3)stream.ReceiveNext();
-            latestRot = (Quaternion)stream.ReceiveNext();
+            latestRot =                 (Quaternion)stream.ReceiveNext();
             rb.velocity = (Vector3)stream.ReceiveNext();
 
             //Lag compensation
@@ -51,10 +52,11 @@ public class NetworkLag : MonoBehaviourPun, IPunObservable
             //Lag compensation
             double timeToReachGoal = currentPacketTime - lastPacketTime;
             currentTime += Time.deltaTime;
+            t = Mathf.Clamp((float)(currentTime / timeToReachGoal), 0f, 0.999f);
 
             //Update remote player
-            transform.position = Vector3.Lerp(positionAtLastPacket, latestPos, (float)(currentTime / timeToReachGoal));
-            transform.rotation = Quaternion.Lerp(rotationAtLastPacket, latestRot, (float)(currentTime / timeToReachGoal));
+            transform.position = Vector3.Lerp(positionAtLastPacket, latestPos, t);
+            transform.rotation = Quaternion.Lerp(rotationAtLastPacket, latestRot, t);
         }
     }
 }

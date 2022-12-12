@@ -1,11 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Photon.Pun;
+using Photon.Pun;   
 using Photon.Realtime;
 using UnityEngine.UI;
 
-public class PlayerController : MonoBehaviourPunCallbacks/*, IPunObservable*/
+public class PlayerController : MonoBehaviourPunCallbacks
 {
     public string team = null;
     private float hAxis;
@@ -31,7 +31,7 @@ public class PlayerController : MonoBehaviourPunCallbacks/*, IPunObservable*/
     private Button slideBtn;
     private Button attackBtn;
     private Button runBtn;
-    private Button throwBtn;
+    private GameObject throwBtn;
     public bool isDead = false;
     PhotonView PV;
     Transform tr;
@@ -44,9 +44,8 @@ public class PlayerController : MonoBehaviourPunCallbacks/*, IPunObservable*/
     RunningGame runningGame;
     public bool jumpKeyDown = false;
     private bool slideKeyDown = false;
-    private bool grabKey = false;
-    private bool grabKeyDown = false;
-    private bool grabKeyUp = false;
+    public bool grabKeyDown = false;
+    public bool grabKeyUp = false;
     private bool isPowerCharge = false;
     private bool onLongThrow = false;
     float ballPower;
@@ -88,7 +87,7 @@ public class PlayerController : MonoBehaviourPunCallbacks/*, IPunObservable*/
             slideBtn = GameObject.Find("UI").transform.Find("Button_Slide").GetComponent<Button>();
             attackBtn = GameObject.Find("UI").transform.Find("Button_Attack").GetComponent<Button>();
             runBtn = GameObject.Find("UI").transform.Find("Button_Run").GetComponent<Button>();
-            throwBtn = GameObject.Find("UI").transform.Find("Button_Throw").GetComponent<Button>();
+            throwBtn = GameObject.Find("UI").transform.Find("Button_Throw").gameObject;
 
             if (jumpBtn != null)
             {
@@ -110,9 +109,14 @@ public class PlayerController : MonoBehaviourPunCallbacks/*, IPunObservable*/
                 runBtn.onClick.AddListener(ButtonRun);
             }
 
-            if (throwBtn != null)
+            /*if (throwBtn != null)
             {
                 throwBtn.onClick.AddListener(ButtonGrabThrow);
+            }*/
+
+            if (throwBtn.transform.GetComponent<ThrowButton>().player == null)
+            {
+                throwBtn.transform.GetComponent<ThrowButton>().player = gameObject;
             }
 
             GetInput();
@@ -139,9 +143,8 @@ public class PlayerController : MonoBehaviourPunCallbacks/*, IPunObservable*/
         vAxis = Input.GetAxis("Vertical");
         jDown = Input.GetButton("Jump");
         slideKeyDown = Input.GetKeyDown(KeyCode.Q);
-        grabKey = Input.GetKey(KeyCode.W);
-        grabKeyDown = Input.GetKeyDown(KeyCode.W);
-        grabKeyUp = Input.GetKeyUp(KeyCode.W);
+        //grabKeyDown = Input.GetKeyDown(KeyCode.W);
+        //grabKeyUp = Input.GetKeyUp(KeyCode.W);
         inputDir = new Vector3(joyStick.inputDir.x, 0f, joyStick.inputDir.y);
 
         if (inputDir != Vector3.zero && !isJump && !isSlide)
@@ -155,7 +158,6 @@ public class PlayerController : MonoBehaviourPunCallbacks/*, IPunObservable*/
 
         lookVector = transform.forward;
     }
-
     void Move()
     {
         moveDir = new Vector3(hAxis, 0, vAxis);
@@ -387,7 +389,6 @@ public class PlayerController : MonoBehaviourPunCallbacks/*, IPunObservable*/
         {
             ballTeam = "BlueBall";
         }
-
         grabedBall.tag = ballTeam;
     }
 
@@ -527,17 +528,17 @@ public class PlayerController : MonoBehaviourPunCallbacks/*, IPunObservable*/
     void ButtonRun()
     {
         isSpeedGame = true;
-        speedGameSpeed += 0.001f;
+        speedGameSpeed += 0.0001f;
     }
 
     void ButtonRun2()
     {
-        tr.Translate(new Vector3(0, 0, speedGameSpeed * Time.deltaTime));
+        tr.Translate(new Vector3(0, 0, speedGameSpeed));
         animator.SetBool("isRun", true);
 
-        if (speedGameSpeed / 3 < 10)
+        if (speedGameSpeed / 3 < 3)
         {
-            speedAnimSpeed = speedGameSpeed * Time.deltaTime * 10;
+            speedAnimSpeed = speedGameSpeed * 2;
         }
 
         animator.SetFloat("Speed", speedAnimSpeed);

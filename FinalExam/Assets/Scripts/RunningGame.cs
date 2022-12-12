@@ -17,14 +17,13 @@ public class RunningGame : MonoBehaviourPunCallbacks
     public bool isRemoverOn = false;
 
     public GameObject chariot;
-    [HideInInspector]
+    //[HideInInspector]
     public GameObject chariotInstance = null;
     public float chariotSpeed = 1f;
     const int chariotGenTime = 20;
 
     const int rTrackPatternCount = 11;
     const int trackLength = 20;
-    private int[] randNumArray;
     public GameObject firstTrack;
     public GameObject runningTrack;
 
@@ -103,7 +102,7 @@ public class RunningGame : MonoBehaviourPunCallbacks
 
     void ChariotSpawner()
     {
-        if(isChariotSpawnerOn == false)
+        if (isChariotSpawnerOn == false)
         {
             isChariotSpawnerOn = true;
             StartCoroutine(ChariotSpawn());
@@ -138,7 +137,7 @@ public class RunningGame : MonoBehaviourPunCallbacks
 
     void ChariotAcceleration()
     {
-        if(chariotInstance != null)
+        if (chariotInstance != null)
         {
             chariotInstance.GetComponent<Rigidbody>().AddForce(Vector3.forward * chariotSpeed, ForceMode.Acceleration);
         }
@@ -167,10 +166,10 @@ public class RunningGame : MonoBehaviourPunCallbacks
     {
         foreach (var player in gameManager.players)
         {
-            if(player.GetComponent<PhotonView>().IsMine == true)
+            if (player.GetComponent<PhotonView>().IsMine == true)
             {
                 distance = player.transform.position.z - chariotInstance.transform.position.z - 10;
-                if(distance <= 0)
+                if (distance <= 0)
                 {
                     distance = 0;
                 }
@@ -182,19 +181,19 @@ public class RunningGame : MonoBehaviourPunCallbacks
 
     void Warning()
     {
-            if (chariotInstance != null)
+        if (chariotInstance != null)
+        {
+            distanceText.text = "Distance: " + DistancePlayerAndChariot().ToString("0");
+            if (DistancePlayerAndChariot() < 150 && DistancePlayerAndChariot() > 0)
             {
-                distanceText.text = "Distance: " + DistancePlayerAndChariot().ToString("0");
-                if (DistancePlayerAndChariot() < 150 && DistancePlayerAndChariot() > 0)
-                {
-                    warningMessageBox.GetComponent<RectTransform>().transform.position = Vector3.Lerp(warningMessageBox.GetComponent<RectTransform>().transform.position
-                        ,warningOnPos.GetComponent<RectTransform>().position, 2 * Time.deltaTime);
-                }
-                else if (DistancePlayerAndChariot() <= 0)
-                {
-                    warningMessageBox.GetComponent<RectTransform>().transform.position = Vector3.Lerp(warningMessageBox.GetComponent<RectTransform>().transform.position
-                        , warningOffPos.GetComponent<RectTransform>().position, 2 * Time.deltaTime);
-                }
+                warningMessageBox.GetComponent<RectTransform>().transform.position = Vector3.Lerp(warningMessageBox.GetComponent<RectTransform>().transform.position
+                    , warningOnPos.GetComponent<RectTransform>().position, 2 * Time.deltaTime);
             }
+            else if (DistancePlayerAndChariot() <= 0)
+            {
+                warningMessageBox.GetComponent<RectTransform>().transform.position = Vector3.Lerp(warningMessageBox.GetComponent<RectTransform>().transform.position
+                    , warningOffPos.GetComponent<RectTransform>().position, 2 * Time.deltaTime);
+            }
+        }
     }
 }
