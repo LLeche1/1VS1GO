@@ -15,6 +15,7 @@ public class Balls : MonoBehaviourPunCallbacks, IPunObservable
     private Quaternion curnRot;
     private Quaternion netRot;
     private Vector3 netVel;
+    
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();

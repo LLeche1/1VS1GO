@@ -24,7 +24,7 @@ public class BallShootingGame : MonoBehaviourPunCallbacks
         PV = GetComponent<PhotonView>();
         gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
     }
-    // Start is called before the first frame update
+
     void Start()
     {
         //BoardGenerate();
@@ -65,7 +65,6 @@ public class BallShootingGame : MonoBehaviourPunCallbacks
                 PV.RPC(nameof(PlateRandomActive), RpcTarget.All, id, r);
             }
         }
-
     }
 
     [PunRPC]

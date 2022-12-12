@@ -35,21 +35,15 @@ public class CannonDiamond : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if(other.CompareTag("Player"))
+        if(PhotonNetwork.IsMasterClient && other.CompareTag("Player"))
         {
-            foreach(GameObject player in gameManager.players)
+            if (other.transform.GetComponent<PlayerController>().team == "Blue")
             {
-                if(player.name == other.name)
-                {
-                    if (player.transform.GetComponent<PlayerController>().team == "Blue")
-                    {
-                        PV.RPC("CannonGameScore", RpcTarget.All, "Blue");
-                    }
-                    else if (player.transform.GetComponent<PlayerController>().team == "Red")
-                    {
-                        PV.RPC("CannonGameScore", RpcTarget.All, "Red");
-                    }
-                }
+                PV.RPC("CannonGameScore", RpcTarget.All, "Blue");
+            }
+            else if (other.transform.GetComponent<PlayerController>().team == "Red")
+            {
+                PV.RPC("CannonGameScore", RpcTarget.All, "Red");
             }
 
             if(PV.IsMine)

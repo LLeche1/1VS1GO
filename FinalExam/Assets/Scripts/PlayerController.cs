@@ -527,17 +527,17 @@ public class PlayerController : MonoBehaviourPunCallbacks/*, IPunObservable*/
     void ButtonRun()
     {
         isSpeedGame = true;
-        speedGameSpeed += 0.0001f;
+        speedGameSpeed += 0.001f;
     }
 
     void ButtonRun2()
     {
-        tr.Translate(new Vector3(0, 0, speedGameSpeed));
+        tr.Translate(new Vector3(0, 0, speedGameSpeed * Time.deltaTime));
         animator.SetBool("isRun", true);
 
-        if (speedGameSpeed / 3 < 3)
+        if (speedGameSpeed / 3 < 10)
         {
-            speedAnimSpeed = speedGameSpeed * 2;
+            speedAnimSpeed = speedGameSpeed * Time.deltaTime * 10;
         }
 
         animator.SetFloat("Speed", speedAnimSpeed);

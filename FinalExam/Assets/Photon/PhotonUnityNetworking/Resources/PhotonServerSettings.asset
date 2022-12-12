@@ -69,6 +69,8 @@ MonoBehaviour:
   - SgBoostEffect
   - SpawnBallRpc
   - ThrowBallRPC
+  - RoundCheck
+  - RoundFinish
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

@@ -58,7 +58,7 @@ public class GameManager : MonoBehaviourPunCallbacks
     public int redRound = 0;
     public int isWin = 0;
     public int random = 0;
-    public List<int> randomList = new List<int> { 1, 2, 3, 4, 2 };
+    public List<int> randomList = new List<int> { 1, 2, 3, 4, 1};
     public int randomNum = 5;
     public string team = null;
     public bool isRandom = false;
@@ -71,9 +71,6 @@ public class GameManager : MonoBehaviourPunCallbacks
     public WaitForSeconds waitForSeconds4 = new WaitForSeconds(0.5f);
     public WaitForSeconds waitForSeconds5 = new WaitForSeconds(1f);
     public WaitForSeconds waitForSeconds6 = new WaitForSeconds(1.5f);
-
-
-
 
     void Awake()
     {
@@ -97,9 +94,9 @@ public class GameManager : MonoBehaviourPunCallbacks
             if (isStart == true)
             {
                 Score();
-                Statue();
                 if (PhotonNetwork.IsMasterClient)
                 {
+                    Statue();
                     limitTime -= Time.deltaTime;
                     PV.RPC("LimitTime", RpcTarget.All, limitTime);
                 }
@@ -262,7 +259,7 @@ public class GameManager : MonoBehaviourPunCallbacks
             cannonGame.transform.GetComponent<CannonGame>().lineGenTrigger = true;
             RenderSettings.skybox = Skyboxes[1];
             RenderSettings.skybox.SetFloat("_Rotation", 0);
-            limitTime = 60;
+            limitTime = 5;
         }
         else if (random == 3)
         {
@@ -352,7 +349,7 @@ public class GameManager : MonoBehaviourPunCallbacks
     void PlayerSet(int ID, string name, string team)
     {
         PhotonNetwork.GetPhotonView(ID).name = name;
-        //PhotonNetwork.GetPhotonView(ID).transform.GetComponent<PlayerController>().team = team;
+        PhotonNetwork.GetPhotonView(ID).transform.GetComponent<PlayerController>().team = team;
         PhotonNetwork.GetPhotonView(ID).transform.parent = GameObject.Find("InGame").transform;
     }
 
@@ -450,6 +447,7 @@ public class GameManager : MonoBehaviourPunCallbacks
         }
         else if (random == 2)
         {
+            joystick.GetComponent<JoyStick>().Reset();
             ui.transform.Find("JoyStick").gameObject.SetActive(true);
             ui.transform.Find("Button_Jump").gameObject.SetActive(true);
             ui.transform.Find("Button_Slide").gameObject.SetActive(true);
@@ -460,6 +458,7 @@ public class GameManager : MonoBehaviourPunCallbacks
         }
         else if (random == 3)
         {
+            joystick.GetComponent<JoyStick>().Reset();
             ui.transform.Find("JoyStick").gameObject.SetActive(false);
             ui.transform.Find("Button_Jump").gameObject.SetActive(false);
             ui.transform.Find("Button_Slide").gameObject.SetActive(false);
@@ -470,6 +469,7 @@ public class GameManager : MonoBehaviourPunCallbacks
         }
         else if (random == 4)
         {
+            joystick.GetComponent<JoyStick>().Reset();
             ui.transform.Find("JoyStick").gameObject.SetActive(true);
             ui.transform.Find("Button_Jump").gameObject.SetActive(true);
             ui.transform.Find("Button_Slide").gameObject.SetActive(false);
@@ -569,6 +569,7 @@ public class GameManager : MonoBehaviourPunCallbacks
             }
         }
     }
+
     void Statue()
     {
         if (isFinish == false)
@@ -586,7 +587,7 @@ public class GameManager : MonoBehaviourPunCallbacks
                         PV.RPC("BlueRound", RpcTarget.All);
                     }
 
-                    StartCoroutine(RoundCheck());
+                    PV.RPC("RoundCheck", RpcTarget.All);
                 }
 
                 if (cannonGame.activeSelf == true)
@@ -607,14 +608,8 @@ public class GameManager : MonoBehaviourPunCallbacks
                                 }
                                 else if (blueScore == redScore)
                                 {
-                                    if (team == "Blue")
-                                    {
-                                        PV.RPC("BlueRound", RpcTarget.All);
-                                    }
-                                    else if (team == "Red")
-                                    {
-                                        PV.RPC("RedRound", RpcTarget.All);
-                                    }
+                                    PV.RPC("BlueRound", RpcTarget.All);
+                                    PV.RPC("RedRound", RpcTarget.All);
                                 }
                             }
                             else if (player.GetComponent<PlayerController>().team == "Red")
@@ -629,18 +624,12 @@ public class GameManager : MonoBehaviourPunCallbacks
                                 }
                                 else if (redScore == blueScore)
                                 {
-                                    if (team == "Blue")
-                                    {
-                                        PV.RPC("BlueRound", RpcTarget.All);
-                                    }
-                                    else if (team == "Red")
-                                    {
-                                        PV.RPC("RedRound", RpcTarget.All);
-                                    }
+                                    PV.RPC("BlueRound", RpcTarget.All);
+                                    PV.RPC("RedRound", RpcTarget.All);
                                 }
                             }
 
-                            StartCoroutine(RoundCheck());
+                            PV.RPC("RoundCheck", RpcTarget.All);
                         }
                     }
                 }
@@ -657,21 +646,14 @@ public class GameManager : MonoBehaviourPunCallbacks
                             PV.RPC("RedRound", RpcTarget.All);
                         }
 
-                        StartCoroutine(RoundCheck());
+                        PV.RPC("RoundCheck", RpcTarget.All);
                     }
 
                     if (limitTime <= 0)
                     {
-                        if (player.name == lobbyManager.nickName)
-                        {
-                            if (PhotonNetwork.IsMasterClient)
-                            {
-                                PV.RPC("BlueRound", RpcTarget.All);
-                                PV.RPC("RedRound", RpcTarget.All);
-                            }
-                        }
-
-                        StartCoroutine(RoundCheck());
+                        PV.RPC("BlueRound", RpcTarget.All);
+                        PV.RPC("RedRound", RpcTarget.All);
+                        PV.RPC("RoundCheck", RpcTarget.All);
                     }
                 }
                 else if (ballShootingGame.activeSelf == true)
@@ -692,14 +674,8 @@ public class GameManager : MonoBehaviourPunCallbacks
                                 }
                                 else if (blueScore == redScore)
                                 {
-                                    if (team == "Blue")
-                                    {
-                                        PV.RPC("BlueRound", RpcTarget.All);
-                                    }
-                                    else if (team == "Red")
-                                    {
-                                        PV.RPC("RedRound", RpcTarget.All);
-                                    }
+                                    PV.RPC("BlueRound", RpcTarget.All);
+                                    PV.RPC("RedRound", RpcTarget.All);
                                 }
                             }
                             else if (player.GetComponent<PlayerController>().team == "Red")
@@ -714,19 +690,13 @@ public class GameManager : MonoBehaviourPunCallbacks
                                 }
                                 else if (redScore == blueScore)
                                 {
-                                    if (team == "Blue")
-                                    {
-                                        PV.RPC("BlueRound", RpcTarget.All);
-                                    }
-                                    else if (team == "Red")
-                                    {
-                                        PV.RPC("RedRound", RpcTarget.All);
-                                    }
+                                    PV.RPC("BlueRound", RpcTarget.All);
+                                    PV.RPC("RedRound", RpcTarget.All);
                                 }
                             }
                         }
 
-                        StartCoroutine(RoundCheck());
+                        PV.RPC("RoundCheck", RpcTarget.All);
                     }
                 }
             }
@@ -745,7 +715,13 @@ public class GameManager : MonoBehaviourPunCallbacks
         redRound++;
     }
 
-    IEnumerator RoundCheck()
+    [PunRPC]
+    void RoundCheck()
+    {
+        StartCoroutine(RoundCheckRpc());
+    }
+
+    IEnumerator RoundCheckRpc()
     {
         isFinish = true;
 
@@ -774,17 +750,18 @@ public class GameManager : MonoBehaviourPunCallbacks
             }
         }
 
-        if (blueRound < 3 && redRound < 3)
+        if(PhotonNetwork.IsMasterClient)
         {
-            if (PhotonNetwork.IsMasterClient)
+            if (blueRound < 3 && redRound < 3)
             {
                 PV.RPC("NextRound", RpcTarget.All);
             }
+            else
+            {
+                PV.RPC("RoundFinish", RpcTarget.All);
+            }
         }
-        else
-        {
-            RoundFinish();
-        }
+
 
         yield return null;
     }
@@ -852,6 +829,7 @@ public class GameManager : MonoBehaviourPunCallbacks
         isRandom = false;
     }
 
+    [PunRPC]
     void RoundFinish()
     {
         if (blueRound == 3 && redRound != 3)
@@ -953,7 +931,7 @@ public class GameManager : MonoBehaviourPunCallbacks
         blueRound = 0;
         redRound = 0;
         isRandom = false;
-        randomList = new List<int> { 1, 2, 3, 4, 2 };
+        randomList = new List<int> { 1, 2, 3, 4, 1};
         randomNum = 5;
         gameObject.SetActive(false);
         joystick.GetComponent<JoyStick>().Reset();
