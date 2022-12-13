@@ -536,11 +536,10 @@ public class PlayerController : MonoBehaviourPunCallbacks
         tr.Translate(new Vector3(0, 0, speedGameSpeed * Time.deltaTime));
         animator.SetBool("isRun", true);
 
-        if (speedGameSpeed < 3)
+        if (speedAnimSpeed < 3)
         {
-            speedAnimSpeed = speedGameSpeed * Time.deltaTime * 30;
+            speedAnimSpeed = speedGameSpeed * Time.deltaTime * 2;
         }
-
         animator.SetFloat("Speed", speedAnimSpeed);
 
         if (gameObject.transform.position.z > 460)
