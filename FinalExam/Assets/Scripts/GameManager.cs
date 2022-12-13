@@ -72,6 +72,8 @@ public class GameManager : MonoBehaviourPunCallbacks
     public WaitForSeconds waitForSeconds5 = new WaitForSeconds(1f);
     public WaitForSeconds waitForSeconds6 = new WaitForSeconds(1.5f);
 
+    private bool isStatue = false;
+
     void Awake()
     {
         PV = GetComponent<PhotonView>();
@@ -590,7 +592,7 @@ public class GameManager : MonoBehaviourPunCallbacks
 
                 if (cannonGame.activeSelf == true)
                 {
-                    if (limitTime <= 0)
+                    if (limitTime <= 0 && isStatue == false)
                     {
                         if (player.name == lobbyManager.nickName)
                         {
@@ -628,6 +630,7 @@ public class GameManager : MonoBehaviourPunCallbacks
                             }
 
                             PV.RPC("RoundCheck", RpcTarget.All);
+                            isStatue = true;
                         }
                     }
                 }
@@ -647,16 +650,17 @@ public class GameManager : MonoBehaviourPunCallbacks
                         PV.RPC("RoundCheck", RpcTarget.All);
                     }
 
-                    if (limitTime <= 0)
+                    if (limitTime <= 0 && isStatue == false)
                     {
                         PV.RPC("BlueRound", RpcTarget.All);
                         PV.RPC("RedRound", RpcTarget.All);
                         PV.RPC("RoundCheck", RpcTarget.All);
+                        isStatue = true;
                     }
                 }
                 else if (ballShootingGame.activeSelf == true)
                 {
-                    if (limitTime <= 0)
+                    if (limitTime <= 0 && isStatue == false)
                     {
                         if (player.name == lobbyManager.nickName)
                         {
@@ -695,6 +699,7 @@ public class GameManager : MonoBehaviourPunCallbacks
                         }
 
                         PV.RPC("RoundCheck", RpcTarget.All);
+                        isStatue = true;
                     }
                 }
             }
@@ -821,6 +826,7 @@ public class GameManager : MonoBehaviourPunCallbacks
 
         isStart = false;
         isFinish = false;
+        isStatue = false;
         blueReady = false;
         redReady = false;
         blueScore = 0;
