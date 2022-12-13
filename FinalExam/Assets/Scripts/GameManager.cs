@@ -259,7 +259,7 @@ public class GameManager : MonoBehaviourPunCallbacks
             cannonGame.transform.GetComponent<CannonGame>().lineGenTrigger = true;
             RenderSettings.skybox = Skyboxes[1];
             RenderSettings.skybox.SetFloat("_Rotation", 0);
-            limitTime = 60;
+            limitTime = 10;
         }
         else if (random == 3)
         {
@@ -273,7 +273,7 @@ public class GameManager : MonoBehaviourPunCallbacks
             ballShootingGame.SetActive(true);
             RenderSettings.skybox = Skyboxes[3];
             RenderSettings.skybox.SetFloat("_Rotation", 0);
-            limitTime = 60;
+            limitTime = 15;
         }
 
         Generate();
@@ -816,8 +816,8 @@ public class GameManager : MonoBehaviourPunCallbacks
         foreach (GameObject player in players)
         {
             Destroy(player);
-            Debug.Log("test");
         }
+
 
         isStart = false;
         isFinish = false;
@@ -913,10 +913,7 @@ public class GameManager : MonoBehaviourPunCallbacks
 
         foreach (GameObject player in players)
         {
-            if(PV.IsMine)
-            {
-                PhotonNetwork.Destroy(player);
-            }
+            Destroy(player);
         }
 
         pause.SetActive(false);
