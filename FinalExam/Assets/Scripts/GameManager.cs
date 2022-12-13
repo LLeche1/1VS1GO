@@ -816,6 +816,7 @@ public class GameManager : MonoBehaviourPunCallbacks
         foreach (GameObject player in players)
         {
             Destroy(player);
+            Debug.Log("test");
         }
 
         isStart = false;
@@ -912,7 +913,10 @@ public class GameManager : MonoBehaviourPunCallbacks
 
         foreach (GameObject player in players)
         {
-            Destroy(player);
+            if(PV.IsMine)
+            {
+                PhotonNetwork.Destroy(player);
+            }
         }
 
         pause.SetActive(false);
