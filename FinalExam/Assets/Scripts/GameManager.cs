@@ -504,7 +504,7 @@ public class GameManager : MonoBehaviourPunCallbacks
         fade.SetActive(false);
         isStart = true;
         isFinish = false;
-        ui.transform.Find("JoyStick").gameObject.GetComponent<JoyStick>().Reset();
+        joystick.GetComponent<JoyStick>().Reset();
         ui.SetActive(true);
         blueReady = false;
         redReady = false;
@@ -824,7 +824,6 @@ public class GameManager : MonoBehaviourPunCallbacks
         redReady = false;
         blueScore = 0;
         redScore = 0;
-        joystick.GetComponent<JoyStick>().Reset();
         isRandom = false;
     }
 
@@ -933,7 +932,6 @@ public class GameManager : MonoBehaviourPunCallbacks
         isRandom = false;
         randomList = new List<int> { 1, 2, 3, 4, 1};
         randomNum = 5;
-        joystick.GetComponent<JoyStick>().Reset();
         gameObject.SetActive(false);
     }
 
