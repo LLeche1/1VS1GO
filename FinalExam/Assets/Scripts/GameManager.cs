@@ -261,7 +261,7 @@ public class GameManager : MonoBehaviourPunCallbacks
             cannonGame.transform.GetComponent<CannonGame>().lineGenTrigger = true;
             RenderSettings.skybox = Skyboxes[1];
             RenderSettings.skybox.SetFloat("_Rotation", 0);
-            limitTime = 10;
+            limitTime = 60;
         }
         else if (random == 3)
         {
@@ -275,7 +275,7 @@ public class GameManager : MonoBehaviourPunCallbacks
             ballShootingGame.SetActive(true);
             RenderSettings.skybox = Skyboxes[3];
             RenderSettings.skybox.SetFloat("_Rotation", 0);
-            limitTime = 15;
+            limitTime = 60;
         }
 
         Generate();
