@@ -73,7 +73,7 @@ public class CannonGame : MonoBehaviourPunCallbacks
     IEnumerator DiamondDelay()
     {
         float time = 0;
-        while (time < 50)
+        while (time < 30)
         {
             yield return gameManager.waitForSeconds;
             time += 10.0f * Time.deltaTime;
