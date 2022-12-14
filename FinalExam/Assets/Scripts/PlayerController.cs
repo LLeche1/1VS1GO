@@ -118,7 +118,6 @@ public class PlayerController : MonoBehaviourPunCallbacks
             {
                 throwBtn.transform.GetComponent<ThrowButton>().player = gameObject;
             }
-
             GetInput();
             GroundCheck();
             Rotation();
@@ -143,8 +142,8 @@ public class PlayerController : MonoBehaviourPunCallbacks
         vAxis = Input.GetAxis("Vertical");
         jDown = Input.GetButton("Jump");
         slideKeyDown = Input.GetKeyDown(KeyCode.Q);
-        //grabKeyDown = Input.GetKeyDown(KeyCode.W);
-        //grabKeyUp = Input.GetKeyUp(KeyCode.W);
+        grabKeyDown = Input.GetKeyDown(KeyCode.W);
+        grabKeyUp = Input.GetKeyUp(KeyCode.W);
         inputDir = new Vector3(joyStick.inputDir.x, 0f, joyStick.inputDir.y);
 
         if (inputDir != Vector3.zero && !isJump && !isSlide)
