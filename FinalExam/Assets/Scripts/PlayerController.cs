@@ -19,6 +19,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
     public int boostStack = 0;
     private float speed = 5.0f;
     private float speedGameSpeed = 0;
+    Vector3 speedGameRunVec = Vector3.zero;
     private float jumpForce = 5.0f;
     private float rotateSpeed = 0;
     private float speedAnimSpeed = 0;
@@ -28,9 +29,13 @@ public class PlayerController : MonoBehaviourPunCallbacks
     private float moveMag;
     private JoyStick joyStick;
     private Button jumpBtn;
+    private bool isJumpBtnOn = false;
     private Button slideBtn;
+    private bool isSlideBtnOn = false;
     private Button attackBtn;
+    private bool isAttackBtnOn = false;
     private Button runBtn;
+    private bool isRunBtnOn = false;
     private GameObject throwBtn;
     public bool isDead = false;
     PhotonView PV;
@@ -89,30 +94,29 @@ public class PlayerController : MonoBehaviourPunCallbacks
             runBtn = GameObject.Find("UI").transform.Find("Button_Run").GetComponent<Button>();
             throwBtn = GameObject.Find("UI").transform.Find("Button_Throw").gameObject;
 
-            if (jumpBtn != null)
+            if (jumpBtn != null && !isJumpBtnOn)
             {
+                isJumpBtnOn = true;
                 jumpBtn.onClick.AddListener(ButtonJump);
             }
 
-            if (slideBtn != null)
+            if (slideBtn != null && !isSlideBtnOn)
             {
+                isSlideBtnOn = true;
                 slideBtn.onClick.AddListener(ButtonSlide);
             }
 
-            if (attackBtn != null)
+            if (attackBtn != null && !isAttackBtnOn)
             {
+                isAttackBtnOn = true;
                 attackBtn.onClick.AddListener(ButtonAttack);
             }
 
-            if (runBtn != null)
+            if (runBtn != null && !isRunBtnOn)
             {
+                isRunBtnOn = true;
                 runBtn.onClick.AddListener(ButtonRun);
             }
-
-            /*if (throwBtn != null)
-            {
-                throwBtn.onClick.AddListener(ButtonGrabThrow);
-            }*/
 
             if (throwBtn.transform.GetComponent<ThrowButton>().player == null)
             {
@@ -142,8 +146,8 @@ public class PlayerController : MonoBehaviourPunCallbacks
         vAxis = Input.GetAxis("Vertical");
         jDown = Input.GetButton("Jump");
         slideKeyDown = Input.GetKeyDown(KeyCode.Q);
-        grabKeyDown = Input.GetKeyDown(KeyCode.W);
-        grabKeyUp = Input.GetKeyUp(KeyCode.W);
+        //grabKeyDown = Input.GetKeyDown(KeyCode.W);
+        //grabKeyUp = Input.GetKeyUp(KeyCode.W);
         inputDir = new Vector3(joyStick.inputDir.x, 0f, joyStick.inputDir.y);
 
         if (inputDir != Vector3.zero && !isJump && !isSlide)
@@ -526,18 +530,20 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
     void ButtonRun()
     {
-        isSpeedGame = true;
-        speedGameSpeed += 0.001f;
+        if (isSpeedGame == false)
+            isSpeedGame = true;
+        speedGameSpeed += 0.6f;
+        speedGameRunVec = new Vector3(0, 0, speedGameSpeed);
     }
 
     void ButtonRun2()
     {
-        tr.Translate(new Vector3(0, 0, speedGameSpeed * Time.deltaTime));
+        tr.Translate(speedGameRunVec * Time.deltaTime);
         animator.SetBool("isRun", true);
 
-        if (speedAnimSpeed < 3)
+        if(speedAnimSpeed < 3)
         {
-            speedAnimSpeed = speedGameSpeed * Time.deltaTime * 2;
+            speedAnimSpeed = speedGameSpeed / 25;
         }
         animator.SetFloat("Speed", speedAnimSpeed);
 
@@ -622,7 +628,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
                 boostEffect = transform.Find("BoostEffect").GetComponent<ParticleSystem>();
             }
 
-            boostEffect.startSpeed = speedGameSpeed;
+            boostEffect.startSpeed = speedGameSpeed / 1.5f;
         }
         else if (!On)
         {
