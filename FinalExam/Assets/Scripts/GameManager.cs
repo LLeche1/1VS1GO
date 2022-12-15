@@ -782,6 +782,7 @@ public class GameManager : MonoBehaviourPunCallbacks
             runningGame.GetComponent<RunningGame>().isFirstTrackCreated = false;
             runningGame.GetComponent<RunningGame>().isRemoverOn = false;
             runningGame.GetComponent<RunningGame>().chariotInstance = null;
+            runningGame.GetComponent<RunningGame>().warningUITrigger = false;
             runningGame.GetComponent<RunningGame>().TrackList.Clear();
             warningMessageBox.GetComponent<RectTransform>().position = warningOffPos.GetComponent<RectTransform>().position;
         }
@@ -880,6 +881,7 @@ public class GameManager : MonoBehaviourPunCallbacks
             runningGame.GetComponent<RunningGame>().isFirstTrackCreated = false;
             runningGame.GetComponent<RunningGame>().isRemoverOn = false;
             runningGame.GetComponent<RunningGame>().chariotInstance = null;
+            runningGame.GetComponent<RunningGame>().warningUITrigger = false;
             runningGame.GetComponent<RunningGame>().TrackList.Clear();
             warningMessageBox.GetComponent<RectTransform>().position = warningOffPos.GetComponent<RectTransform>().position;
 

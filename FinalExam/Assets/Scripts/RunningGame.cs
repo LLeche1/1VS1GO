@@ -19,7 +19,7 @@ public class RunningGame : MonoBehaviourPunCallbacks
     public GameObject chariot;
     //[HideInInspector]
     public GameObject chariotInstance = null;
-    public float chariotSpeed = 1f;
+    public float chariotSpeed = 0.65f;
     const int chariotGenTime = 20;
 
     const int rTrackPatternCount = 11;
@@ -32,6 +32,7 @@ public class RunningGame : MonoBehaviourPunCallbacks
     public GameObject warningMessageBox;
     public GameObject warningOnPos;
     public GameObject warningOffPos;
+    public bool warningUITrigger = false;
 
     PhotonView PV;
 
@@ -184,15 +185,20 @@ public class RunningGame : MonoBehaviourPunCallbacks
         if (chariotInstance != null)
         {
             distanceText.text = "Distance: " + DistancePlayerAndChariot().ToString("0");
-            if (DistancePlayerAndChariot() < 150 && DistancePlayerAndChariot() > 0)
+            if ((DistancePlayerAndChariot() < 150 && DistancePlayerAndChariot() > 0) && (warningUITrigger == false))
             {
-                warningMessageBox.GetComponent<RectTransform>().transform.position = Vector3.Lerp(warningMessageBox.GetComponent<RectTransform>().transform.position
-                    , warningOnPos.GetComponent<RectTransform>().position, 2 * Time.deltaTime);
+                warningUITrigger = true;
             }
-            else if (DistancePlayerAndChariot() <= 0)
+
+            if (warningUITrigger == true && DistancePlayerAndChariot() <= 0)
             {
                 warningMessageBox.GetComponent<RectTransform>().transform.position = Vector3.Lerp(warningMessageBox.GetComponent<RectTransform>().transform.position
                     , warningOffPos.GetComponent<RectTransform>().position, 2 * Time.deltaTime);
+            }
+            else if (warningUITrigger == true)
+            {
+                warningMessageBox.GetComponent<RectTransform>().transform.position = Vector3.Lerp(warningMessageBox.GetComponent<RectTransform>().transform.position
+                    , warningOnPos.GetComponent<RectTransform>().position, 2 * Time.deltaTime);
             }
         }
     }
