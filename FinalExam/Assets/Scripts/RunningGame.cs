@@ -10,8 +10,10 @@ public class RunningGame : MonoBehaviourPunCallbacks
     GameManager gameManager;
     GameObject maps;
     GameObject frontLineBoard;
-    Vector3 preBoardPos;
+    public Vector3 preBoardPos = Vector3.zero;
     public List<GameObject> TrackList;
+    private GameObject fowardPlayer;
+    public Vector3 fowardPos = Vector3.zero;
     public bool isFirstTrackCreated = false;
     public bool isChariotSpawnerOn = false;
     public bool isRemoverOn = false;
@@ -19,8 +21,8 @@ public class RunningGame : MonoBehaviourPunCallbacks
     public GameObject chariot;
     //[HideInInspector]
     public GameObject chariotInstance = null;
-    public float chariotSpeed = 0.65f;
-    const int chariotGenTime = 20;
+    public float chariotSpeed = 0.8f;
+    const int chariotGenTime = 30;
 
     const int rTrackPatternCount = 11;
     const int trackLength = 20;
@@ -49,9 +51,9 @@ public class RunningGame : MonoBehaviourPunCallbacks
         if (PhotonNetwork.IsMasterClient)
         {
             FirstTrackSet();
-            TrackGenerator();
             if (gameManager.isStart == true)
             {
+                TrackGenerator();
                 ChariotSpawner();
                 ChariotAcceleration();
             }
@@ -66,6 +68,12 @@ public class RunningGame : MonoBehaviourPunCallbacks
         {
             isFirstTrackCreated = true;
             PV.RPC(nameof(FirstTrackCreateSync), RpcTarget.All);
+            for (int i = 0; i < 7; i++)
+            {
+                int randPatternNum = Random.Range(0, rTrackPatternCount);
+                preBoardPos += new Vector3(0f, 0f, trackLength);
+                PV.RPC(nameof(RunningTrackCreateSync), RpcTarget.All, preBoardPos, randPatternNum);
+            }
         }
     }
 
@@ -83,12 +91,14 @@ public class RunningGame : MonoBehaviourPunCallbacks
     {
         foreach (var player in gameManager.players)
         {
-            if (TrackList[TrackList.Count - 1].transform.position.z - player.transform.position.z < trackLength * 6)
-            {
-                int randPatternNum = Random.Range(0, rTrackPatternCount);
-                preBoardPos += new Vector3(0f, 0f, trackLength);
-                PV.RPC(nameof(RunningTrackCreateSync), RpcTarget.All, preBoardPos, randPatternNum);
-            }
+            if (fowardPos.z < player.transform.position.z)
+                fowardPos.z = player.transform.position.z;
+        }
+        if (TrackList[TrackList.Count - 1].transform.position.z - fowardPos.z < trackLength * 6)
+        {
+            int randPatternNum = Random.Range(0, rTrackPatternCount);
+            preBoardPos += new Vector3(0f, 0f, trackLength);
+            PV.RPC(nameof(RunningTrackCreateSync), RpcTarget.All, preBoardPos, randPatternNum);
         }
     }
 

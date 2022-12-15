@@ -58,8 +58,9 @@ public class GameManager : MonoBehaviourPunCallbacks
     public int redRound = 0;
     public int isWin = 0;
     public int random = 0;
-    public List<int> randomList = new List<int> { 1, 2, 3, 4, 1};
-    public int randomNum = 5;
+    public List<int> randomList = new List<int> { 1, 2, 3, 4 };
+    private int beforeMapIndex = 0;
+    public int randomNum = 4;
     public string team = null;
     public bool isRandom = false;
     PhotonView PV;
@@ -237,10 +238,13 @@ public class GameManager : MonoBehaviourPunCallbacks
     {
         isRandom = true;
         int i = Random.Range(0, randomNum);
+        while (i == beforeMapIndex)
+        {
+            i = Random.Range(0, randomNum);
+        }
         random = randomList[i];
+        beforeMapIndex = i;
         PV.RPC("RandomMap", RpcTarget.All, random);
-        randomList.RemoveAt(i);
-        randomNum--;
     }
 
     [PunRPC]
@@ -778,6 +782,8 @@ public class GameManager : MonoBehaviourPunCallbacks
         {
             child = runningGame.transform.GetChild(0).GetComponentsInChildren<Transform>();
             runningGame.SetActive(false);
+            runningGame.GetComponent<RunningGame>().preBoardPos = Vector3.zero;
+            runningGame.GetComponent<RunningGame>().fowardPos = Vector3.zero;
             runningGame.GetComponent<RunningGame>().isChariotSpawnerOn = false;
             runningGame.GetComponent<RunningGame>().isFirstTrackCreated = false;
             runningGame.GetComponent<RunningGame>().isRemoverOn = false;
@@ -877,6 +883,8 @@ public class GameManager : MonoBehaviourPunCallbacks
         {
             child = runningGame.transform.GetChild(0).GetComponentsInChildren<Transform>();
             runningGame.SetActive(false);
+            runningGame.GetComponent<RunningGame>().preBoardPos = Vector3.zero;
+            runningGame.GetComponent<RunningGame>().fowardPos = Vector3.zero;
             runningGame.GetComponent<RunningGame>().isChariotSpawnerOn = false;
             runningGame.GetComponent<RunningGame>().isFirstTrackCreated = false;
             runningGame.GetComponent<RunningGame>().isRemoverOn = false;
@@ -939,8 +947,8 @@ public class GameManager : MonoBehaviourPunCallbacks
         blueRound = 0;
         redRound = 0;
         isRandom = false;
-        randomList = new List<int> { 1, 2, 3, 4, 1};
-        randomNum = 5;
+        randomList = new List<int> { 1, 2, 3, 4 };
+        randomNum = 4;
         gameObject.SetActive(false);
     }
 
