@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: -5439317893693166834}
   - component: {fileID: 8755593073634601786}
   - component: {fileID: -1711861855949966215}
-  - component: {fileID: -245750436179568667}
+  - component: {fileID: -8329384551038506957}
   m_Layer: 6
   m_Name: PlayerBall
   m_TagString: CannonBall
@@ -148,11 +148,11 @@ MonoBehaviour:
   OwnershipTransfer: 0
   observableSearch: 2
   ObservedComponents:
-  - {fileID: -245750436179568667}
+  - {fileID: -8329384551038506957}
   sceneViewId: 0
   InstantiationId: 0
   isRuntimeInstantiated: 0
---- !u!114 &-245750436179568667
+--- !u!114 &-8329384551038506957
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -161,10 +161,6 @@ MonoBehaviour:
   m_GameObject: {fileID: 300502393607073509}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 627855c7f81362d41938ffe0b1475957, type: 3}
+  m_Script: {fileID: 11500000, guid: a23dfc9f35500e649a223a9e73033e9c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_SynchronizePosition: 1
-  m_SynchronizeRotation: 1
-  m_SynchronizeScale: 0
-  m_UseLocal: 1
