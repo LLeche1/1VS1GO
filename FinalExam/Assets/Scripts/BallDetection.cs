@@ -9,7 +9,6 @@ public class BallDetection : MonoBehaviour
     GameManager gameManager;
     PhotonView PV;
     public string plateType;
-    public bool isGoal;
     private bool isChange = false;
 
     private void Start()
@@ -64,7 +63,7 @@ public class BallDetection : MonoBehaviour
     {
         if (PhotonNetwork.IsMasterClient)
         {
-            if (other.gameObject.name + "Plate" == plateType)
+            if (other.gameObject.name + "Plate" == plateType && isChange == false)
             {
                 if (other.transform.tag == "BlueBall")
                 {

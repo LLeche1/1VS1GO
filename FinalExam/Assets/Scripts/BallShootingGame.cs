@@ -10,11 +10,10 @@ public class BallShootingGame : MonoBehaviourPunCallbacks
     private PhotonView PV;
     [SerializeField] private GameObject land;
     [SerializeField] private GameObject scoreBoard;
-    private List<GameObject> detectionPlates = new List<GameObject>();
-    private Vector3 leftSpawnPos = new Vector3(-7.5f, -1f, 0f);
-    private Vector3 rightSpawnPos = new Vector3(20f, -1f, 0f);
+    public List<GameObject> detectionPlates;
     public GameObject[] balls;
     public GameObject[] spawners;
+    public bool initScoreBoardTrigger = true;
     public bool ballGenTrigger = true;
     private Vector3 spawnPos = Vector3.zero;
     private Vector3 forceDir;
@@ -23,46 +22,36 @@ public class BallShootingGame : MonoBehaviourPunCallbacks
     {
         PV = GetComponent<PhotonView>();
         gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
+        detectionPlates = new List<GameObject>();
     }
-
-    void Start()
-    {
-        //BoardGenerate();
-        if (PhotonNetwork.IsMasterClient)
-        {
-            initScoreBoard();
-        }
-    }
-
     // Update is called once per frame
     void Update()
     {
         if(PhotonNetwork.IsMasterClient && gameManager.isStart == true)
         {
+            initScoreBoard();
             BallRandomSpawner();
         }
     }
 
-    void BoardGenerate()
-    {
-        Instantiate(land, transform);
-        Instantiate(scoreBoard, transform);
-    }
-
     void initScoreBoard()
     {
-        for (int i = 0; i < 9; i++)
+        if(initScoreBoardTrigger == true)
         {
-            detectionPlates.Add(transform.Find("Maps").Find("BallShottingGameScoreBoard").Find("BallDetectionPlates").GetChild(i).GetChild(0).gameObject);
-        }
-
-        if (true)
-        {
-            foreach (var plate in detectionPlates)
+            initScoreBoardTrigger = false;
+            for (int i = 0; i < 9; i++)
             {
-                int r = Random.Range(0, 3);
-                int id = plate.GetComponent<PhotonView>().ViewID;
-                PV.RPC(nameof(PlateRandomActive), RpcTarget.All, id, r);
+                detectionPlates.Add(transform.Find("Maps").Find("BallShottingGameScoreBoard").Find("BallDetectionPlates").GetChild(i).GetChild(0).gameObject);
+            }
+
+            if (true)
+            {
+                foreach (var plate in detectionPlates)
+                {
+                    int r = Random.Range(0, 3);
+                    int id = plate.GetComponent<PhotonView>().ViewID;
+                    PV.RPC(nameof(PlateRandomActive), RpcTarget.All, id, r);
+                }
             }
         }
     }
@@ -85,11 +74,8 @@ public class BallShootingGame : MonoBehaviourPunCallbacks
 
     IEnumerator BallRandomSpawn()
     {
-        /*int randSide = Random.Range(0, 2);
-        int randZPos = Random.Range(2, 9);*/
         int randBall = Random.Range(0, 3);
         int randSpawnPoint = Random.Range(0, 7);
-        //Vector3 fDir = new Vector3(((randSide == 0) ? 1 : -1) * Random.Range(50, 100) / 100f, Random.Range(50, 100) / 100f, 0f).normalized;
         SpawnBallValueSetting(randSpawnPoint, randBall);
         yield return new WaitForSeconds(2f);
         SpawnBall();
@@ -97,15 +83,6 @@ public class BallShootingGame : MonoBehaviourPunCallbacks
     }
     void SpawnBallValueSetting(int randSP, int randB)
     {
-        /*switch (randS)
-        {
-            case 0:
-                spawnPos = leftSpawnPos;
-                break;
-            case 1:
-                spawnPos = rightSpawnPos;
-                break;
-        }*/
         spawnPos = spawners[randSP].transform.GetChild(1).position;
         ballNum = randB;
         forceDir = spawners[randSP].transform.GetChild(1).forward;

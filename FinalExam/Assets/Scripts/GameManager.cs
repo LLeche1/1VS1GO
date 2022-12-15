@@ -797,6 +797,8 @@ public class GameManager : MonoBehaviourPunCallbacks
             child = cannonGame.transform.GetChild(1).GetComponentsInChildren<Transform>();
             cannonGame.SetActive(false);
             cannonGame.GetComponent<CannonGame>().isDiamond = false;
+            cannonGame.GetComponent<CannonGame>().lineGenTrigger = true;
+            cannonGame.GetComponent<CannonGame>().randGenTrigger = true;
         }
         else if (random == 3)
         {
@@ -806,6 +808,8 @@ public class GameManager : MonoBehaviourPunCallbacks
         {
             child = ballShootingGame.transform.GetChild(0).GetChild(3).GetComponentsInChildren<Transform>();
             ballShootingGame.SetActive(false);
+            ballShootingGame.GetComponent<BallShootingGame>().detectionPlates.Clear();
+            ballShootingGame.GetComponent<BallShootingGame>().initScoreBoardTrigger = true;
             ballShootingGame.GetComponent<BallShootingGame>().ballGenTrigger = true;
         }
 
@@ -892,13 +896,14 @@ public class GameManager : MonoBehaviourPunCallbacks
             runningGame.GetComponent<RunningGame>().warningUITrigger = false;
             runningGame.GetComponent<RunningGame>().TrackList.Clear();
             warningMessageBox.GetComponent<RectTransform>().position = warningOffPos.GetComponent<RectTransform>().position;
-
         }
         else if (random == 2)
         {
             child = cannonGame.transform.GetChild(1).GetComponentsInChildren<Transform>();
             cannonGame.SetActive(false);
             cannonGame.GetComponent<CannonGame>().isDiamond = false;
+            cannonGame.GetComponent<CannonGame>().lineGenTrigger = true;
+            cannonGame.GetComponent<CannonGame>().randGenTrigger = true;
         }
         else if (random == 3)
         {
@@ -908,6 +913,8 @@ public class GameManager : MonoBehaviourPunCallbacks
         {
             child = ballShootingGame.transform.GetChild(0).GetChild(3).GetComponentsInChildren<Transform>();
             ballShootingGame.SetActive(false);
+            ballShootingGame.GetComponent<BallShootingGame>().detectionPlates.Clear();
+            ballShootingGame.GetComponent<BallShootingGame>().initScoreBoardTrigger = true;
             ballShootingGame.GetComponent<BallShootingGame>().ballGenTrigger = true;
         }
 
