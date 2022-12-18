@@ -118,10 +118,10 @@ public class PlayerController : MonoBehaviourPunCallbacks
                 runBtn.onClick.AddListener(ButtonRun);
             }
 
-            /*if (throwBtn.transform.GetComponent<ThrowButton>().player == null)
+            if (throwBtn.transform.GetComponent<ThrowButton>().player == null)
             {
                 throwBtn.transform.GetComponent<ThrowButton>().player = gameObject;
-            }*/
+            }
             GetInput();
             GroundCheck();
             Rotation();
@@ -146,8 +146,8 @@ public class PlayerController : MonoBehaviourPunCallbacks
         vAxis = Input.GetAxis("Vertical");
         jDown = Input.GetButton("Jump");
         slideKeyDown = Input.GetKeyDown(KeyCode.Q);
-        grabKeyDown = Input.GetKeyDown(KeyCode.W);
-        grabKeyUp = Input.GetKeyUp(KeyCode.W);
+        //grabKeyDown = Input.GetKeyDown(KeyCode.W);
+        //grabKeyUp = Input.GetKeyUp(KeyCode.W);
         inputDir = new Vector3(joyStick.inputDir.x, 0f, joyStick.inputDir.y);
 
         if (inputDir != Vector3.zero && !isJump && !isSlide)
@@ -257,7 +257,6 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
             animator.SetBool("isSlide", isSlide);
             jumpMoveDir = lookVector;
-            //StartCoroutine(SlideCoolTime());
             rb.velocity = Vector3.zero;
             rb.AddForce(new Vector3(0, jumpForce / 2, 0), ForceMode.Impulse);
         }
@@ -329,19 +328,6 @@ public class PlayerController : MonoBehaviourPunCallbacks
             {
                 isPowerCharge = true;
             }
-            /*if (grabKeyUp)
-            {
-                if (isGrab && grabthrowAble && grabedBall != null)
-                {
-                    isPowerCharge = false;
-                    grabthrowAble = false;
-                    isGrab = false;
-                    animator.SetTrigger("Throw");
-                    animator.SetBool("isGrab", false);
-                    PV.RPC(nameof(ThrowBallRPC), RpcTarget.All);
-                    StartCoroutine(GrabDelay());
-                }
-            }*/
         }
         else if (grabKeyUp)
         {

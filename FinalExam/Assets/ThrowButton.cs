@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class ThrowButton : MonoBehaviour/*, IPointerDownHandler, IPointerUpHandler*/
+public class ThrowButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 {
-    /*public GameObject player;
+    public GameObject player;
     private bool isBtnDown = false;
     // Start is called before the first frame update
     void Start()
@@ -16,7 +16,7 @@ public class ThrowButton : MonoBehaviour/*, IPointerDownHandler, IPointerUpHandl
     // Update is called once per frame
     void Update()
     {
-        if(player != null)
+        if (player != null)
         {
             player.GetComponent<PlayerController>().grabKeyDown = false;
             player.GetComponent<PlayerController>().grabKeyUp = false;
@@ -32,6 +32,5 @@ public class ThrowButton : MonoBehaviour/*, IPointerDownHandler, IPointerUpHandl
     {
         player.GetComponent<PlayerController>().grabKeyUp = true;
         Debug.Log("up");
-    }*/
-
+    }
 }
