@@ -71,6 +71,7 @@ MonoBehaviour:
   - SgBoostEffect
   - SpawnBallRpc
   - ThrowBallRPC
+  - goalPostInit
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

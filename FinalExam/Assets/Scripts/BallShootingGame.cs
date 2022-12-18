@@ -39,10 +39,7 @@ public class BallShootingGame : MonoBehaviourPunCallbacks
         if(initScoreBoardTrigger == true)
         {
             initScoreBoardTrigger = false;
-            for (int i = 0; i < 9; i++)
-            {
-                detectionPlates.Add(transform.Find("Maps").Find("BallShottingGameScoreBoard").Find("BallDetectionPlates").GetChild(i).GetChild(0).gameObject);
-            }
+            PV.RPC(nameof(goalPostInit),RpcTarget.All);
 
             if (true)
             {
@@ -55,7 +52,20 @@ public class BallShootingGame : MonoBehaviourPunCallbacks
             }
         }
     }
-
+    [PunRPC]
+    void goalPostInit()
+    {
+        for (int i = 0; i < 9; i++)
+            {
+                
+                detectionPlates.Add(transform.Find("Maps").Find("BallShottingGameScoreBoard").Find("BallDetectionPlates").GetChild(i).GetChild(0).gameObject);
+                transform.Find("Maps").Find("BallShottingGameScoreBoard").Find("BallDetectionPlates").GetChild(i).GetChild(0).GetChild(0).gameObject.SetActive(false);
+                transform.Find("Maps").Find("BallShottingGameScoreBoard").Find("BallDetectionPlates").GetChild(i).GetChild(0).GetChild(1).gameObject.SetActive(false);
+                transform.Find("Maps").Find("BallShottingGameScoreBoard").Find("BallDetectionPlates").GetChild(i).GetChild(0).GetChild(2).gameObject.SetActive(false);
+                transform.Find("Maps").Find("BallShottingGameScoreBoard").Find("BallDetectionPlates").GetChild(i).GetChild(0).GetChild(3).gameObject.SetActive(false);
+            }
+        
+    }
     [PunRPC]
     void PlateRandomActive(int ID, int randN)
     {
