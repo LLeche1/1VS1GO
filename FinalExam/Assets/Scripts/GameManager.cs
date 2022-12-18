@@ -244,6 +244,7 @@ public class GameManager : MonoBehaviourPunCallbacks
         }
         random = randomList[i];
         beforeMapIndex = i;*/
+        isRandom = true;
         if (!(beforeMapIndex > 3))
         {
             random = beforeMapIndex + 1;
