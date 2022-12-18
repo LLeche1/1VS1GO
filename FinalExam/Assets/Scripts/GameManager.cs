@@ -236,14 +236,18 @@ public class GameManager : MonoBehaviourPunCallbacks
 
     void RoundStart()
     {
-        isRandom = true;
+        /*isRandom = true;
         int i = Random.Range(0, randomNum);
         while (i == beforeMapIndex)
         {
             i = Random.Range(0, randomNum);
         }
         random = randomList[i];
-        beforeMapIndex = i;
+        beforeMapIndex = i;*/
+        if (!(beforeMapIndex > 3))
+        {
+            random = beforeMapIndex + 1;
+        }
         PV.RPC("RandomMap", RpcTarget.All, random);
     }
 
