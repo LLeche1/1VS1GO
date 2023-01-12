@@ -59,6 +59,8 @@ public class GameManager : MonoBehaviourPunCallbacks
     public int isWin = 0;
     public int random = 0;
     public List<int> randomList = new List<int> { 1, 2, 3, 4 };
+    private int beforeMapIndex = 0;
+    public int randomNum = 4;
     public string team = null;
     public bool isRandom = false;
     PhotonView PV;
@@ -235,14 +237,13 @@ public class GameManager : MonoBehaviourPunCallbacks
     void RoundStart()
     {
         isRandom = true;
-        int i = Random.Range(0, randomList.Count);
-        random = randomList[i];
-        randomList.RemoveAt(i);
-        if (randomList.Count == 0)
+        int i = Random.Range(0, randomNum);
+        while (i == beforeMapIndex)
         {
-            randomList.Clear();
-            randomList = new List<int> { 1, 2, 3, 4 };
+            i = Random.Range(0, randomNum);
         }
+        random = randomList[i];
+        beforeMapIndex = i;
         PV.RPC("RandomMap", RpcTarget.All, random);
     }
 
@@ -954,6 +955,7 @@ public class GameManager : MonoBehaviourPunCallbacks
         redRound = 0;
         isRandom = false;
         randomList = new List<int> { 1, 2, 3, 4 };
+        randomNum = 4;
         gameObject.SetActive(false);
     }
 
