@@ -235,14 +235,17 @@ public class GameManager : MonoBehaviourPunCallbacks
     void RoundStart()
     {
         isRandom = true;
+        
         int i = Random.Range(0, randomList.Count);
         random = randomList[i];
         randomList.RemoveAt(i);
+        
         if (randomList.Count == 0)
         {
             randomList.Clear();
             randomList = new List<int> { 1, 2, 3, 4 };
         }
+        
         PV.RPC("RandomMap", RpcTarget.All, random);
     }
 
@@ -418,6 +421,7 @@ public class GameManager : MonoBehaviourPunCallbacks
 
         roundText.text = blueRound + " : " + redRound;
         cameraObject.transform.position = cameraObject.GetComponent<CameraController>().player.transform.position - (Vector3.forward * 10) + (Vector3.up * 17);
+        
         float count = 1;
 
         while (count > 0)

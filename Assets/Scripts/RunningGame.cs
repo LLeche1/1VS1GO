@@ -51,6 +51,7 @@ public class RunningGame : MonoBehaviourPunCallbacks
         if (PhotonNetwork.IsMasterClient)
         {
             FirstTrackSet();
+            
             if (gameManager.isStart == true)
             {
                 TrackGenerator();
@@ -58,6 +59,7 @@ public class RunningGame : MonoBehaviourPunCallbacks
                 ChariotAcceleration();
             }
         }
+        
         Warning();
         RemovePastTrack();
     }

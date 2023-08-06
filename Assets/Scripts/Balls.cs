@@ -33,7 +33,9 @@ public class Balls : MonoBehaviourPunCallbacks, IPunObservable
         if(PhotonNetwork.IsMasterClient)
         {
             if (transform.position.y < -10f)
+            {
                 PhotonNetwork.Destroy(gameObject);
+            }
         }
     }
     public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)

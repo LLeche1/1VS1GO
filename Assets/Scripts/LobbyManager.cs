@@ -14,8 +14,8 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using UnityEngine.Audio;
 using UnityEngine.SceneManagement;
-//using UnityEngine.AddressableAssets;
-//using UnityEngine.ResourceManagement.AsyncOperations;
+using UnityEngine.AddressableAssets;
+using UnityEngine.ResourceManagement.AsyncOperations;
 using TMPro;
 using System;
 #if UNITY_IOS
@@ -32,7 +32,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
     public GameObject title;
     public GameObject update;
     public TMP_Text updateSize;
-    //private AsyncOperationHandle updateHandle;
+    private AsyncOperationHandle updateHandle;
     public GameObject updateLoading;
     public GameObject titleLoading;
     public GameObject login;
@@ -166,11 +166,12 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
         PhotonNetwork.ConnectUsingSettings();
         titleLoading.SetActive(true);
         StartCoroutine(TitleLoadDelay());
-        /*Addressables.GetDownloadSizeAsync("default").Completed +=
+        Addressables.GetDownloadSizeAsync("default").Completed +=
             (AsyncOperationHandle<long> SizeHandle) =>
             {
                 float size1 = 0;
                 string size2 = null;
+                
                 if(SizeHandle.Result >= 1024)
                 {
                     if(SizeHandle.Result >= 1048576)
@@ -187,6 +188,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
                     }
                 }
                 Addressables.Release(SizeHandle);
+                
                 if(SizeHandle.Result == 0)
                 {
                     titleLoading.SetActive(true);
@@ -196,7 +198,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
                 {
                     update.SetActive(true);
                 }
-            };*/
+            };
     }
 
     void Update()
@@ -214,11 +216,10 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
         }
     }
     
-    /*public void UpdateHandle()
+    public void UpdateHandle()
     {
         update.transform.Find("Popup").transform.Find("Button_Update").gameObject.SetActive(false);
         update.transform.Find("Popup").transform.Find("Slider_Loading").gameObject.SetActive(true);
-        
         updateHandle = Addressables.DownloadDependenciesAsync("default");
         StartCoroutine(UpdateProgress());
         updateHandle.Completed +=
@@ -233,6 +234,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
     IEnumerator UpdateProgress()
     {
         float percent = 0;
+        
         while(percent < 100)
         {
             yield return new WaitForEndOfFrame();
@@ -241,11 +243,12 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
             updateLoading.GetComponent<Slider>().value = percent * 0.01f;
         }
         yield return null;
-    }*/
+    }
 
     IEnumerator TitleLoadDelay()
     {
         float time = 0;
+        
         while (time < 100)
         {
             yield return waitForEndOfFrame;
@@ -253,7 +256,9 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
             titleLoading.GetComponent<Slider>().value = time * 0.01f;
             titleLoading.transform.GetChild(1).GetComponent<TMP_Text>().text = time.ToString("0") + "%";
         }
+        
         titleLoading.SetActive(false);
+        
         if (loginID.text == "" && loginPW.text == "")
         {
             login.SetActive(true);
@@ -262,6 +267,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
         {
             Login();
         }
+        
         loginBtn.interactable = true;
         yield return null;
     }
@@ -746,6 +752,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
                         (error) => { Debug.Log("값 로딩 실패"); });
                 },
                 (error) => { Debug.Log("값 저장 실패"); });
+                
                 lobbyShop_Purchase_Success.SetActive(true);
             }
             else
@@ -1083,6 +1090,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
     void OnGetLeaderBoard(GetLeaderboardResult result)
     {
         int count = 0;
+        
         foreach (PlayerLeaderboardEntry player in result.Leaderboard)
         {
             count++;
@@ -1090,6 +1098,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
             ranking.transform.GetChild(0).GetComponent<TMP_Text>().text = count.ToString();
             ranking.transform.GetChild(2).GetComponent<TMP_Text>().text = player.DisplayName;
             ranking.transform.GetChild(3).GetComponent<TMP_Text>().text = player.StatValue.ToString();
+            
             if (count == 1)
             {
                 ranking.transform.GetChild(0).GetChild(0).gameObject.SetActive(true);
@@ -1106,6 +1115,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
             if (player.DisplayName == nickName)
             {
                 lobbyRanking_Count.text = count.ToString();
+                
                 if(count == 1)
                 {
                     lobbyRanking_Count.transform.GetChild(0).gameObject.SetActive(true);
@@ -1192,6 +1202,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
             lobby1vs1.transform.GetChild(2).gameObject.SetActive(false);
             lobby1vs1.transform.GetChild(3).gameObject.SetActive(false);
             roomLoading.SetActive(true);
+            
             if (PhotonNetwork.IsMasterClient)
             {
                 PhotonNetwork.CurrentRoom.IsOpen = false;
@@ -1208,6 +1219,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
                 lobby1vs1.transform.GetChild(2).gameObject.SetActive(false);
                 lobby1vs1.transform.GetChild(3).gameObject.SetActive(false);
                 roomLoading.SetActive(true);
+                
                 if (PhotonNetwork.IsMasterClient)
                 {
                     PhotonNetwork.CurrentRoom.IsOpen = false;
@@ -1220,12 +1232,14 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
     IEnumerator RoomLoadingDelay()
     {
         float time = 0;
+        
         while (time < 100)
         {
             yield return waitForEndOfFrame;
             time += 30.0f * Time.deltaTime;
             PV.RPC("RoomLoadingCountRpc", RpcTarget.All, time);
         }
+        
         yield return null;
     }
 
@@ -1996,14 +2010,14 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
         Debug.Log("채팅 온라인");
     }
 
-    private void SendChatMessage(string inputLine)
+    private void SendChatMessage(string input)
     {
-        if (string.IsNullOrEmpty(inputLine))
+        if (string.IsNullOrEmpty(input))
         {
             return;
         }
 
-        chatClient.PublishMessage(channelName, inputLine);
+        chatClient.PublishMessage(channelName, input);
     }
 
     public void OnGetMessages(string channel, string[] senders, object[] messages)
