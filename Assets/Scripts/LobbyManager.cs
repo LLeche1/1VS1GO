@@ -18,11 +18,6 @@ using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using TMPro;
 using System;
-#if UNITY_IOS
-using NotificationServices = UnityEngine.iOS.NotificationServices;
-using NotificationType = UnityEngine.iOS.NotificationType;
-using LocalNotification = UnityEngine.iOS.LocalNotification;
-#endif
 
 public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
 {
@@ -155,11 +150,6 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
 
     void Start()
     {
-        #if UNITY_IOS
-        NotificationServices.ClearLocalNotifications();
-        NotificationServices.CancelAllLocalNotifications();
-        NotificationServices.RegisterForNotifications(NotificationType.Alert | NotificationType.Badge | NotificationType.Sound);
-        #endif
         LoginLoad(loginRememberMe);
         PhotonNetwork.GameVersion = gameVersion;
         PhotonNetwork.KeepAliveInBackground = 100;
@@ -1974,32 +1964,12 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
         yield return null;
     }
 
-    public void Notification()
-    {
-        #if UNITY_IOS
-        UnityEngine.iOS.LocalNotification notice = new UnityEngine.iOS.LocalNotification();
-        notice.alertTitle = "알림";
-        notice.alertBody = "게임 종료";
-        notice.soundName = UnityEngine.iOS.LocalNotification.defaultSoundName;
-        notice.applicationIconBadgeNumber = 1;
-        notice.fireDate = DateTime.Now.AddSeconds(3);
-        UnityEngine.iOS.NotificationServices.ScheduleLocalNotification(notice);
-        #endif  
-    }
-
     public void OnApplicationQuit()
     {
         if (chatClient != null)
         {
             chatClient.Disconnect();
         }
-
-        #if UNITY_IOS
-        if(isPush == 1)
-        {
-            Notification();
-        }
-        #endif
     }
 
     // 채팅서버
