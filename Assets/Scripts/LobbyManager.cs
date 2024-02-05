@@ -2105,4 +2105,9 @@ public class LobbyManager : MonoBehaviourPunCallbacks, IChatClientListener
     {
 
     }
+
+    public void About()
+    {
+        Application.OpenURL("http://yeppi.kr");
+    }
 }
